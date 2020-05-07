@@ -17,5 +17,6 @@ after_success:
 # branch whitelist, only for GitHub Pages
 branches:
   only:
+  - master
   - /pages-(.*)/ # test every branch which starts with "pages-"
   - /(.*)-pages/ # test every branch which ends with "-pages"
