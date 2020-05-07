@@ -1,0 +1,40 @@
+---
+layout: default
+pdf: true
+---
+
+<div class="home">
+
+  {% include jumbotron.html jumbotron_title='articles' %}
+  {% assign pinned = site.docs | where_exp:"item", "item.pin == true" %}
+  {% assign not_pinned = site.docs | where_exp:"item", "item.pin != true" %}
+
+  <ul class="post-list">
+    {% for post in pinned %}
+      <li>
+        <span class="post-meta">{{ post.date | date: "%d.%m.%Y" }}</span>
+
+        <h2>
+          <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+        </h2>
+      </li>
+    {% endfor %}
+
+  </ul>
+
+  <ul class="post-list">
+    {% for post in not_pinned %}
+      <li>
+        <span class="post-meta">{{ post.date | date: "%d.%m.%Y" }}</span>
+
+        <h2>
+          <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+        </h2>
+      </li>
+    {% endfor %}
+
+  </ul>
+
+  <p class="rss-subscribe"><a href="{{ "/feed.xml" | relative_url }}">RSS</a></p>
+
+</div>

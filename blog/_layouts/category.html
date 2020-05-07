@@ -1,0 +1,26 @@
+---
+layout: default
+---
+
+<div class="home">
+
+  <h1><small>#{{ page.category }}</small></h1>
+
+  <ul class="post-list">
+  	{% assign posts = site.docs | where_exp:"item", "item.categories contains page.category" %}
+
+    {% for post in posts %}
+      <li>
+        <span class="post-meta">{{ post.date | date: "%d.%m.%Y" }}</span>
+
+        <h2>
+          <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+        </h2>
+      </li>
+    {% endfor %}
+
+  </ul>
+
+  <p class="rss-subscribe"><a href="{{ "/feed.xml" | relative_url }}">RSS</a></p>
+
+</div>

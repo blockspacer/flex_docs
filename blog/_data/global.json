@@ -1,0 +1,84 @@
+{
+    "pages": [
+	    {
+	    	"id": "global",
+	    	"text": "global"
+	    }
+    ],
+    "jekyll_how_to": {
+	    "hint": "jekyll_how_to",
+	    "url": "/jekyll_how_to/"
+    },
+    "about": {
+	    "hint": "about",
+	    "url": "/about/"
+    },
+    "community": {
+	    "hint": "community",
+	    "url": "/community/"
+    },
+    "license": {
+	    "hint": "license",
+	    "url": "/license/"
+    },
+    "release_notes": {
+	    "hint": "release_notes",
+	    "url": "/release_notes/"
+    },
+    "talks": {
+	    "hint": "talks",
+	    "url": "/talks/"
+    },
+    "download": {
+	    "hint": "download",
+	    "url": "/download/"
+    },
+    "tutorial": {
+	    "hint": "tutorial",
+	    "url": "/tutorial/"
+    },
+    "test_suite": {
+	    "hint": "test_suite",
+	    "url": "/test_suite/"
+    },
+    "bug_report": {
+	    "hint": "bug_report",
+	    "url": "/bug_report/"
+    },
+    "faq": {
+	    "hint": "faq",
+	    "url": "/faq/"
+    },
+    "building_projects": {
+	    "hint": "building_projects",
+	    "url": "/building_projects/"
+    },
+    "adding_plugins": {
+	    "hint": "adding_plugins",
+	    "url": "/adding_plugins/"
+    },
+    "plugins": {
+	    "hint": "plugins",
+	    "url": "/plugins/"
+    },
+    "api_reference": {
+	    "hint": "api_reference",
+	    "url": "/api_reference/"
+    },
+    "tools_reference": {
+	    "hint": "tools_reference",
+	    "url": "/tools_reference/"
+    },
+    "developer_docs": {
+	    "hint": "developer_docs",
+	    "url": "/developer_docs/"
+    },
+    "flextool": {
+	    "hint": "flextool",
+	    "url": "/flextool/"
+    },
+    "flexlib": {
+	    "hint": "flexlib",
+	    "url": "/flexlib/"
+    }
+}

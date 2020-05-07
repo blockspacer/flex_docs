@@ -1,0 +1,29 @@
+---
+layout: search
+categories: jekyll update
+date:   2016-09-08 11:56:39 +0300
+permalink: /search/
+---
+<form class="form-wrapper" action="/search/" method="get">
+  <label for="search-box"></label>
+  <input type="text" id="search-box" name="query">
+  <input type="submit" id="submit" value="Искать">
+</form>
+
+
+<ul id="search-results"></ul>
+
+<script>
+  window.store = {
+    {% for post in site.docs %}
+      "{{ post.url | slugify }}": {
+        "title": "{{ post.title | xml_escape }}",
+        "author": "{{ post.author | xml_escape }}",
+        "category": "{{ post.category | xml_escape }}",
+        "content": {{ post.content | strip_html | strip_newlines | jsonify }},
+        "url": "{{ post.url | xml_escape }}"
+      }
+      {% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  };
+</script>

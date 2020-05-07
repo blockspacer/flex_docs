@@ -1,0 +1,57 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "docs",
+  "scripts": {
+    "start": "gulp serve",
+    "build": "gulp build",
+    "deploy": "gulp deploy"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "browser-sync": "^2.21.0",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.1.0",
+    "gulp-babel": "^7.0.0",
+    "gulp-check-gems": "0.0.2",
+    "gulp-clean": "^0.3.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-cssnano": "^2.1.2",
+    "gulp-gh-pages": "^0.5.4",
+    "gulp-htmlmin": "3.0.0",
+    "gulp-imagemin": "^4.0.0",
+    "gulp-load-plugins": "1.5.0",
+    "gulp-notify": "^3.2.0",
+    "gulp-open": "^2.0.0",
+    "gulp-plumber": "^1.2.0",
+    "gulp-pug": "3.3.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.6.1",
+    "gulp-rev": "^8.1.1",
+    "gulp-sass": "^3.1.0",
+    "gulp-sass-lint": "^1.3.4",
+    "gulp-shell": "^0.6.3",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-uglify": "^3.0.0",
+    "gulp-util": "^3.0.8",
+    "gulp-wait": "0.0.2",
+    "node-sass": "^4.14.1",
+    "run-sequence": "^2.2.0",
+    "sw-precache": "^5.2.0",
+    "sw-toolbox": "^3.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "dependencies": {
+    "babel-register": "^6.26.0",
+    "yandex-speller": "^2.1.1"
+  }
+}

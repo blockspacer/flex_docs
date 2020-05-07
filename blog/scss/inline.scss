@@ -1,0 +1,21 @@
+@charset "utf-8";
+
+// Import partials from `sass_dir` (defaults to `_sass`)
+@import "_globals";
+@import "_base";
+@import "_layout";
+
+/**
+ * Basic styling
+ */
+body {
+    font-family: $base-font-family;
+    font-size: $base-font-size;
+    line-height: $base-line-height;
+    font-weight: 300;
+    color: $text-color;
+    background-color: $background-color;
+    -webkit-text-size-adjust: 100%;
+}
+
+

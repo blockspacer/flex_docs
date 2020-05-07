@@ -1,0 +1,1100 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width" initial-scale="1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ "/images/favicons/apple-touch-icon.png" | relative_url }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ "/images/favicons/favicon-32x32.png" | relative_url }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ "/images/favicons/favicon-16x16.png" | relative_url }}">
+    <link rel="mask-icon" href="{{ "/images/favicons/safari-pinned-tab.svg" | relative_url }}" color="#5bbad5">
+
+    <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
+    <meta name="description" content="{{ site.description }}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="canonical" href="{{ page.url  }}">
+    <link rel="manifest" href="{{ "/manifest.json" | relative_url }}">
+    <meta name="theme-color" content="#424242">
+    <script src="https://unpkg.com/lunr@0.7.1/lunr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunr-languages@1.0.0/lunr.stemmer.support.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunr-languages@1.0.0/lunr.multi.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunr-languages@1.0.0/lunr.ru.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <style>{% include inline/inline.min.css %}</style>
+
+    <script>
+      {% include inline/loadCSS.min.js %}
+      loadCSS('{{ "/css/main.min.css" | relative_url }}');
+    </script>
+    <noscript>
+          <link rel="stylesheet" href="{{ "/css/main.min.css" | relative_url }}">
+    </noscript>
+
+</head>
+
+<script>
+
+// define a d3 diagonal projection for use by the node paths later on.
+var diagonal = d3.svg.diagonal()
+.projection(function(d) {
+    return [d.y, d.x];
+});
+
+var activeTooltip = null;
+
+//This maps the siblings together mapping uses the ID using the blue line
+var siblings = [{
+    type: "straight",
+    source: {
+        id: "a39bfa12-6617-5e8e-9470-d26b68787e52",
+        name: "Janie Norton"
+    },
+    target: {
+        id: "522266d2-f01a-5ec0-9977-622e4cb054c0",
+        name: "Helen Alvarado"
+    }
+},
+{
+    type: "straight",
+    source: {
+        id: "dea01728f-e542-53a6-acd0-6f43805c31a3",
+        name: "Chadrlotte Martin"
+    },
+    target: {
+        id: "4f910dbe4-b827-50be-b783-6baa3249f6ebc",
+        name: "Do12anald Cox"
+    }
+},
+{
+    type: "curve",
+    source: {
+        id: "d384197e-2e1e-5fb2-987b-d90a5cdc3c15",
+        name: "Mina Freeman"
+    },
+    target: {
+        id: "dea01728f-e542-53a6-acd0-6f43805c31a3",
+        name: "Chadrlotte Martin"
+    }
+},
+{
+    type: "curve",
+    source: {
+        id: "d384197e-2e1e-5fb2-987b-d90a5cdc3c15",
+        name: "Mina Freeman"
+    },
+    target: {
+        id: "4f910dbe4-b827-50be-b783-6baa3249f6ebc",
+        name: "Do12anald Cox"
+    }
+},
+{
+    type: "straight",
+    source: {
+        id: "16c2b0cb-cd31-53be-81bd-9b088af96904",
+        name: "G Morton"
+    },
+    target: {
+        id: "06c7b0cb-cd21-53be-81bd-9b088af96904",
+        name: "Nell Morton"
+    }
+},
+{
+    type: "curve",
+    source: {
+        id: "522266d2-f01a-5ec0-9977-622e4cb054c0"
+    },
+    target: {
+        id: "efbd2396d-s478ad5cbc-b168-52e028452f3b"
+    }
+},
+{
+    type: "curve",
+    source: {
+        id: "qew Gonzales"
+    },
+    target: {
+        id: "Helen Alvarado"
+    }
+}];
+
+var data;
+var svg;
+var g;
+var gElem;
+var nodes, links;
+var tree = d3.layout.tree();
+var zoom;
+var rootNode;
+
+var boxWidth = 410,
+    boxHeight = 100;
+
+var containerWidth = 500;
+var containerHeight = 500;
+
+var maxScale = 100, minScale = 0.1;
+
+var svgSize = {
+  x: 500,
+  y: 500
+}
+
+var startPos = {
+  x: 0, 
+  y: 0
+};
+
+function buildNodeHtml(d, i, classData) {
+  console.log(d.font_size)
+  var font_size = d.font_size ? d.font_size : "40px";
+  return '<div style="width:'+(boxWidth)+'px;height:'+(boxHeight)+'px">\
+        <div class="nodeObjectContent-outer ' + classData["nodeObjectContentOuterClasses"] + '" style="float:left;margin-left:0px"><div id="nodeObjectContent_' + d.id + '" class="nodeObjectContent ' + classData["nodeObjectContentClasses"] + '">\
+          <div style="float:right; width:295px;"> \
+            <div style="margin-right:5px;"> \
+              <div style="line-height:83px;float:right; width:390px;height:100px;border-radius:5px;margin-top:5px;text-align:center;vertical-align:middele;font-size:'+font_size+';" class="treeNodeTitle"> \
+                ' + d.name + ' \
+              </div> \
+            </div> \
+          </div> \
+        </div></div> \
+      </div>';
+}
+
+function buildCustomHtml(d, i, classData) {
+    console.log(d.font_size)
+    var font_size = d.font_size ? d.font_size : "40px";
+     console.log(font_size)
+  return d.customHtml;
+}
+
+var nodePresets = {
+  "researching": function (d, i) {
+      return buildNodeHtml(d, i, {
+        "nodeObjectContentOuterClasses": "bubbleOuter",
+        "nodeObjectContentClasses": "bubbleNodeObject"
+      });
+  }, 
+  "researched": function (d, i) {
+      return buildNodeHtml(d, i, {
+        "nodeObjectContentOuterClasses": "",
+        "nodeObjectContentClasses": "goldenNodeObject"
+      });
+  }, 
+  "available": function (d, i) {
+      return buildNodeHtml(d, i, {
+        "nodeObjectContentOuterClasses": "greenOuter",
+        "nodeObjectContentClasses": "greenNodeObject"
+      });
+  }, 
+  "unavailable": function (d, i) {
+      return buildNodeHtml(d, i, {
+        "nodeObjectContentOuterClasses": "darkOuter",
+        "nodeObjectContentClasses": "darkNodeObject"
+      });
+  }, 
+  "customHtml": function (d, i) {
+      return buildCustomHtml(d, i, {});
+  }
+};
+
+function zoomToBoundingBox(d) {
+
+ // getBBox() is a native SVG element method
+ //console.log(d3.select(".techtree g").node().getBBox())
+
+
+        var bbox = d3.select("#treeLayers").node().getBBox();
+        //console.log(tree)
+
+
+       svg.transition().duration(0).attr('transform',function(d) {
+
+   // var nodes = tree;
+
+   // var d = $.grep(nodes, function(e){ return e.id == 'treeLayers'; })[0];
+
+
+           // var proportions = Math.max(bbox.width+1000,bbox.height+1000)
+            //var widthScale = containerWidth/proportions
+           //var heightScale = containerHeight/proportions 
+            //var scale = 0.26143790849673204;//Math.max(widthScale,heightScale);
+
+            var scale = Math.min( containerWidth/bbox.width, containerHeight/bbox.height);
+            //console.log(containerWidth, bbox.width, containerWidth/bbox.width)
+            //console.log(containerHeight, bbox.height, containerHeight/bbox.height)
+            var svgScale = getScale(svg);
+
+
+            var currentx = d3.transform(d3.select('#treeLayers').attr("transform")).translate;
+           // console.log(currentx)
+
+
+           // console.log(d3.select('#treeLayers')[0].attr("width"))
+
+            var elemWidth = bbox.width;//parseInt(d3.select('#treeLayers').attr("width"))/2;
+            var elemHeight = bbox.height;//parseInt(d3.select('#treeLayers').attr("height"))/2;
+            var elemX =  bbox.x;//parseInt(d3.select('#treeLayers').attr("x"),10)
+            var elemY =  bbox.y;//parseInt(d3.select('#treeLayers').attr("y"),10)
+            var transX = -(elemX +  elemWidth/2)*scale  + containerWidth/2;
+            var transY = -(elemY +  elemHeight/2)*scale + containerHeight/2 ;
+            console.log(elemX,elemY )
+            zoom.scale( scale*svgScale[1] ).translate( [transX, transY] );
+
+           return 'translate(' + transX+ ','+ transY+ ')scale('+scale*svgScale[0]+', '+scale*svgScale[1]+')' ;
+        })
+
+      // centerNode(d3.select('#treeLayers'));
+
+       // centerNode(d3.select("#treeLayers").node());
+
+       /* var
+            centroid = [bbox.x + bbox.width/2, bbox.y + bbox.height/2],
+            zoomScaleFactor = containerWidth / bbox.width,
+            zoomX = -centroid[0],
+            zoomY = -centroid[1];*/
+
+        // set a transform on the parent group element
+       /* d3.select('#techtree')
+            .attr("transform", "scale(" + zoomScaleFactor + ")" +
+                "translate(" + zoomX + "," + zoomY + ")");*/
+
+
+    //var foHeight = div[0][0].getBoundingClientRect().height;
+   /* var bounds = getBboxXY(d);
+    console.log(bounds)
+    var dx = bounds[1][0] - bounds[0][0],
+      dy = bounds[1][1] - bounds[0][1],
+      x = (bounds[0][0] + bounds[1][0]) / 2,
+      y = (bounds[0][1] + bounds[1][1]) / 2,
+      scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / containerWidth, dy / containerHeight))),
+      translate = [containerWidth / 2 - scale * x, containerHeight / 2 - scale * y];*/
+
+  /*var bounds = path.bounds(d),
+      dx = bounds[1][0] - bounds[0][0],
+      dy = bounds[1][1] - bounds[0][1],
+      x = (bounds[0][0] + bounds[1][0]) / 2,
+      y = (bounds[0][1] + bounds[1][1]) / 2,
+      scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / containerWidth, dy / containerHeight))),
+      translate = [containerWidth / 2 - scale * x, containerHeight / 2 - scale * y];*/
+
+ /* svg.transition()
+      .duration(750)
+       .call(zoom.translate(translate).scale(scale).event); // not in d3 v4*/
+      //.call( zoom.transform, d3.zoomIdentity.translate(translate[0],translate[1]).scale(scale) ); // updated for d3 v4
+}
+
+/**
+This defines teh line between siblings.
+**/
+function sblingLine(d, i) {
+    var start = nodes.filter(function (v) {
+
+        if (d.source.id == v.id) {
+            return true;
+        } else {
+            return false;
+        }
+    });
+    var end = nodes.filter(function (v) {
+    if(d.target.collapsed || d.source.collapsed){
+      return false;
+    }
+
+        if (d.target.id == v.id) {
+            return true;
+        } else {
+            return false;
+        }
+    });
+    if (typeof start[0] == "undefined" || typeof end[0] == "undefined") {
+      return "";
+    }
+
+
+
+    var linedata = [{
+        x: start[0].x,
+        y: start[0].y
+    }, {
+        x: end[0].x,
+        y: end[0].y
+    }];
+    //console.log(linedata )
+    /*var fun = d3.svg.line().x(function (d) {
+        return d.x;
+    }).y(function (d) {
+        return d.y;
+    }).interpolate("linear");
+    return fun(linedata);*/
+
+  var sourceX = start[0].x,
+      sourceY = start[0].y + (boxWidth / 2),
+      targetX = end[0].x,
+      targetY = end[0].y - (boxWidth / 2);
+
+if (d.type==="curve") {
+  return diagonal({
+                        source: linedata[0],
+                        target: linedata[1]
+                    });
+}
+
+      
+ return "M" + sourceY + "," + sourceX
+    + "H" + (sourceY + (targetY-sourceY)/2)
+    + "V" + targetX 
+    + "H" + targetY;
+
+}
+
+var calcLeft = function(d){
+  var height = containerHeight;
+  var l = d.y;
+  console.log(d.y)
+  if(!d.isRight){
+    l = height - d.y;
+  }
+  return {x : d.x, y : l};
+};
+
+function getBboxXY(elem) {
+  var bbox = elem.getBBox();
+  var x = bbox.x-((bbox.width));
+  var y = bbox.y-((bbox.height));
+
+  return {
+    x: x, 
+    y: y
+  };
+}
+
+function getScale(elem) {
+  var scale = d3.transform(elem.attr("transform")).scale;
+  return typeof scale == undefined ? [1,1] : scale;
+}
+
+// https://www.visualcinnamon.com/2016/05/animate-gradient-imitate-flow-d3.html
+function createLinearGradient(elem, id, colours, animateSpeed) {
+    var gradient = elem.append('linearGradient')
+      .attr('id', id)
+      .attr("spreadMethod", "reflect")
+      .attr("gradientUnits", "userSpaceOnUse")
+      .attr("x1","0%")
+      .attr("y1","0%")
+      .attr("x2","100%")
+      .attr("y2","0%");
+  gradient.selectAll(".stop")
+  .data(colours)
+  .enter().append("stop")
+  .attr("offset", function(d,i) { return i/(colours.length-1); })   
+  .attr("stop-color", function(d) { return d; });
+
+  if (animateSpeed) {
+    gradient.append("animate")
+      .attr("attributeName","x1")
+      .attr("values","0%;100%")
+      .attr("dur", animateSpeed + "s")
+      .attr("repeatCount","indefinite");
+
+    gradient.append("animate")
+      .attr("attributeName","x2")
+      .attr("values","100%;200%")
+      .attr("dur", animateSpeed + "s")
+      .attr("repeatCount","indefinite");
+  }
+}
+
+function centerNode(source, scale, width, height, duration) {
+    if (!source) return;
+    scale = typeof scale === "undefined" ? getScale(svg) : scale;
+    width = typeof width === "undefined" ? parseInt(svg.attr("width"),10) : containerWidth;
+    height = typeof height === "undefined" ? parseInt(svg.attr("height"),10) : containerHeight;
+    duration = typeof duration === "undefined" ? 1000 : duration;
+
+    x = -source.y * scale[1] + width/2;
+    y = -source.x * scale[1] + height/2;
+
+    svg.transition()
+        .duration(duration)
+        .attr("transform", "translate(" + x + "," + y + ") scale(" + scale[0] + "," + scale[1] + ")");
+    zoom.scale( scale[1] ).translate( [x, y] );
+}
+
+function createTechTree(width, height, dataFile) {
+    containerWidth = width;
+    containerHeight = height;
+    //console.log($("#techTreeContainer").data("something"))
+    var bWidth = typeof $("#techTreeContainer").data("boxwidth") === 'undefined' ? boxWidth : parseInt($("#techTreeContainer").data("boxwidth"), 10);
+    var bHeight = typeof $("#techTreeContainer").data("boxheight") === 'undefined' ? boxHeight : parseInt($("#techTreeContainer").data("boxheight"), 10);
+    boxWidth = bWidth;
+    boxHeight = bHeight;
+
+  // Setup zoom and pan
+  zoom = d3.behavior.zoom()
+  .scaleExtent([minScale, maxScale])
+  .on('zoom', function(){
+    var wcanvas = $(".techtree").width();
+    var hcanvas = $(".techtree").height();
+    var h = d3.select(".techtree g").node().getBBox().height*d3.event.scale;
+    var w = d3.select(".techtree g").node().getBBox().width*d3.event.scale;
+    var padding = 0;
+    var translation = d3.event.translate;
+    var tbound = -(h-hcanvas)-padding;
+    var bbound = padding;
+    var lbound = -(w-wcanvas)-padding;
+    var rbound = padding;
+    var space = 100;
+
+    // limit pan area
+    var tx = Math.min(100000, Math.max(d3.event.translate[0], -100000)),
+        ty = Math.min(100000, Math.max(d3.event.translate[1], -100000));
+
+    svg.attr("transform", "translate(" + tx + "," + ty + ") scale(" + d3.event.scale + ")");
+    zoom.translate([tx, ty]);
+    console.log(d3.event.scale)
+    zoom.scale(d3.event.scale);
+
+    var bbox = gElem.getBBox();
+
+      var x = bbox.x-((bbox.width));
+      var y = bbox.y-((bbox.height));
+  })
+  // Offset so that first pan and zoom does not jump back to the origin
+  .translate([startPos.x, startPos.y])
+  ;
+
+svgSize.x = containerWidth;
+svgSize.y = containerHeight;
+
+var div = d3.select("#techTreeContainer").append("div");
+div.html('<div style="position:absolute;z-index:9999;width:'+svgSize.x+'px;height:'+svgSize.y+'px;" class="techTreeContainerIcons"> \
+  <div class="iconsRight"> \
+    <button class="techTreeContainerIcon button_basic-small _pin-bottom" id="zoomPlus"> + </button> \
+    <button class="techTreeContainerIcon button_basic-small _pin-bottom" id="zoomMinus"> - </button> \
+  </div> \
+  </div>');
+
+d3.select("#techTreeContainer").on('mouseover', function() {
+  $('.techTreeContainerIcons').show();
+}).on('mouseout', function() {
+  $('.techTreeContainerIcons').hide();
+});
+
+function zoomDelta(delta, time) {
+  var svgScale = zoom.scale() + delta;
+  time = typeof time === 'undefined' ? 0 : time;
+  if (svgScale < minScale || svgScale > maxScale) {
+    return;
+  }
+  var currentTranslate = d3.transform(svg.attr("transform")).translate;
+
+  zoom.scale( parseFloat(svgScale) ).translate(currentTranslate);;
+  svg.transition()
+      .duration(time)
+      .attr("transform", "translate(" + currentTranslate[0] + "," + currentTranslate[1] + ") scale(" + svgScale + "," + svgScale + ")");
+}
+
+d3.selectAll('#zoomPlus').on('click', function() {
+  zoomDelta(0.03);
+}); 
+
+d3.selectAll('#zoomMinus').on('click', function() {
+  zoomDelta(-0.03);
+}); 
+
+svg = d3.select("#techTreeContainer").append("svg")
+  .attr('class', 'techtree')
+  .attr('id', 'techtree')
+  .attr('overflow', 'scroll')
+  .call(zoom)
+  .attr('width', svgSize.x)
+  .attr('height', svgSize.y)
+  .append('g')
+  .attr('width', svgSize.x)
+  .attr('height', svgSize.y)
+  
+  // Left padding of tree so that the whole root node is on the screen.
+  // TODO: find a better way
+  .attr("transform", "translate("+startPos.x+","+startPos.y+") scale(" + 1 + ")")
+  .attr('overflow', 'scroll')
+;
+
+g = svg.select("g");
+gElem = svg.selectAll("g")[0].parentNode;
+  
+  // Using nodeSize we are able to control
+  // the separation between nodes. If we used
+  // the size parameter instead then d3 would
+  // calculate the separation dynamically to fill
+  // the available space.
+  tree.nodeSize([boxHeight* 3.5, boxWidth  * 2.5])
+  
+  // By default, cousins are drawn further apart than siblings.
+  // By returning the same value in all cases, we draw cousins
+  // the same distance apart as siblings.
+  .separation(function(){
+    return 0.5;
+  })
+  
+  // Tell d3 what the child nodes are. Remember, we're drawing
+  // a tree so the ancestors are child nodes.
+  .children(function(treeNode){
+    
+    // If the treeNode is collapsed then tell d3
+    // that they don't have any ancestors.
+    if(treeNode.collapsed){
+      return;
+    } else {
+      return treeNode._parents;
+    }
+  });
+
+  if (typeof dataFile !== "undefined") {
+    d3.json(dataFile, function(error, json){
+    
+      if(error) {
+        return console.error(error);
+      }
+      
+      data = json;
+
+
+      nodes = tree.nodes(data);
+      links = tree.links(nodes);
+      startFocusNode = $.grep(nodes, function(e){ return e.start_focus; })[0];
+      
+      drawTechtree();
+
+      //centerNode(startFocusNode);
+      zoomToBoundingBox(startFocusNode);
+        
+    });
+  } else {
+    
+    data = treeDataJson;
+
+
+    nodes = tree.nodes(data);
+    links = tree.links(nodes);
+    startFocusNode = $.grep(nodes, function(e){ return e.start_focus; })[0];
+    
+    drawTechtree();
+
+    //centerNode(startFocusNode);
+    zoomToBoundingBox(startFocusNode);
+  }
+
+}
+
+function drawTechtree(){
+d3.select("#treeLayers").remove();
+
+  nodes = tree.nodes(data);
+  links = tree.links(nodes);
+
+    links = links.filter(function (d) {
+        
+        if (d.target.deleted || d.source.deleted) {
+            console.log(d)
+        } else {
+            return d;
+        };
+    });
+
+
+    nodes = nodes.filter(function (d) {
+        
+        if (d.deleted) {
+            console.log(d)
+        } else {
+            return d;
+        };
+    });
+
+
+  var layers = svg.append('g')
+    .attr("id", "treeLayers")
+    .attr("class", "treeLayers");
+
+  var layer1 = layers.append('g');
+  var layer2 = layers.append('g');
+  var layer3 = layers.append('g');
+
+  // Update nodes    
+  var node = layer2.selectAll("g.treeNode")
+      
+      // The function we are passing provides d3 with an id
+      // so that it can track when data is being added and removed.
+      // This is not necessary if the tree will only be drawn once
+      // as in the basic example.
+      .data(nodes, function(treeNode){ return treeNode.id; });
+      
+  // Add any new nodes
+  var nodeEnter = node.enter().append("g")
+      .attr("class", "treeNode")
+      ;
+
+  // Update the position of both old and new nodes
+  node.attr("transform", function(d) { 
+    if (d.fixed_x && d.fixed_y) {
+      d.x = d.fixed_x;
+      d.y = d.fixed_y;
+      return "translate(" + d.y + "," + d.x + ")"; 
+    }
+    return "translate(" + d.y + "," + d.x + ")"; 
+  });
+
+  var svgDefs = nodeEnter.append('defs');
+
+  var markerTypes = [
+    { id: 0, name: 'circle', path: 'M 0, 0  m -5, 0  a 5,5 0 1,0 10,0  a 5,5 0 1,0 -10,0', viewbox: '-6 -6 12 12', class:"arrowHeadGold" }
+  , { id: 1, name: 'square', path: 'M 0,0 m -5,-5 L 5,-5 L 5,5 L -5,5 Z', viewbox: '-5 -5 10 10', class:"arrowHeadGold" }
+  , { id: 2, name: 'arrow', path: 'M 0,0 m -5,-5 L 5,0 L -5,5 Z', viewbox: '-5 -5 10 10', class:"arrowHeadGold" }
+  , { id: 2, name: 'stub', path: 'M 0,0 m -1,-5 L 1,-5 L 1,5 L -1,5 Z', viewbox: '-1 -5 2 10', class:"arrowHeadGold" }
+  ]
+
+
+    svgDefs.selectAll("marker").data(markerTypes).enter().append('svg:marker')
+            .attr({
+                "id": function(d){ return 'marker_' + d.name},
+                'markerUnits': 'strokeWidth',
+                'viewBox': function(d){ return d.viewbox },
+                "refX":0,
+                "refY":0,
+                "markerWidth":5,
+                "markerHeight":5,
+                'xoverflow':'visible',
+                "orient":"auto"
+            })
+            .append("path")
+                .attr('d', function(d){ return d.path })
+                .attr("class", function(d){ return d.class });
+
+    /*svgDefs.append("marker")
+            .attr({
+                "id":"arrow-start",
+                "viewBox":"0 -5 10 10",
+                "refX":5,
+                "refY":0,
+                "markerWidth":4,
+                "markerHeight":4,
+                "orient":"auto"
+            })
+            .append("path")
+                .attr("d", "M0,-5L10,0L0,5")
+                .attr("class","arrowHead");*/
+
+  createLinearGradient(svgDefs, 'goldGradient', ["#ebd197", "#b48811", "#ebd197"], 0);
+  createLinearGradient(svgDefs, 'goldGradientAnim', ["#ebd197", "#b48811", "#ebd197"], 1);
+  createLinearGradient(svgDefs, 'bubbleGradient', ["#46b5f4", "#2da5e5", "#46b5f4"], 0);
+  createLinearGradient(svgDefs, 'bubbleGradientAnim', ["#46b5f4", "#2da5e5", "#46b5f4"], 1);
+  createLinearGradient(svgDefs, 'iconGradient', ["#FFF", "#CCC"], false);
+
+nodeEnter.append("foreignObject")
+  //  .style("border", "1px solid #444")
+  .attr({
+    x: -(boxWidth/2),
+    y: -(boxHeight/2),
+    width: boxWidth,
+    height: boxHeight
+  })
+  .attr("display", function (d) {
+    if (d.hiddenObject) {
+        return "none"
+    } else {
+        return ""
+    };
+  })
+  .attr("class", function(d, i) { return "nodeObject " + (d.url ? " cpointer" : ""); })// "nodeObject cpointer")
+  .attr("id", function(d, i) { return "nodeObject_" + d.id; })
+  .append("xhtml:body")
+  .style("font", "14px 'Helvetica Neue'")
+  .html(function(d, i) { 
+      var preset = d.preset ? d.preset : "researched";
+      return nodePresets[preset](d,i); 
+  });
+
+
+    
+
+
+  d3.selectAll('.nodeObject').on('click', function() {
+    var id = this.id.replace('nodeObject_','');
+    var nodes = tree.nodes(data);
+    var d = $.grep(nodes, function(e){ return e.id == id; })[0];
+    if (!d.url) {
+        return;
+    }
+    window.location.href = d.url;
+  }); 
+
+  d3.selectAll('.nodeObject').on('mousemove', function() {
+
+    if (activeTooltip==null) {
+        return;
+    }
+   /*activeTooltip = {
+        'mouseoverTime':Date.now(),
+        'elem': d
+    };*/
+    var elapsedTime = Date.now() - activeTooltip.mouseoverTime;
+    var delaySecs = 1;
+    if (elapsedTime/1000.0 < delaySecs) {
+        return;
+    }
+
+    var id = this.id.replace('nodeObject_','');
+    var nodes = tree.nodes(data);
+    var d = $.grep(nodes, function(e){ return e.id == id; })[0];
+
+    var x = d.fixed_x ? d.fixed_x : d.x;
+    var y = d.fixed_y ? d.fixed_y : d.y;
+
+    layer3.selectAll('.svg-tooltip').remove();
+    layer3.selectAll('polygon').remove();
+
+    var scale = getScale(svg);
+    var foWidth = 300;
+
+    var leftPixelSpace = d3.event.x;
+    var rightPixelSpace = containerWidth - leftPixelSpace; 
+    var topPixelSpace = d3.event.y;
+    var bottomPixelSpace = containerHeight - topPixelSpace;
+
+    if (!d.tooltip) {
+        return;
+    }
+
+    var t = 50, k = 15;
+    var tip = {'w': (3/4 * t) , 'h': k };
+
+    var tooltopOffset = {
+      x: boxWidth/32,
+      y: boxHeight/2
+    }
+
+    var offset = {
+      x:0,
+      y:0
+    };
+
+    /*if (leftPixelSpace > rightPixelSpace) {
+      offset.y = foWidth;
+    } else {
+      offset.y = 0;
+    }*/
+
+    var mouseToTooltipPos = {
+      x: x - boxHeight/2 + (d3.mouse(this)[1]) ,
+      y: y - boxWidth/2 + (d3.mouse(this)[0]) 
+    };
+
+    var anchor = {'w': mouseToTooltipPos.y, 'h': mouseToTooltipPos.x };
+
+    var fo = layer3.append('foreignObject')
+        .attr({
+            'width': foWidth,
+            'class': 'svg-tooltip',
+            'transform': 'translate(' +( mouseToTooltipPos.y - offset.y )+ ',' +( mouseToTooltipPos.x - offset.x) + ') scale(' + 1/scale[0] + ',' +  1/scale[0] + ')'
+        });
+    var div = fo.append('xhtml:div')
+        .append('div')
+        .attr({
+            'class': 'tooltip'
+        });
+    div.html('<div style="background: linear-gradient(to bottom right, #ebd197, #b48811);">' + d.tooltip + '.</div>');
+
+    var foHeight = div[0][0].getBoundingClientRect().height;
+    /*var foHeight = div[0][0].getBoundingClientRect().height / scale[0];
+    if (topPixelSpace > bottomPixelSpace) {
+      offset.x = foHeight;
+    } else {
+      offset.x = 0;
+    }*/
+
+    /*fo.attr({
+      'x': mouseToTooltipPos.y - offset.y,
+      'y': mouseToTooltipPos.x - offset.x,
+    });
+
+    fo.attr({
+        'height': foHeight
+    });*/
+    
+    layer3.insert('polygon', '.svg-tooltip')
+    .attr({
+         'points': "0,0 0," + foHeight + " " + foWidth + "," + foHeight + " " + foWidth + ",0 ",
+        'height': foHeight + tip.h,
+        'width': foWidth,
+        'fill': 'rgba(0,0,0,0.3)',
+        'transform': 'translate(' +( mouseToTooltipPos.y - offset.y )+ ',' +( mouseToTooltipPos.x - offset.x) + ') scale(' + 1/scale[0] + ',' +  1/scale[0] + ')'
+    });
+  })
+  .on('mouseover', function(d) {
+    $("#techTreeContainerHint").html(d.hint);
+    $("#techTreeContainerHint").css("display","block");
+
+    activeTooltip = {
+        'mouseoverTime':Date.now(),
+        'elem': d
+    };
+
+    
+  })
+  .on('mouseout', function() {
+    $("#techTreeContainerHint").html("");
+    $("#techTreeContainerHint").css("display","none");
+
+    activeTooltip = null;
+      layer3.selectAll('.svg-tooltip').remove();
+      layer3.selectAll('polygon').remove();
+  });
+  
+  // Remove nodes we aren't showing anymore
+  node.exit().remove();
+
+  //First draw sibling line with blue line
+  var sibl = layer1.selectAll(".sibling").data(siblings);
+
+  sibl.enter().append("path").attr({
+                    "class":"sibling",
+                    //"marker-end":"url(#" + 'marker_arrow' + ")",
+                    //"marker-start":"url(#" + 'marker_circle' + ")",
+                });
+
+  sibl.exit().remove();
+
+  sibl.attr("d", sblingLine);
+
+  // Update links
+  var link = layer1.selectAll("path.link")
+
+  
+      // The function we are passing provides d3 with an id
+      // so that it can track when data is being added and removed.
+      // This is not necessary if the tree will only be drawn once
+      // as in the basic example.
+      .data(links, function(d){ return d.target.id; });
+  
+  // Add new links    
+  link.enter().append("path").attr({
+                    "marker-end": function(d){ return "url(#" + 'marker_'+ d.target.input_arrow + ")"; },
+                    "marker-start": function(d){ return "url(#" + 'marker_'+ d.source.output_arrow + ")"; },
+                })
+      .attr("class", function(d) { 
+        var inputClassLink = d.target.inputClassLink ? d.target.inputClassLink : "";
+        var outputClassLink = d.source.outputClassLink ? d.target.outputClassLink : "";
+        return "link " + inputClassLink + " " + outputClassLink; 
+      })
+      ;
+/*
+    function arcPath(leftHand, d) {
+        var start = leftHand ? d.source : d.target,
+            end = leftHand ? d.target : d.source,
+            dx = end.x - start.x,
+            dy = end.y - start.y,
+            dr = Math.sqrt(dx * dx + dy * dy),
+            sweep = leftHand ? 0 : 1;
+        return "M" + start.x + "," + start.y + "A" + dr + "," + dr + " 0 0," + sweep + " " + end.x + "," + end.y;
+    }
+
+var textPath = link.append("path")
+    .attr("id", function(d) { return d.source.id + "_" + d.target.id; })
+    .attr("class", "textpath").attr("d", function(d) {
+        return arcPath(d.source.x < d.target.x, d);
+      });
+
+var path_label = svg.append("g").selectAll(".path_label")
+    .data(links)
+  .enter().append("text")
+    .attr("class", "path_label")
+    .append("svg:textPath")
+      .attr("startOffset", "50%")
+      .attr("text-anchor", "middle")
+      .attr("xlink:href", function(d) { return "#" + d.source.id + "_" + d.target.id; })
+      .style("fill", "#000")
+      .style("font-family", "Arial")
+      .text(function(d) { return d.id; });*/
+
+svg.selectAll("text").data(links).enter()
+   .append("text")
+   .attr("x", function(d) { 
+        var sourceX = d.source.x,
+              sourceY = d.source.y + (boxWidth / 2),
+              targetX = d.target.x,
+              targetY = d.target.y - (boxWidth / 2);
+        return sourceY + (targetY -sourceY)/2; 
+    })
+   .attr("y", function(d) { 
+        var sourceX = d.source.x,
+              sourceY = d.source.y + (boxWidth / 2),
+              targetX = d.target.x,
+              targetY = d.target.y - (boxWidth / 2);
+        return sourceX + (targetX - sourceX)/2; 
+   })
+   .text(function(d) { return d.target.label; })
+   /*.attr('transform',function(d,i){
+            if (d.target.x<d.source.x){
+                bbox = this.getBBox();
+                rx = bbox.x+bbox.width/2;
+                ry = bbox.y+bbox.height/2;
+                return 'rotate(0 '+rx+' '+ry+')';
+                }
+            else {
+                return 'rotate(0 180 180)';
+                }
+        })*/;
+
+/*
+ var edgelabels = svg.selectAll(".edgelabel")
+        .data(links)
+        .enter()
+        .append('text')
+        .style("pointer-events", "none")
+        .attr({'class':'edgelabel',
+               'id':function(d,i){return 'edgelabel'+i},
+               'dx':80,
+               'dy':0,
+               'font-size':10,
+               'fill':'#aaa'});    
+
+        edgelabels.attr('transform',function(d,i){
+            if (d.target.x<d.source.x){
+                bbox = this.getBBox();
+                rx = bbox.x+bbox.width/2;
+                ry = bbox.y+bbox.height/2;
+                return 'rotate(180 '+rx+' '+ry+')';
+                }
+            else {
+                return 'rotate(0)';
+                }
+        });
+*/
+
+  layer1.selectAll("path").append('linearGradient');
+  layer1.selectAll("path").append('stop')
+      .attr('class', 'stop-left')
+      .attr('offset', '0');
+  layer1.selectAll("path").append('stop')
+      .attr('class', 'stop-right')
+      .attr('offset', '1');
+  
+  // Remove any links we don't need anymore
+  // if part of the tree was collapsed
+  link.exit().remove();
+  
+  // Update the links positions (old and new)
+  link.attr("d", elbow);
+
+}
+
+/**
+ * Collapse treeNode (hide their ancestors). We recursively
+ * collapse the ancestors so that when the treeNode is
+ * expanded it will only reveal one generation. If we don't
+ * recursively collapse the ancestors then when
+ * the treeNode is clicked on again to expand, all ancestors
+ * that were previously showing will be shown again.
+ * If you want that behavior then just remove the recursion
+ * by removing the if block.
+ */
+function collapse(treeNode, sourceX, sourceY){
+  treeNode.collapsed = true;
+}
+    
+/**
+ * Custom path function that creates straight connecting lines.
+ * Calculate start and end position of links.
+ * Instead of drawing to the center of the node,
+ * draw to the border of the treeNode profile box.
+ * That way drawing order doesn't matter. In other
+ * words, if we draw to the center of the node
+ * then we have to draw the links first and the
+ * draw the boxes on top of them.
+ */
+function elbow(d) {
+
+  if (d.target.no_target_parent || d.source.no_child_parent) {
+
+      return "M0,0L0,0";
+  }
+
+var sourceX = d.source.x,
+      sourceY = d.source.y ,
+      targetX = d.target.x,
+      targetY = d.target.y;
+
+
+if (d.target.input_type==="curve" || d.source.output_type==="curve") {
+  return diagonal({
+                        source: {
+                            x: sourceX,
+                            y: sourceY
+                        },
+                        target: {
+                            x: targetX,
+                            y: targetY
+                        },
+                    });
+}
+
+
+  return "M" + sourceY + "," + sourceX
+    + "H" + (sourceY + (targetY-sourceY)/2)
+    + "V" + targetX 
+    + "H" + targetY;
+}
+
+</script>
+
+<script>
+$( document ).ready(function() {
+
+    $(".post-content h1, h2, h3, h4, h5, h6").each(function(i, el) {
+      var $el, icon, id;
+      $el = $(el);
+      id = $el.attr('id');
+      icon = '<i class="fa fa-link"></i>';
+      if (id) {
+        //console.log(id)
+        $el.append($("<a />").addClass("header-link").attr("href", "#" + id).html(icon));
+      }
+    });
+
+    if(!$('#techTreeContainer').length) return;
+
+    $('#techTreeContainer').append("<div id='techTreeContainerHint'></div>");
+
+    var update;
+    update = function() {
+      requestAnimationFrame(update);
+    };
+    requestAnimationFrame(update);
+
+    function redraw_techtree() {
+      var width = containerWidth;
+      var height = containerHeight;
+      svgSize.x = containerWidth;
+      svgSize.y = containerHeight;
+
+      d3.select("#techTreeContainer").select("svg").attr("width", width)
+        .attr("height", height);
+      g.attr("width", width)
+        .attr("height", height);
+
+      drawTechtree();
+    }
+
+    window.addEventListener("resize", redraw_techtree);
+
+    createTechTree($("#techTreeContainer").parent().width(), 500, $("#techTreeContainer").attr("data-id"));
+});
+
+
+
+</script>

@@ -1,0 +1,188 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely edit after that. If you find
+# yourself editing this file very often, consider using Jekyll's data files
+# feature for the data you need to update frequently.
+#
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
+
+# Site settings
+# These are used to personalize your new site. If you look in the HTML files,
+# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
+# You can create any custom variable you would like, and they will be accessible
+# in the templates via {{ site.myvariable }}.
+title: Your awesome title
+#email: your-email@example.com
+description: >- # this means to ignore newlines until "baseurl:"
+  Write an awesome description for your new site here. You can edit this
+  line in _config.yml. It will appear in your document head meta (for
+  Google search results) and in your feed.xml site description.
+baseurl: "/" # the subpath of your site, e.g. /blog
+url: "/" # the base hostname & protocol for your site, e.g. http://example.com
+twitter_username: jekyllrb
+github_username:  jekyll
+
+
+# Build settings
+permalink: pretty
+exclude: [
+  "gulpfile.js",
+  "bower.json",
+  "*.sublime-project",
+  "*.sublime-workspace",
+  ".asset-cache",
+  ".bundle",
+  ".jekyll-assets-cache",
+  ".sass-cache",
+  "node_modules",
+  "LICENSE",
+  "package.json",
+  "README.md",
+  "Gemfile",
+  "gulpfile.babel.js",
+  ".babelrc",
+  ".gitignore",
+  "sass",
+  "scss",
+  "validate",
+  "open_docs_offline.sh",
+  "hu.dat",
+  "hu.multi",
+  "hu.rws",
+  "hu_affix.dat",
+  "hu_phonet.dat",
+  ".aspell.en.prepl",
+  ".aspell.hu.prepl",
+  ".aspell.ru.prepl",
+  "koi8-r.cmap",
+  "koi8-r.cset"
+]
+
+
+encoding: "utf-8"
+markdown_ext: "markdown,mkdown,mkdn,mkd,md"
+
+
+# Conversion
+markdown: kramdown
+highlighter: rouge
+lsi: false
+excerpt_separator: "\n\n"
+incremental: false
+
+
+# Markdown Processing
+kramdown:
+  input: GFM
+  hard_wrap: false
+  auto_ids: true
+  footnote_nr: 1
+  entity_output: as_char
+  toc_levels: 1..6
+  smart_quotes: lsquo,rsquo,ldquo,rdquo
+  enable_coderay: false
+
+
+include : ["_docs", "_category"]
+
+
+# gems: ['jekyll-offline', 'jekyll-typogrify', 'jekyll-archives', 'jekyll-sitemap', 'jekyll-gist', 'jekyll-feed']
+#gems: ['jekyll-offline', 'jekyll-typogrify', 'jekyll-archives', 'jekyll-gist', 'jekyll-feed']
+gems: ['jekyll-typogrify', 'jekyll-archives', 'jekyll-gist', 'jekyll-feed']
+
+
+jekyll-archives:
+  enabled: all
+  layout: 'archive'
+  permalinks:
+    year: '/:year/'
+    month: '/:year/:month/'
+    day: '/:year/:month/:day/'
+    tag: '/tag/:name/'
+    category: '/archive/:name/'
+    tag: /tags/:name/
+  layouts:
+    category: archive
+    tag: tag
+
+
+offline:
+  strategy: cache-then-network
+
+
+plantuml:
+  url:          'http://www.plantuml.com/plantuml'
+  type:         'svg'
+  ssl_noverify: '0'
+  http_debug:   '0'
+
+
+graphviz:
+  options: "-Tsvg" # 'dot' command option
+  command: "dot"   # execute this string. specify full path to 'dot' if you need
+
+
+collections:
+  defaults:
+  - scope:
+      path: ""
+      type: docs
+    values:
+      layout: post
+  -
+    scope:
+      path: ""
+      type: category
+    values:
+      layout: "category"
+  category:
+    output: true
+    permalink: /:collection/:name
+  docs:
+    output: true
+    permalink: /:collection/:name
+
+
+jekyll-minifier:
+  preserve_php: true                # Default: false
+  remove_spaces_inside_tags: false   # Default: true
+  remove_multi_spaces: false         # Default: true
+  remove_comments: false             # Default: true
+  remove_intertag_spaces: false      # Default: false
+  remove_quotes: false              # Default: false
+  compress_css: false                # Default: true
+  compress_javascript: false         # Default: true
+  simple_doctype: false             # Default: false
+  remove_script_attributes: false   # Default: false
+  remove_style_attributes: false    # Default: false
+  remove_link_attributes: false     # Default: false
+  remove_form_attributes: false     # Default: false
+  remove_input_attributes: false    # Default: false
+  remove_javascript_protocol: false # Default: false
+  remove_http_protocol: false       # Default: false
+  remove_https_protocol: false      # Default: false
+  preserve_line_breaks: false       # Default: false
+  simple_boolean_attributes: false  # Default: false
+  compress_js_templates: false      # Default: false
+
+
+# HTML Compression
+# - http://jch.penibelst.de/
+compress_html:
+  clippings: all
+  ignore:
+    envs: development
+
+# Exclude from processing.
+# The following items will not be processed, by default. Create a custom list
+# to override the default setting.
+# exclude:
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/
