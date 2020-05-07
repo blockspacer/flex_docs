@@ -1,0 +1,26 @@
+{
+  "name": "common",
+  "id": "common",
+  "start_focus": true,
+  "no_target_parent": true,
+  "no_child_parent":true,
+  "deleted":true,
+  "hiddenObject":true,
+  "fixed_x": -250.5,
+  "fixed_y": 1,
+  "url":"{{ site.data.global.common.url }}",
+  "_parents": [
+    {
+      "name": "flextool",
+      "id": "flextool",
+      "input_type": "curve",
+      "url":"{{ site.data.global.flextool.url }}"
+    },
+    {
+      "name": "flexlib",
+      "id": "flexlib",
+      "input_type": "curve",
+      "url":"{{ site.data.global.flexlib.url }}"
+    }
+  ]
+}

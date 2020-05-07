@@ -1,0 +1,6 @@
+name		hu
+charset		koi8-r
+special		' -*-
+soundslike	generic
+affix		hu
+affix-compress	true

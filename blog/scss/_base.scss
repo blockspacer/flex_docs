@@ -1,0 +1,287 @@
+/* Search */
+
+.form-wrapper input[type=text] {
+    width: 130px;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+}
+
+/* When the input field gets focus, change its width to 100% */
+.form-wrapper input[type=text]:focus {
+    width: 100%;
+}
+
+
+.form-wrapper {
+    background-color: #f6f6f6;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#eae8e8));
+    background-image: -webkit-linear-gradient(top, #f6f6f6, #eae8e8);
+    background-image: -moz-linear-gradient(top, #f6f6f6, #eae8e8);
+    background-image: -ms-linear-gradient(top, #f6f6f6, #eae8e8);
+    background-image: -o-linear-gradient(top, #f6f6f6, #eae8e8);
+    background-image: linear-gradient(top, #f6f6f6, #eae8e8);
+    border-color: #dedede #bababa #aaa #bababa;
+    border-style: solid;
+    border-width: 1px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    -webkit-box-shadow: 0 3px 3px rgba(255,255,255,.1), 0 3px 0 #bbb, 0 4px 0 #aaa, 0 5px 5px #444;
+    -moz-box-shadow: 0 3px 3px rgba(255,255,255,.1), 0 3px 0 #bbb, 0 4px 0 #aaa, 0 5px 5px #444;
+    box-shadow: 0 3px 3px rgba(255,255,255,.1), 0 3px 0 #bbb, 0 4px 0 #aaa, 0 5px 5px #444;
+    margin: 100px auto;
+    overflow: hidden;
+    padding: 8px;
+    width: 450px;
+}
+
+.form-wrapper #search-box {
+    border: 1px solid #CCC;
+    -webkit-box-shadow: 0 1px 1px #ddd inset, 0 1px 0 #FFF;
+    -moz-box-shadow: 0 1px 1px #ddd inset, 0 1px 0 #FFF;
+    box-shadow: 0 1px 1px #ddd inset, 0 1px 0 #FFF;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    color: #2e2e2e;
+    float: left;
+    font: 16px Lucida Sans, Trebuchet MS, Tahoma, sans-serif;
+    height: 42px;
+    padding: 10px;
+    width: 320px;
+}
+
+.form-wrapper #search-box:focus {
+    border-color: #aaa;
+    -webkit-box-shadow: 0 1px 1px #bbb inset;
+    -moz-box-shadow: 0 1px 1px #bbb inset;
+    box-shadow: 0 1px 1px #bbb inset;
+    outline: 0;
+}
+
+.form-wrapper #search-box:-moz-placeholder,
+.form-wrapper #search-box:-ms-input-placeholder,
+.form-wrapper #search-box::-webkit-input-placeholder {
+    color: #999;
+    font-weight: normal;
+}
+
+.form-wrapper #submit {
+    background-color: #0483a0;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#31b2c3), to(#0483a0));
+    background-image: -webkit-linear-gradient(top, #31b2c3, #0483a0);
+    background-image: -moz-linear-gradient(top, #31b2c3, #0483a0);
+    background-image: -ms-linear-gradient(top, #31b2c3, #0483a0);
+    background-image: -o-linear-gradient(top, #31b2c3, #0483a0);
+    background-image: linear-gradient(top, #31b2c3, #0483a0);
+    border: 1px solid #00748f;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 1px 0 #FFF;
+    -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 1px 0 #FFF;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 1px 0 #FFF;
+    color: #fafafa;
+    cursor: pointer;
+    height: 42px;
+    float: right;
+    font: 15px Arial, Helvetica;
+    padding: 0;
+    text-transform: uppercase;
+    text-shadow: 0 1px 0 rgba(0, 0 ,0, .3);
+    width: 100px;
+}
+
+.form-wrapper #submit:hover,
+.form-wrapper #submit:focus {
+    background-color: #31b2c3;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#0483a0), to(#31b2c3));
+    background-image: -webkit-linear-gradient(top, #0483a0, #31b2c3);
+    background-image: -moz-linear-gradient(top, #0483a0, #31b2c3);
+    background-image: -ms-linear-gradient(top, #0483a0, #31b2c3);
+    background-image: -o-linear-gradient(top, #0483a0, #31b2c3);
+    background-image: linear-gradient(top, #0483a0, #31b2c3);
+}
+
+.form-wrapper #submit:active {
+    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) inset;
+    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) inset;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) inset;
+    outline: 0;
+}
+
+.form-wrapper #submit::-moz-focus-inner {
+    border: 0;
+}
+
+/**
+ * Reset some basic elements
+ */
+body, h1, h2, h3, h4, h5, h6,
+p, blockquote, pre, hr,
+dl, dd, ol, ul, figure {
+    margin: 0;
+    padding: 0;
+}
+
+/**
+ * Set `margin-bottom` to maintain vertical rhythm
+ */
+h1, h2, h3, h4, h5, h6,
+p, blockquote, pre,
+ul, ol, dl, figure {
+    margin-bottom: $spacing-unit / 2;
+}
+
+/**
+ * Images
+ */
+img {
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+/**
+ * Figures
+ */
+figure > img {
+    display: block;
+}
+
+figcaption {
+    font-size: $small-font-size;
+}
+
+/**
+ * Lists
+ */
+ul, ol {
+    margin-left: $spacing-unit;
+}
+
+li {
+    > ul,
+    > ol {
+         margin-bottom: 0;
+    }
+}
+
+/**
+ * Headings
+ */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 300;
+}
+
+/**
+ * Links
+ */
+a {
+    color: $a-active;
+    text-decoration: none;
+
+    &:visited {
+        color: darken($brand-color, 15%);
+    }
+
+    &:hover {
+        color: $a-hover;
+        text-decoration: none;
+    }
+}
+
+
+/**
+ * Blockquotes
+ */
+blockquote {
+    color: $grey-color;
+    border-left: 4px solid $grey-color-light;
+    padding-left: $spacing-unit / 2;
+    font-size: 18px;
+    letter-spacing: -1px;
+    font-style: italic;
+
+    > :last-child {
+        margin-bottom: 0;
+    }
+}
+
+/**
+ * Code formatting
+ */
+pre,
+code {
+    font-size: 15px;
+    border: 1px solid $grey-color-light;
+    border-radius: 3px;
+    background-color: #eef;
+}
+
+code {
+    padding: 1px 5px;
+}
+
+pre {
+    padding: 8px 12px;
+    overflow-x: auto;
+
+    > code {
+        border: 0;
+        padding-right: 0;
+        padding-left: 0;
+    }
+}
+
+/**
+ * Wrapper
+ */
+.wrapper {
+    max-width: -webkit-calc(1600px - (#{$spacing-unit} * 2));
+    max-width:         calc(1600px - (#{$spacing-unit} * 2));
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: $spacing-unit;
+    padding-left: $spacing-unit;
+    @extend %clearfix;
+
+    @include media-query($on-laptop) {
+        max-width: -webkit-calc(1200px - (#{$spacing-unit}));
+        max-width:         calc(1200px - (#{$spacing-unit}));
+        padding-right: $spacing-unit / 2;
+        padding-left: $spacing-unit / 2;
+    }
+}
+
+/**
+ * Clearfix
+ */
+%clearfix {
+
+    &:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+}
+
+/**
+ * Icons
+ */
+.icon {
+
+    > svg {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+
+        path {
+            fill: $grey-color;
+        }
+    }
+}
+
+b, strong {
+    font-weight: bold;
+}

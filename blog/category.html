@@ -1,0 +1,26 @@
+---
+layout: default
+---
+
+
+<div class="home">
+
+  {% include jumbotron.html jumbotron_title='Tags' %}
+  {% assign pinned = site.category %}
+
+  <ul class="post-list">
+    {% for post in pinned %}
+      <li>
+        <span class="post-meta">{{ post.date | date: "%d.%m.%Y" }}</span>
+
+        <h2>
+          <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+        </h2>
+      </li>
+    {% endfor %}
+
+  </ul>
+
+  </ul>
+
+</div>

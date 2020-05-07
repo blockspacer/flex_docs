@@ -1,0 +1,21 @@
+language: ruby
+
+env:
+  global:
+    # see https://docs.travis-ci.com/user/environment-variables/
+    - secure: "j8woHK36R6WqYt2Uby7G7+xPjCelYVBGpZzuagI6e521q1nnXUkI9ctwk8/aGsZutgXmIhsfydhRIGZ0Xrn9kAH/3ijo5DqAggh3s6M78Y6ch0ZuFfJFaszIRLL7UW9u+xy9NmPOiSmhwup1LBhE6urtNUjsvXrmWRgZ+TmKOAWtUDZyV3OE31lwqfnzvu454swFYUcADGRTg3fYP6Egzh0phNdMHdcH7lyWm5BBvknRuFJyL9Eut7aPVft3NjPd0V5z2QQyH+T5YspnYqWg06ts/WVICrZWJ3Go+0xo5M/iWGTS1f+Cx8bOIL5VA99qFljxNlAmHp/gg0fqYXxZYkxPcIyfVclAK4cwdZ3Ksoeq2Qbqj/3ySlWzKcsMpxJynQXDAx/ojqWhnKaBA0IdmjxQi+A6kjN3PUdy+lDtWlFk+2NXanIrcm4/pDs0DqTIuNCrOeJbtTu0caNDvHhoFzVIR8FS7Pr3zsy5gU+8ooALpxLrAGTaCMT7rfBF2BF7MnRZpeQl3XpjmtprcSQ82rqqF3rTNTZMBSiaVXRi40XMc9fx0Ply6DG1pH8r8WefukcQUxQxv9eaOa7Sml2uWeuUuZTYcy+Le78wa7am0r2L4LAWR5UlpCWpNuKMhcXZgxjP1FCO7K8aeEO/EDS+tNmkQnbdB/sO3hrpqWajgdQ="
+
+services:
+  - docker
+
+script:
+- bash scripts/ci/build.sh
+
+after_success:
+- bash scripts/ci/deploy.sh
+
+# branch whitelist, only for GitHub Pages
+branches:
+  only:
+  - master
+  - /pages-(.*)/ # test every branch which starts with "pages-"

@@ -1,0 +1,310 @@
+@charset "utf-8";
+
+.techtree {
+    margin:0px;
+  padding:0px;
+background-color:#fff8ea;
+
+
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+   
+    position:relative;
+    top:0;
+    left:0;
+}
+
+.treeNode rect {
+  fill: none;
+}
+
+.treeNode {
+
+  font: 14px sans-serif;
+}
+
+.link {
+  
+  stroke-linecap:round;
+  stroke-linejoin:round;
+
+  fill: none;
+  stroke: url(#goldGradient);
+  stroke-width: 8.5px;
+
+}
+
+.arrowHeadGold {
+  fill: url(#goldGradient);
+  stroke: #bc9325;
+}
+
+.bubbleLink {
+  stroke: url(#bubbleGradient);
+}
+
+.bubbleLinkAnim {
+  stroke: url(#bubbleGradientAnim);
+}
+
+.sibling {
+    fill:  none;
+    stroke: url(#goldGradient);
+    stroke-width: 8.5px;
+}
+
+.nodeObject {
+  margin:0px; 
+  padding:0px;
+  background-color: none;
+}
+
+.cpointer {
+  cursor:pointer;
+}
+
+.nodeObject body{
+  margin:0px; 
+  padding:0px;
+  text-align: center;
+  background:none;
+}
+
+.nodeObjectContent-outer {
+  margin:0px; 
+  padding:0px;
+  margin: 0px;
+}
+
+.nodeObjectContent {
+  margin:0px; 
+  padding:0px;
+  border-radius: 10px;
+
+  box-shadow: 0px 0px 1px 1px #000 inset;
+  width:410px;
+
+  height:100px;
+}
+
+.goldenNodeObject {
+  border: 0 none rgb(177,106,2);
+  border-bottom: 4px solid rgb(177,106,2);
+  -webkit-border-radius: 7px 7px 9px 9px;
+  border-radius: 7px 7px 9px 9px;
+  text-align: left;
+  background: -webkit-linear-gradient(-90deg, rgb(253,218,134) 0, rgb(225,157,60) 100%), rgb(253, 218, 134);
+  background: -moz-linear-gradient(180deg, rgb(253,218,134) 0, rgb(225,157,60) 100%), rgb(253, 218, 134);
+  background: linear-gradient(180deg, rgb(253,218,134) 0, rgb(225,157,60) 100%), rgb(253, 218, 134);
+  -webkit-box-shadow: 0 -1px 1px 0 rgba(255,255,255,0.701961) inset, 0 1px 1px 0 rgb(177,106,2) ;
+  box-shadow: 0 -1px 1px 0 rgba(255,255,255,0.701961) inset, 0 1px 1px 0 rgb(177,106,2) ;
+}
+
+.goldenOuter {
+  background: -webkit-linear-gradient(-90deg, rgb(253,218,134) 0, rgb(225,157,60) 100%), rgb(253, 218, 134);
+  background: -moz-linear-gradient(180deg, rgb(253,218,134) 0, rgb(225,157,60) 100%), rgb(253, 218, 134);
+  background: linear-gradient(180deg, rgb(253,218,134) 0, rgb(225,157,60) 100%), rgb(253, 218, 134);
+  -webkit-box-shadow: 0 -1px 1px 0 rgba(255,255,255,0.701961) inset, 0 1px 1px 0 rgb(177,106,2) ;
+  box-shadow: 0 -1px 1px 0 rgba(255,255,255,0.701961) inset, 0 1px 1px 0 rgb(177,106,2) ;
+
+  background: linear-gradient(to bottom right, #ebd197, #b48811);
+}
+
+.treeNodeTitle{ 
+  color: #513e1d;
+  font: "Arial, Helvetica, sans-serif";
+  font-size:22px;
+  font-weight: bold; 
+}
+
+.filled {
+} 
+
+.outlined {
+}
+
+.circle-outer{
+  width:80px;
+  height:80px;
+  text-align: center;
+  padding:10px;
+  margin:0px;
+  margin-left:5px;
+}
+
+.circle{
+  width:80px;
+  height:80px;
+  text-align: center;
+  vertical-align: middle;
+}
+  
+.circle:after{
+  content:"";
+  padding-bottom:100%;
+  display:block;
+}
+
+/* ---- reset ---- */
+
+canvas {
+  display: block;
+  vertical-align: bottom;
+}
+
+.svg-tooltip {
+    pointer-events: none;
+    border-radius: 15%;
+}
+.tooltip {
+    padding: 10px;
+    color: #FFF;
+    border-radius: 15%;
+    font-size:28px;
+}
+.lead {
+    font-style: italic;
+}
+
+polygon {
+    pointer-events: none;
+    border-radius: 5%;
+}
+
+
+.border {
+    fill: none;
+    shape-rendering: crispEdges;
+    stroke: #aaa;
+}
+
+details[open] summary ~ * {
+  animation: sweep .5s ease-in-out;
+}
+
+@keyframes sweep {
+  0%    {opacity: 0; margin-left: -10px}
+  100%  {opacity: 1; margin-left: 0px}
+}
+
+details {
+    margin-bottom: 15px;
+    border: 1px solid #DEDEDE;
+}
+
+details[open], details[open] details {
+    padding: 15px 15px 0 15px;
+}
+
+details summary {
+    padding: 15px;
+    background: #FBFBFB;
+}
+
+details summary:before {
+    content: "+";
+    margin-right: 20px;
+}
+
+details[open] > summary:before {
+    content: "–";
+    margin-right: 20px;
+}
+
+details[open] details {
+    margin-top: 15px;
+    padding-bottom: 0;
+}
+
+details[open] summary {
+    margin: -15px -15px 10px -15px;
+}
+
+details[open] > summary {
+    border-bottom: solid 1px #DEDEDE;
+}
+
+details[open] details summary {
+    margin-bottom: 0;
+}
+
+.system-modules td details {
+    /* fix for modules page */
+    height: auto;
+    white-space: normal;
+}
+
+.system-modules td summary {
+    /* fix for modules page */
+    background-color: transparent;
+}
+
+/* Hide the default marker. */    
+details summary::-webkit-details-marker {
+    display: none;
+}
+
+#techTreeContainerHint{
+    width:1080px;
+    background-color:#FFF8EA;
+    text-align:center;
+    vertical-align:middle;
+    color:#513e1d;
+    position:absolute;
+    z-index:999;
+    display:none;
+    pointer-events:none;
+}
+
+.techTreeContainerIcons {
+  pointer-events:none;
+  display:none;
+}
+
+.techTreeContainerIcon {
+  pointer-events:auto;
+}
+
+.button_basic-small {
+    width:32px;
+    height:32px;
+    font-size:22px;
+    position: relative;
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    border: 0;
+    vertical-align: middle;
+    text-align: center;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    background-color: #fff;
+    line-height: 32px;
+    border-radius: 32px;
+    overflow: hidden;
+    -webkit-transition: box-shadow .1s ease-out;
+    transition: box-shadow .1s ease-out;
+    box-shadow: 0 2px 6px 0 rgba(0,0,0,.2);
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    color:#444;
+    margin-top:5px;
+}
+
+.button_basic-small:hover {
+    color:#000;
+}
+
+.iconsRight {
+  position:absolute;
+  bottom:5px;
+  right:5px;
+  width:32px;
+}

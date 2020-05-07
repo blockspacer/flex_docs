@@ -1,0 +1,5 @@
+{% assign dpss_info = site.data.globals | where: "id", "dpss_info" %}
+
+{% assign preprocessed_content=include.raw_content | replace: '<nospell>', '' %}
+{% assign preprocessed_content=preprocessed_content | replace: '</nospell>', '' %}
+{{ preprocessed_content }}
