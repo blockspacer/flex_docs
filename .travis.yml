@@ -1,4 +1,13 @@
+# see https://jekyllrb.com/docs/continuous-integration/travis-ci/
+
+# This line tells Travis to use a Ruby build container. It gives your script access to Bundler, RubyGems, and a Ruby runtime.
 language: ruby
+
+# RVM is a popular Ruby Version Manager (like rbenv, chruby, etc). 
+# This directive tells Travis the Ruby version to use when running your test script. 
+# Use a version which is pre-installed on the Travis build docker image to speed up the build.
+#rvm:
+#  - 2.6.3
 
 env:
   global:
@@ -8,15 +17,55 @@ env:
 services:
   - docker
 
+# The build script file needs to have the executable attribute set or Travis will fail with a permission denied error. 
+# You can also run this locally and commit the permissions directly, thus rendering this step irrelevant.
+before_script:
+ - chmod +x ./scripts/ci/build.sh # or do this locally and commit
+ - chmod +x ./scripts/ci/deploy.sh # or do this locally and commit
+
 script:
 - bash scripts/ci/build.sh
 
 after_success:
 - bash scripts/ci/deploy.sh
 
+# Using html-proofer? 
+# You’ll want this environment variable. 
+# Nokogiri, used to parse HTML files in your compiled site, 
+# comes bundled with libraries which it must compile each time it is installed. 
+# Luckily, you can dramatically decrease the install time of Nokogiri 
+# by setting the environment variable NOKOGIRI_USE_SYSTEM_LIBRARIES to true.
+env:
+  global:
+  - NOKOGIRI_USE_SYSTEM_LIBRARIES=true # speeds up installation of html-proofer
+
+addons:
+  apt:
+    packages:
+    - libcurl4-openssl-dev
+
+# By default you should supply the sudo: false command to Travis. 
+# This command explicitly tells Travis to run your build on Travis’s container-based infrastructure. 
+# Running on the container-based infrastructure can often times speed up your build. 
+# If you have any trouble with your build, or if your build does need sudo access, modify the line to sudo: required.
+sudo: false # route your build to the container-based infrastructure for a faster build
+
+# To speed up the build, you should cache the gem packages created by bundler.
+# Travis has a pre-defined cache strategy for this tool which should have all the default configs to do exactly that.
+cache: bundler # caching bundler gem packages will speed up build
+
+# Optional: disable email notifications about the outcome of your builds
+notifications:
+  email: false
+
+# You want to ensure the Travis builds for your site are being run only on the branch or branches which contain your site. 
+# One means of ensuring this isolation is including a branch whitelist in your Travis configuration file. 
+# By specifying the gh-pages branch, you will ensure the associated test script (discussed above) is only executed on site branches. 
+# If you use a pull request flow for proposing changes, you may wish to
+# enforce a convention for your builds such that all branches containing edits are prefixed, 
+# exemplified above with the /pages-(.*)/ regular expression.
 # branch whitelist, only for GitHub Pages
 branches:
   only:
-  - master
+  # you can create branch pages-releases
   - /pages-(.*)/ # test every branch which starts with "pages-"
-  - /(.*)-pages/ # test every branch which ends with "-pages"
