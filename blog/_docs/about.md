@@ -9,20 +9,26 @@ permalink: /about/
 
 flextool is a transpiler that extends C++ for new introspection, reflection and compile-time execution.
 
-flextool doesn't aim to create a predefined set of source code transformations. Users can share C++ scripts for source code transformation.
+flextool doesn't aim to create a predefined set of source code transformations. Users can share C++ scripts (or plugins) for source code transformation.
 
-Suppose someone shared useful scripts (or plugins) like interface.cxx and enum_to_json.cxx to the open-source community.
-
-Goal of flextool is to ease usage of that community provided scripts (or plugins) while keeping power of Clang LibTooling.
+Goal of flextool is to ease usage of community provided scripts (or plugins) while keeping power of Clang LibTooling.
 
 flextool also provides extra libraries for plugin developers with functionality not provided by Clang LibTooling:
 
 For example:
 
 - integration with C++ code interpreter (Cling) allows to write source code transormation rules in original source code file (may be used to execute arbitrary C++ code without need to write and compile plugins).
-- integration with template engines allows to ease use of Clang LibTooling for purposes of code generation.
+- integration with template engines simplifies usage of Clang LibTooling for purposes of code generation.
 
 and many more
+
+## For impatient
+
+You can find usage examples on [tutorial page]({{ site.data.global.tutorial.url }})
+
+## flextool is build dependency
+
+Note that depending on flextool won't make users of your application depend on it as well, as it is a pure build dependency, not runtime.
 
 ## Metaprogramming
 

@@ -13,4 +13,4 @@ that page in development
 
 ## For contibutors
 
-Fell free to open GitHub Issue if you know how to improve that page
+Fell free to open [GitHub Issue](https://github.com/blockspacer/flextool/issues) if you know how to improve that page

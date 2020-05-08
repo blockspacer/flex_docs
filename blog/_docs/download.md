@@ -187,7 +187,7 @@ cmake -DEXTRA_CONAN_OPTS="--profile;clang;-s;build_type=Debug;--build;missing" -
 
 NOTE: dependencies include big codebases like cling and LLVM. Build from source can take a lot of processor time.
 
-For contributors: conan allows to provide pre-built packages. Please open github issue https://github.com/blockspacer/flextool/issues if no pre-built packages are available for your platform.
+For contributors: conan allows to provide pre-built packages. Please open [GitHub Issue](https://github.com/blockspacer/flextool/issues) if no pre-built packages are available for your platform.
 
 ## Build extra dependencies
 
@@ -251,16 +251,14 @@ GIT_SSL_NO_VERIFY=true \
 
 that page in development
 
-Fell free to open GitHub Issue if you know how to improve that page
-
 ## Updating
 
 that page in development
-
-Fell free to open GitHub Issue if you know how to improve that page
 
 ## Uninstalling
 
 that page in development
 
-Fell free to open GitHub Issue if you know how to improve that page
+## For contibutors
+
+Fell free to open [GitHub Issue](https://github.com/blockspacer/flextool/issues) if you know how to improve that page

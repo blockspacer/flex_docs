@@ -19,4 +19,4 @@ Feel free to ask questions, share your ideas, or just join the conversation!
 
 ## For contibutors
 
-Fell free to open GitHub Issue https://github.com/blockspacer/flextool/issues if you know how to improve that page or add new communication methods (for example, IRC)
+Fell free to open [GitHub Issue](https://github.com/blockspacer/flextool/issues) if you know how to improve that page or add new communication methods (for example, IRC)
