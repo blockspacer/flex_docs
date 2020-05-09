@@ -390,3 +390,15 @@ bundle install
 ### Use `| relative_url`
 
 see https://jekyllrb.com/docs/liquid/filters/
+
+### Make sure your github token does not appear in Travis logs
+
+Open any build job in Travis
+
+Click `Raw log`
+
+Your github token must not appear in log, may be replaced with something like `[secure]`
+
+### Clear browser cache
+
+Ctrl+Shift+R

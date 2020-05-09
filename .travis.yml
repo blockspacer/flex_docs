@@ -75,11 +75,8 @@ addons:
     packages:
     - libcurl4-openssl-dev
 
-# By default you should supply the sudo: false command to Travis. 
-# This command explicitly tells Travis to run your build on Travis’s container-based infrastructure. 
-# Running on the container-based infrastructure can often times speed up your build. 
-# If you have any trouble with your build, or if your build does need sudo access, modify the line to sudo: required.
-sudo: false # route your build to the container-based infrastructure for a faster build
+# (The key `sudo` has no effect anymore.)
+#sudo: false # route your build to the container-based infrastructure for a faster build
 
 # To speed up the build, you should cache the gem packages created by bundler.
 # Travis has a pre-defined cache strategy for this tool which should have all the default configs to do exactly that.
