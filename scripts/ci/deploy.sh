@@ -39,6 +39,7 @@ find $PWD \
     -not -name '.git' \
     -not -name '.nojekyll' \
     -exec echo rm -rf '{}' \;
+pwd
 # must contain filtered folders after `rm -rf` above
 ls -artl 
 # copy or replace new data
