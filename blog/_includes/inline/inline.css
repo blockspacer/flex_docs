@@ -650,10 +650,6 @@ nav.menu {
   -webkit-transition-duration: 0.3s;
 }
 
-.active {
-  background: #444 !important;
-}
-
 .displaynone {
   display: none;
 }

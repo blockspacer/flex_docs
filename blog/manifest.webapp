@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "docsspace",
+  "name": "flex_docs",
   "launch_path": "/index.html",
   "description": "docs docs",
   "icons": {
@@ -18,7 +18,7 @@
   },
   "locales": {
     "en": {
-      "name": "docsspace",
+      "name": "flex_docs",
       "description": "docs docs"
     }
   }

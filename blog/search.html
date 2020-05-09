@@ -4,7 +4,7 @@ categories: jekyll update
 date:   2016-09-08 11:56:39 +0300
 permalink: /search/
 ---
-<form class="form-wrapper" action="/search/" method="get">
+<form class="form-wrapper" action="{{ "/search" | relative_url }}" method="get">
   <label for="search-box"></label>
   <input type="text" id="search-box" name="query">
   <input type="submit" id="submit" value="Искать">

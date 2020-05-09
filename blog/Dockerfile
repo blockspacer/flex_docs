@@ -32,7 +32,8 @@ ENV LC_ALL=C.UTF-8 \
     GEM_HOME=/gems \
     GEM_PATH=/gems \
     BUNDLE_PATH=/gems \
-    BUNDLE_PATH=/gems
+    BUNDLE_PATH=/gems \
+    PYTHON=/usr/bin/python3
 
 # https://askubuntu.com/a/1013396
 # https://github.com/phusion/baseimage-docker/issues/319
@@ -87,7 +88,7 @@ RUN set -ex \
     && \
     $APT update \
     && \
-    $APT install -y apt-utils wget tar \
+    $APT install -y apt-utils wget tar python3 \
     && \
     $APT install -y ruby ruby-dev ruby-full \
     && \
@@ -161,8 +162,15 @@ RUN set -ex \
     # remove generated files
     rm -rf build _site .generated *generated* \
     && \
+    # requires python
+    python3 --version \
+    && \
+    # requires PYTHON env var
+    $PYTHON --version \
+    && \
     # https://medium.com/@mallim/how-to-use-node-sass-in-a-closed-environment-859880720f2a
     # OR sudo npm config set sass-binary-site=https://npm.taobao.org/mirrors/node-sass --global
+    # NOTE: requires python
     $NPM_INSTALL_UNSAFE --save-dev node-sass --sass-binary-site=https://npm.taobao.org/mirrors/node-sass \
     && \
     $NPM cache clean --force \

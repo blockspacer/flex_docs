@@ -3,14 +3,14 @@
 
   <div class="wrapper">
 <div class="site-nav-container flex-justify-between flex-items-center mx-auto">
-    <a class="header-logo-invertocat d-flex flex-items-center float-left" href="/">
-      <img src="/images/logo.png" alt="logo" title="logo" width="40px">
+    <a class="header-logo-invertocat d-flex flex-items-center float-left" href="{{ "/" | relative_url }}">
+      <img src="{{ "/images/logo.png" | relative_url }}" alt="logo" title="logo" width="40px">
       <h2 style="color:#3678bd">FlexTool</h2>
     </a>
     <div class="left">
-      <a class="site-title" href="/search"><i class="fa fa-search"></i></a>
-      <a class="site-title" href="/about"><i class="fa fa-info-circle"></i></a>
-      <a class="site-title" href="/category"><i class="fa fa-tags"></i></a>
+      <a class="site-title" href="{{ "/search" | relative_url }}"><i class="fa fa-search"></i></a>
+      <a class="site-title" href="{{ "/about" | relative_url }}"><i class="fa fa-info-circle"></i></a>
+      <a class="site-title" href="{{ "/category" | relative_url }}"><i class="fa fa-tags"></i></a>
     </div>
 
   </div>
