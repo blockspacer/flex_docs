@@ -1224,7 +1224,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "flextool is a transpiler that extends C++ for new introspection, reflection and compile-time execution.flextool doesn’t aim to create a predefined set of source code transformations. Users can share C++ scripts (or plugins) for source code transformation.Goal of flextool is to ease usage of community provided scripts (or plugins) while keeping power of Clang LibTooling.flextool also provides extra libraries for plugin developers with functionality not provided by Clang LibTooling:For example:  integration with C++ code interpreter (Cling) allows to write source code transormation rules in original source code file (may be used to execute arbitrary C++ code without need to write and compile plugins).  integration with template engines simplifies usage of Clang LibTooling for purposes of code generation.and many moreFor impatientYou can find usage examples on tutorial pageflextool is build dependencyNote that depending on flextool won’t make users of your application depend on it as well, as it is a pure build dependency, not runtime.MetaprogrammingMetaprogramming is an “art” of writing programs to treat other programs as their data. This means that a program could generate, read, analyse, and transform code or even itself to achieve a certain solution.Dependency manager for flextool pluginsWe recommend conan - a crossplatform dependency manager for C++.It can be used to install both flextool and all plugins required by flextool into your build folder of your project.conan also allows to provide important information in each conan package:  path where flextool executable can be found. You don’t need to install anything system-wide. Just run conan install and you will be able to use flextool!  path to cling and clang header files. That is very usefull cause conan allows to automatically set -I arguments required by clang LibTooling.  path to LLVM_ROOTNote: It is also possible to install flextool system-wide and provide command-line argumets like -extra-arg=-I$PWD/include -extra-arg=-I$PWD/include/foo -extra-arg=-DMY_DEFINITION=1 -extra-arg=-DONE_MORE_DEFINITION=1 by hand.flextool toolchainThe main tool is the flextool.flextool uses Clang LibTooling and LLVM to parse source code.Information parsed from source code file will be sent to plugins.Usually plugin is shared library (.so or .dll file). But it is possible to link plugin statically (.a or .lib file) for better optimization. It is also possible to execute arbitrary C++ code at runtime using Cling and use Cling to imitate plugins.FeaturesPlugin can do arbitrary logic with information provided by flextool. For example, you can:  modify source files (implement metaclasses, transpile from C++X to C++Y etc.)  create new files (separate generated class to .hpp and .cpp, etc.)  check source files (implement style checks, validate design patterns, etc.)  compile scripts (rules for code transformations) for maximum performance, not only interpret them in Cling.  use C++ as compile-time scripting language (uses https://github.com/derofim/cling-cmake)  use template engine with full C++ power (transpiles template to valid C++ code, supports Cling, etc.). uses https://github.com/blockspacer/CXTPLand many moreAbout flex_reflect_pluginflex_reflect_plugin is plugin to flextool. It can be disabled (as any plugin) or completely replaced with custom plugin(s).Default plugin https://github.com/blockspacer/flex_reflect_plugin allows to execute custom logic based on data stored in C++ annotations.For example, annotation starting with “{funccall};” may be used to call C++ logic by some name.__attribute__((annotate(\"{gen};{funccall};make_interface;make_removefuncbody\"))){gen}; - keyword used in every annotation.{funccall}; - keyword used to tell what it must call C++ logic (usually one function) by name.We call functions that can map data stored in annotation to some logic as annotation methods.funccall is annotation method.make_interface;make_removefuncbody - two rules what will be executed. We call them source transformation rules.make_interface and make_removefuncbody - source transformation rules. Rules will be executed from left (make_interface) to right (make_removefuncbody).Usually you don’t need to write long C++ annotations, just use C++ #define (or include built-in header with common defines):// define shortcut#define $apply(...) \\  __attribute__((annotate(\"{gen};{funccall};\" #__VA_ARGS__)))// usage exampleenum class$apply(  reflect_enum)ReflShapeKind0 : uint32_t {  Box = 3,  Sphere = 6,};Suppose we want to morph class into interface:// Sourceclass SomeInterfaceName {  int foo1() {    // ...  };  int foo();  virtual void foobar(int&amp; arg1) = 0;  virtual void zoobar(int&amp; arg2);  virtual ~SomeInterfaceName() = 0;};// &lt;== will be changed into ==&gt;// Resultclass SomeInterfaceName {  virtual int foo1() = 0;  virtual int foo() = 0;  virtual void foobar(int&amp; arg1) = 0;  virtual void zoobar(int&amp; arg2) = 0;  virtual ~SomeInterfaceName() = 0;};We can use funccall action to run C++ scripts for source code transformation. They can be named make_interface and make_removefuncbody (name as you want).Using a similar approach you can apply multiple source code transformation steps to the same class / struct / etc (just list required rules in same annotation like make_interface;make_removefuncbody) .Code repositoryWe prefer to keep main code repository small ( https://github.com/blockspacer/flextool ) and divide project into smaller libraries. Most used library is https://github.com/blockspacer/flexlibAbout libtoolingflextool uses LibTooling to parse and modify C++.LibTooling is a library to support writing standalone tools based on Clang.Useful links:  https://clang.llvm.org/extra/clang-rename.html  Clang Tooling I (add override keyword) https://medium.com/@chichunchen844/clang-tooling-i-add-override-keyword-ddfdf6113b24  llvm-clang-samples https://github.com/eliben/llvm-clang-samples/blob/master/src_clang/tooling_sample.cpp  https://chromium.googlesource.com/chromium/src/+/master/tools/clang/rewrite_to_chrome_style/RewriteToChromeStyle.cpp  http://www.dreamlandcoder.com/system-security/how-i-learned/clang-libtool/  https://jonasdevlieghere.com/understanding-the-clang-ast/  http://swtv.kaist.ac.kr/courses/cs453-fall13/Clang%20tutorial%20v4.pdf  https://meetingcpp.com/mcpp/slides/2019/Teaching%20Old%20Compilers%20New%20Tricks_%20Transpiling%20C++17%20to%20C++11.pdf  https://gist.github.com/riyadparvez/a2c157b24579c6552466  https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-3-rewriting-code-with-clang-tidy/  http://blog.audio-tk.com/2018/03/20/writing-custom-checks-for-clang-tidy/  https://meetingcpp.com/mcpp/slides/2018/Reflection2.pdf  https://s3.amazonaws.com/connect.linaro.org/yvr18/presentations/yvr18-223.pdf  https://kevinaboos.wordpress.com/2013/07/30/clang-tips-and-tricks/  https://eli.thegreenplace.net/tag/llvm-clang  http://www.goldsborough.me/c++/clang/llvm/tools/2017/02/24/00-00-06-emitting_diagnostics_and_fixithints_in_clang_tools/  https://www.amazon.com/Getting-Started-LLVM-Core-Libraries/dp/1782166920  https://variousburglarious.com/tag/clang/About clingflextool uses cling to execute C++ at compile-time.You can use cling for hot code reload / REPL / Fast C++ prototyping / Scripting engine / JIT / etc.Useful links:  (how to add Cling into CMake project) https://github.com/derofim/cling-cmake  https://github.com/root-project/cling/tree/master/www/docs/talks  https://github.com/caiorss/C-Cpp-Notes/blob/master/Root-cern-repl.orgContributors List: Example Profile  I’m an example that you can copy, if you want :)  I work on many things like…  My hobbies include…  twitter![facebook-alt][facebook-img]![google-img][google-img]![tumblr-alt][tumblr-img]![dribbble-alt][dribbble-img]githublinkedinContributors List 👌AAnindita Basu  Technical writer  twittergithubAnna Hayhurst  Junior Developer  githubCCássio Espíndola  Analyst Developer  githubDDenis trofimov  C++ Developer  github  github  linkedinMMohib Qureshi  Software Development Enthusiast  githubYYousif Alebyary  Web/Mobile Developer.  githubYves Mancera  Software Engineer  githubStanding on the Shoulders of GiantsThat project possible because of flexferrum’s autoprogrammer.Articles about flexferrum’s autoprogrammer in media:  [RUS] метаклассах по-русски https://habr.com/ru/article/448466/  [RUS] Метаклассы в C++17 Фантастика? Реальность! https://assets.ctfassets.net/oxjq45e8ilak/55bGdX2PnYzmrpM8rwCjcE/791e7eee3236c2023e86e169faca8a0e/Sergei_Sadovnikov_Metaclasses_in_C___dream_Reality.pdfLicenseNote: This project is provided as it is, without any warranty (see License).LICENSE for open source componentsAll the open source components are used under their associated open source licences.Used open source components:  icu  ced  boost  harfbuzz  boost.outcome  chromium (base)  libevent  modp_b64  tcmalloc  xdg_mime  xdg_user_dirs  dynamic_annotations  (Facebook) Folly  (Microsoft) GSLSee LICENSE files📋 Similar projects  https://github.com/cppreflect/metapp  https://github.com/flexferrum/autoprogrammer/blob/8c9867d357450b99202dac81730851ffc8faa891/src/generators/pimpl_generator.cpp  Clava https://github.com/specs-feup/clava  Compile-time EXecution of C++ code https://github.com/MaliusArth/cex/blob/6f6e700a253b06c7ae6801e1a3c1f3d842931d77/tool/src/MatchCallbacks/AnnotatedFunctionCallback.cpp  circle https://github.com/seanbaxter/circle/blob/master/examples/README.md  SugarCpp https://github.com/curimit/SugarCpp  ExtendedCpp https://github.com/reneeichhorn/extended-cpp  https://github.com/dobkeratops/compiler  transpiling_cpp17_to_cpp11 https://github.com/neobrain/cftf  https://github.com/llvm-mirror/clang-tools-extra/blob/388528d/clang-tidy/add_new_check.py  https://github.com/aantron/better-enums  https://github.com/Neargye/magic_enum  https://github.com/foonathan/standardese  https://github.com/Leandros/metareflect/blob/0208fdd4fc0ea1081ae2ff4c3bfce161305a7423/README.md#run-the-metareflect-tool  https://github.com/qtinuum/QtnProperty#overview  https://github.com/p-ranav/pprint  https://github.com/google/draco/blob/master/CMakeLists.txt#L715  https://github.com/goto40/rpp/blob/ec8a4c4a3ac32dccee8c4e8ba97be8c2ba1c8f88/src/parser/common_parser.cpp#L21  More https://gist.github.com/blockspacer/6f03933de4f9a6c920649713b056ba4a",
-        "url": "/about/"
+        "url": "/flex_docs/about/"
       }
       ,
     
@@ -1233,7 +1233,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "TODOthat page in developmentHow to create new plugins for flextoolthat page in developmentHow to test pluginsthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/adding_plugins/"
+        "url": "/flex_docs/adding_plugins/"
       }
       ,
     
@@ -1242,7 +1242,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "TODOthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/api_reference/"
+        "url": "/flex_docs/api_reference/"
       }
       ,
     
@@ -1251,7 +1251,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "Bug reports can be posted in the GitHub Issue Tracker https://github.com/blockspacer/flextool/issuesPlease supply as much relevant information as possible, including:flextool versionOriginal source code.Used pluginsEnvironment information — including compiler versionsError symptoms.Proposed solutions, ideally with a pull request.How to debug in case of crash or bugsBuild with -s build_type=DebugYou can manually run some app_name under gdb debugger https://www.gnu.org/software/gdb/gdb -ex \"r\" -ex \"bt\" --args app_name .........Debugging with Sanitizersthat page in developmentProfiling performance and tracingthat page in developmentIncreasing log levelthat page in developmentSite and documentation bugsDocumentation (site) bugs should be filed in the same Issue Tracker.Include relevant information including:The URL and title of the affected page(s).A description of the problem.Suggestions for a possible solution.TipFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/bug_report/"
+        "url": "/flex_docs/bug_report/"
       }
       ,
     
@@ -1260,7 +1260,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "TODOthat page in developmentAdding flextool to conanfile and CMakeLists.txtthat page in developmentAdding existing plugins to conanfile and CMakeLists.txtthat page in developmentRunning flextool with custom argumentsthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/building_projects/"
+        "url": "/flex_docs/building_projects/"
       }
       ,
     
@@ -1269,7 +1269,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "TODOthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/common/"
+        "url": "/flex_docs/common/"
       }
       ,
     
@@ -1278,7 +1278,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "Welcome to the flextool community!Get in touchThe best ways contact the community are:The GitHub Issue Tracker https://github.com/blockspacer/flextool/issuesFeel free to ask questions, share your ideas, or just join the conversation!For contibutorsFell free to open GitHub Issue if you know how to improve that page or add new communication methods (for example, IRC)",
-        "url": "/community/"
+        "url": "/flex_docs/community/"
       }
       ,
     
@@ -1287,7 +1287,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "This section contains articles that are relevant to anyone who wants to contribute to Emscripten and help improve the project.Contributing provides an introduction to contributing, along with a few ideas for how you can help.The Developer’s Guide contains contributor-relevant information, covering compiler operation and submitting patches to the Emscripten repositories.AUTHORS is a list of all Emscripten contributors. If you contribute you must accept the project’s open source licenses (MIT/LLVM) and add yourself to the list!TODOthat page in developmentContributing to flextoolthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/developer_docs/"
+        "url": "/flex_docs/developer_docs/"
       }
       ,
     
@@ -1296,7 +1296,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "TODOadd info about build with dockerTODOthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/faq/"
+        "url": "/flex_docs/faq/"
       }
       ,
     
@@ -1305,7 +1305,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "Cloning and setupgit clone https://github.com/blockspacer/flextool.gitIf you got errors after git clone - try to update submodulesgit submodule sync --recursive# orgit fetch --recurse-submodules# orgit submodule update --init --recursive --depth 100 --progress# orgit submodule update --force --recursive --init --remoteInstall C++ compiler: gccExample of installation steps, tested on ubuntu 18.04:apt install -y build-essentialInstall C++ compiler: clangExample of installation steps, tested on ubuntu 18.04:apt install -y clang-6.0 libstdc++6Install CMakeYou can find latest version on https://cmake.org/Example of installation steps, tested on ubuntu 18.04:# NOTE: github may be down, so prefer cmake.org/files# see https://anglehit.com/how-to-install-the-latest-version-of-cmake-via-command-line/version=3.15build=3mkdir ~/temp || truecd ~/tempwget --no-check-certificate https://cmake.org/files/v$version/cmake-$version.$build.tar.gztar -xzvf cmake-$version.$build.tar.gzcd cmake-$version.$build/./bootstrapmake -j4make installcmake --versionInstall conan - a crossplatform dependency manager for C++pip install --index-url=https://pypi.python.org/simple/ --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel \\  &amp;&amp; \\  pip install --index-url=https://pypi.python.org/simple/ --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org virtualenv \\  &amp;&amp; \\  pip install --index-url=https://pypi.python.org/simple/ --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org conan \\  &amp;&amp; \\  pip install --index-url=https://pypi.python.org/simple/ --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org conan_package_tools# optional - create default profileconan profile new default --detect# validate `conan remote list`conan remote list# validate `conan search`conan search *boost* -r allConfigure Proxies &amp; cacert_path in ~/.conan/conan.conf, see https://docs.conan.io/en/latest/reference/config_files/conan.conf.html#proxiesConfigure conan clang profile ~/.conan/profiles/clang to then use –profile clang:/usr/bin/clang-6.0 -v/usr/bin/clang++-6.0 -v# nano is text editornano ~/.conan/profiles/clang[settings]# We are building in Ubuntu Linuxos_build=Linuxos=Linuxarch_build=x86_64arch=x86_64compiler=clangcompiler.version=6.0compiler.libcxx=libstdc++11[env]CC=/usr/bin/clang-6.0CXX=/usr/bin/clang++-6.0Configure conan clang profile ~/.conan/profiles/gcc to then use –profile gcc:/usr/bin/gcc -v/usr/bin/g++ -v# nano is text editornano ~/.conan/profiles/gcc[settings]# We are building in Ubuntu Linuxos_build=Linuxos=Linuxarch_build=x86_64arch=x86_64compiler=gcccompiler.version=7compiler.libcxx=libstdc++11[env]CC=/usr/bin/gccCXX=/usr/bin/g++Add conan remotesTo be able to add the list of dependency remotes please type the following command:cmake -E time conan config install conan/remotes/# OR:# cmake -E time conan config install conan/remotes_disabled_ssl/(optional) If you want to disable ssl (under proxy, etc.)# see https://docs.conan.io/en/latest/reference/commands/misc/remote.html#conan-remoteconan remote update conan-center https://conan.bintray.com Falseconan search boost* -r=conan-centerconan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conanconan remote update bincrafters https://api.bintray.com/conan/bincrafters/public-conan Falseconan search boost* -r=bincraftersIf you want to set corp. cacert:CONAN_CACERT_PATH=/path/to/ca-bundle.crtfile $CONAN_CACERT_PATHUseful links:  https://ncona.com/2019/04/dependency-management-in-cpp-with-conan/  https://blog.conan.io/2018/06/11/Transparent-CMake-Integration.html  Conan https://blog.conan.io/2018/06/11/Transparent-CMake-Integration.html https://blog.conan.io/2018/12/03/Using-Facebook-Folly-with-Conan.html  CONAN_PKG::cppzmq https://github.com/chaplin89/prontocpp/blob/master/CMakeLists.txt#L42  https://github.com/conan-io/examplesBuild dependenciesWe use tools/buildConanThirdparty.cmake script. It just downloads dependencies and runs conan createwith provided conan options# NOTE: don't forget to re-run `conan install` after command below# NOTE: change `build_type=Debug` to `build_type=Release` in productioncmake -DEXTRA_CONAN_OPTS=\"--profile;clang;-s;build_type=Debug;--build;missing\" -P tools/buildConanThirdparty.cmakeNOTE: dependencies include big codebases like cling and LLVM. Build from source can take a lot of processor time.For contributors: conan allows to provide pre-built packages. Please open GitHub Issue if no pre-built packages are available for your platform.Build extra dependenciesSome dependencies are not provided by tools/buildConanThirdparty.cmake script.  type_safeconan remote add Manu343726 https://api.bintray.com/conan/manu343726/conan-packages Falsegit clone http://github.com/foonathan/type_safe.git -b v0.2.1cd type_safe# NOTE: change `build_type=Debug` to `build_type=Release` in productionCONAN_REVISIONS_ENABLED=1 \\    CONAN_VERBOSE_TRACEBACK=1 \\    CONAN_PRINT_RUN_COMMANDS=1 \\    CONAN_LOGGING_LEVEL=10 \\    GIT_SSL_NO_VERIFY=true \\    conan create . conan/stable -s build_type=Debug --profile clang --build missing  corrade# NOTE: change `build_type=Debug` to `build_type=Release` in productiongit clone http://github.com/mosra/corrade.git &amp;&amp; cd corradeCONAN_REVISIONS_ENABLED=1 \\    CONAN_VERBOSE_TRACEBACK=1 \\    CONAN_PRINT_RUN_COMMANDS=1 \\    CONAN_LOGGING_LEVEL=10 \\    GIT_SSL_NO_VERIFY=true \\    conan create . magnum/stable -s build_type=Debug --profile clang --build missing -tf package/conan/test_packageBuild flextoolRun conan create as stated in (latest instructions on github.com) https://github.com/blockspacer/flextool#installationexport CXX=clang++-6.0export CC=clang-6.0# NOTE: change `build_type=Debug` to `build_type=Release` in production# NOTE: use --build=missing if you got error `ERROR: Missing prebuilt package`CONAN_REVISIONS_ENABLED=1 \\CONAN_VERBOSE_TRACEBACK=1 \\CONAN_PRINT_RUN_COMMANDS=1 \\CONAN_LOGGING_LEVEL=10 \\GIT_SSL_NO_VERIFY=true \\    cmake -E time \\      conan create . conan/stable \\      -s build_type=Debug -s cling_conan:build_type=Release \\      --profile clang \\          -o flextool:enable_clang_from_conan=False \\          -e flextool:enable_tests=TrueVerifying the installationthat page in developmentUpdatingthat page in developmentUninstallingthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/download/"
+        "url": "/flex_docs/download/"
       }
       ,
     
@@ -1314,7 +1314,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "MotivationWhy wouldn’t you just extend clang since it also provides some experimental features (modules for instance)?Clang is a compiler while this project is a transpiler, that transforms code to standardized c++ code without the need to modify llvm/assembly.Because the tool’s output is C++ code, you can compile transpiled code using emscripten, use static code analyzers, run code inside cling etc.",
-        "url": "/faq/"
+        "url": "/flex_docs/faq/"
       }
       ,
     
@@ -1323,7 +1323,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "We prefer to keep main code repository small ( https://github.com/blockspacer/flextool ) and divide project into smaller libraries. Most used library is https://github.com/blockspacer/flexlibFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/flexlib/"
+        "url": "/flex_docs/flexlib/"
       }
       ,
     
@@ -1332,7 +1332,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "flextool is a transpiler that extends C++ for new introspection, reflection and compile-time execution.For contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/flextool/"
+        "url": "/flex_docs/flextool/"
       }
       ,
     
@@ -1341,7 +1341,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "Open Source License: the MIT licenseMIT license is well known and understood.The current full licence can be found on GitHub. See https://github.com/blockspacer/flextool/blob/master/LICENSENote that community-provided plugins can have custom license.",
-        "url": "/license/"
+        "url": "/flex_docs/license/"
       }
       ,
     
@@ -1350,7 +1350,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "TODOthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/plugins/"
+        "url": "/flex_docs/plugins/"
       }
       ,
     
@@ -1359,7 +1359,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "TODOthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/release_notes/"
+        "url": "/flex_docs/release_notes/"
       }
       ,
     
@@ -1368,7 +1368,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "For contibutorsFell free to open GitHub Issue if you know how to improve that page or add more publications (for example, CppCon presentations)",
-        "url": "/talks/"
+        "url": "/flex_docs/talks/"
       }
       ,
     
@@ -1377,7 +1377,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "TODOthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/test_suite/"
+        "url": "/flex_docs/test_suite/"
       }
       ,
     
@@ -1386,7 +1386,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "TODOthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/tools_reference/"
+        "url": "/flex_docs/tools_reference/"
       }
       ,
     
@@ -1395,7 +1395,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "TODOthat page in developmentFirst things firstMake sure you have downloaded and installed flextool (the exact approach for doing this will depend your operating system: Linux, Windows, or Mac).Verifying flextoolthat page in developmentRunning flextool by handthat page in developmentRunning flextool using conan and CMakethat page in developmentUsing existing plugin to add custom C++ metaclassesthat page in developmentIntegration with template enginesthat page in developmentWriting custom plugin to generate C++ filesthat page in developmentGenerating not-C++ filesthat page in developmentOptimizing speedthat page in developmentOptimizing memorythat page in developmentUsing threadsthat page in developmentUsing cling interpreterthat page in developmentIntegrating with more build systemsthat page in developmentDetecting flextool in Preprocessorthat page in developmentExample: Avoid Repetitive Codethat page in developmentC++ is a great language but it sometimes gets too verbose for things you have to do in your code for common tasks. These do very often bring no real value to the business side of your programs – and this is where flextool is here to make your life happier and yourself more productive.The way it works is by plugging into your build process and autogenerating C++ as per a number of project annotations you introduce in your code.Including plugin in your builds is very straight forward. Add plugin into conanfile.py and run conan install. Then tell flextool about files or projects that it must process.Encapsulating object properties via public getter and setter methods is such a common practice in the C++ world: a class with get/set methods for “properties”.This is so common that most IDE’s support autogenerating code for these patterns (and more). This code however needs to live in your sources and also be maintained when, say, a new property is added or a field renamed.Let’s consider this class as an example:class User {    private:        int id;        std::string firstName;        std::string lastName;        int age;    public:        User() {        }        User(const std::string&amp; firstName, const std::string&amp; lastName, int age) {            this.firstName = firstName;            this.lastName = lastName;            this.age = age;        }    // getters and setters: ~30 extra lines of code}This is a rather simple class, but still consider if we added the extra code for getters and setters we’d end up with a definition where we would have more boilerplate zero-value code than the relevant business information: “a User has first and last names, and age.”Let us now flextool-ize this class:class User {    private:        $apply(getter;setter)        int id;        $apply(getter)        std::string firstName;        $apply(            setter        )        std::string lastName;        $apply(            getter;            setter        )        int age;    public:        User() {        }        User(const std::string&amp; firstName, const std::string&amp; lastName, int age) {            this.firstName = firstName;            this.lastName = lastName;            this.age = age;        }}By adding the $apply(getter;setter) annotations we told flextool to, well, generate these for all the fields of the class.Note this is the whole class code, I am not omitting anything as opposed to the version above with the // getters and setters comment. This is a significant saving in code!What if you wanted to refine the visibility of some properties? For example, I like to keep my entities’ id field modifiers package or protected visible. Just use a finer grained setter for this particular field:        $apply(getter;setter(PROTECTED))        int id;You can find complete code of that example on Github.Example: codestyle validation of interfaceInterface must have only pure virtual methods, and a virtual destructor, and no data, and no private members, this pattern duplicated over and over in your code every time you create an interface.This leads to the risks of code duplication, for example forgetting the virtual destructor once in a while for example.Reflection allows to access some data about the class, such as: are all the methods public?And compile time programming makes checks at compile time, like: is there any private member, or is there any data member, which is not supposed to be the case in an interface. And after performing those compile time checks, compile time programming allows to emit custom compile errors messages such as “an interface cannot have private data”.TODO: example:writing prototype with the help of cling interpreterTODO: example: translating code that uses cling interpreter to plugin (shared library) for better performanceYou can find complete code of that example on Github.Example: codestyle validation of private class membersQuote from Google C++ Style Guide, section Class Data Members https://google.github.io/styleguide/cppguide.htmlData members of classes, both static and non-static, are named like ordinary nonmember variables, but with a trailing underscore.class TableInfo {  ... private:  std::string table_name_;  // OK - underscore at end.  static Pool&lt;TableInfo&gt;* pool_;  // OK.};We can add custom annotation near class declaration to validate that within that class all data members are named with a trailing underscore.class$apply(  styleguide(data_members = googleStyleGuide))TableInfo {  ... private:  std::string table_name_;  // OK - underscore at end.  static Pool&lt;TableInfo&gt;* pool_;  // OK.};You can find complete code of that example on Github.Example: serialization (networking) and deserializationTODOExample: using as REST API router (networking)TODOExample: using as user input validator (networking)TODOExample: editor integrationTODOExample: serialization (to file) and deserializationTODOExample: include copyright and license information from LICENSE file and copyright template (date may change)TODOCode of unit teststhat page in developmentTroubleshootingthat page in developmentAbout cxxctp_callbackFunction signature for code transformation must be compatible with cxxctp_callback:typedef std::function&lt;const char*(    const cxxctp::parsed_func&amp; func_with_args,    const clang::ast_matchers::MatchFinder::MatchResult&amp; matchResult,    clang::Rewriter&amp; rewriter,    const clang::Decl* decl,    const std::vector&lt;cxxctp::parsed_func&gt;&amp; all_funcs_with_args)&gt; cxxctp_callback;Detailed function signature:  return value (const char*) - used to replace original code, if needed.  func_with_args - currently executed function from list all_funcs_with_args (see below)  clang::ast_matchers::MatchFinder::MatchResult - see https://xinhuang.github.io/posts/2015-02-08-clang-tutorial-the-ast-matcher.html  clang::Rewriter - see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-3-rewriting-code-with-clang-tidy/  clang::Decl - found by MatchFinder, see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-2-examining-the-clang-ast-with-clang-query/  std::vector - all arguments extracted from attribute. Example: \\$apply(interface, foo_with_args(1, \"2\")) becomes two `parsed_func` - `interface` and `foo_with_args`.Think about function name as one of __VA_ARGS__ from#define $apply(...) \\  __attribute__((annotate(\"{gen};{funccall};\" #__VA_ARGS__)))Example where make_interface and make_removefuncbody - two function names:$apply(make_interface;  make_removefuncbody)For contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/tutorial/"
+        "url": "/flex_docs/tutorial/"
       }
       ,
     
@@ -1404,7 +1404,7 @@ $( document ).ready(function() {
         "author": "",
         "category": "",
         "content": "TODOthat page in developmentFor contibutorsFell free to open GitHub Issue if you know how to improve that page",
-        "url": "/talks/"
+        "url": "/flex_docs/talks/"
       }
       
     
@@ -1462,9 +1462,9 @@ $( document ).ready(function() {
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 09.05.2020 10:41:38</p>
+        <p class="text">Last update: 09.05.2020 10:55:04</p>
 
-        <p class="text"><a href="/jekyll_how_to/">About this site</a></p>
+        <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>
     </div>
 
