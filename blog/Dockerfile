@@ -7,10 +7,14 @@ FROM        ubuntu:${UBUNTU_VERSION} as jekyll_gulp
 ARG APT="apt-get -qq --no-install-recommends"
 ARG GIT="git"
 ARG NPM="npm"
+ARG GEM="gem"
+ARG GEM_INSTALL="gem install"
 ARG NPX="npx"
 ARG NODE="node"
 ARG NODE_GYP="node-gyp"
 ARG NPM_INSTALL="npm install --loglevel verbose"
+# NOTE: under proxy change to:
+# NODE_TLS_REJECT_UNAUTHORIZED=0 HTTP_PROXY=$http_proxy HTTPS_PROXY=$https_proxy npm install --unsafe-perm binding --loglevel verbose
 ARG NPM_INSTALL_UNSAFE="npm install --unsafe-perm binding --loglevel verbose"
 ARG LS_VERBOSE="ls -artl"
 
@@ -155,7 +159,11 @@ RUN set -ex \
     rm -rf node_modules package-lock.json \
     && \
     # remove generated files
-    rm -rf build .generated *generated* \
+    rm -rf build _site .generated *generated* \
+    && \
+    # https://medium.com/@mallim/how-to-use-node-sass-in-a-closed-environment-859880720f2a
+    # OR sudo npm config set sass-binary-site=https://npm.taobao.org/mirrors/node-sass --global
+    $NPM_INSTALL_UNSAFE --save-dev node-sass --sass-binary-site=https://npm.taobao.org/mirrors/node-sass \
     && \
     $NPM cache clean --force \
     && \
@@ -164,18 +172,18 @@ RUN set -ex \
     && \
     ldconfig \
     && \
-    gem update --system \
+    $GEM update --system \
     && \
-    gem install bundler:2.1.4 jekyll:3.8 nokogiri \
+    $GEM_INSTALL bundler:2.1.4 jekyll:3.8 nokogiri \
     && \
     # see https://stackoverflow.com/a/45505787
-    npm -g config set user root \
+    $NPM -g config set user root \
     && \
-    npm install -g gulp-cli gulp gulpfile-install \
+    $NPM_INSTALL_UNSAFE -g gulp-cli gulp gulpfile-install \
     && \
-    gem install jekyll-typogrify jekyll-archives jekyll-feed html-proofer jekyll-manager \
+    $GEM_INSTALL jekyll-typogrify jekyll-archives jekyll-feed html-proofer jekyll-manager \
     && \
-    gem install jekyll-graphviz jekyll-typogrify jekyll-picture-tag jekyll-archives jekyll-gist \
+    $GEM_INSTALL jekyll-graphviz jekyll-typogrify jekyll-picture-tag jekyll-archives jekyll-gist \
     && \
     (ln -s /usr/bin/nodejs /usr/bin/node || true) \
     #&& \

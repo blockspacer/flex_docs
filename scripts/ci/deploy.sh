@@ -1,7 +1,11 @@
 #! /bin/sh
 set -e
 
+pwd
+
 ls -artl 
+
+ls -artl blog
 
 ls -artl blog/_site
 
