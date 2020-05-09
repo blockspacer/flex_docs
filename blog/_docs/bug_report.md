@@ -28,6 +28,35 @@ You can manually run some `app_name` under `gdb` debugger https://www.gnu.org/so
 gdb -ex "r" -ex "bt" --args app_name .........
 ```
 
+## How to increase log level
+
+Add command-line arguments:
+
+```bash
+--vmodule=*main*=100,*=200 --enable-logging=stderr --log-level=100
+```
+
+see https://www.chromium.org/for-testers/enable-logging
+
+## How to capture trace report
+
+Add command-line arguments:
+
+```bash
+--start_tracing --tracing_categories=*,disabled-by-default-memory-infra
+```
+
+After app close event trace report will be saved into json file.
+
+You can view saved trace report in `chrome://tracing/`
+
+see 
+https://aras-p.info/blog/2017/01/23/Chrome-Tracing-as-Profiler-Frontend/
+https://www.chromium.org/developers/how-tos/trace-event-profiling-tool/trace-event-reading
+https://www.chromium.org/developers/how-tos/trace-event-profiling-tool
+https://www.chromium.org/developers/how-tos/trace-event-profiling-tool/using-frameviewer
+https://slack.engineering/chrome-tracing-for-fun-and-profit-a15ec83aa908
+
 ## Debugging with Sanitizers
 
 that page in development

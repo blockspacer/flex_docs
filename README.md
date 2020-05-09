@@ -1,10 +1,12 @@
 # About
 
+Open https://blockspacer.github.io/flex_docs/ to view website
+
 Static site uses Jekyll
 
 By using Travis CI we will build the site pages on our own and then publish the static site to GitHub Pages.
 
-## Usage
+## Usage with `GitHub Pages`
 
 If you need to create a new site on `GitHub Pages`, start [here](https://help.github.com/en/articles/getting-started-with-github-pages).
 
@@ -12,7 +14,7 @@ If you need to create a new site on `GitHub Pages`, start [here](https://help.gi
 
 See https://jlintusaari.github.io/2018/06/github-hosted-jekyll-blog-custom-theme/
 
-## How to build
+## How to build and publish to `GitHub Pages`
 
 - Change `blog/_config.yml`
 
@@ -121,11 +123,13 @@ We expect that website theme will NOT be changed often.
 
 In Travis we build only website content.
 
-Note that changing or adding images may require theme rebuilt. But it is recommended to store images on cloud storage like Amazon S3 or Google Storage.
+Note that changing or adding images may require theme to be rebuilt. But it is recommended to store images on cloud storage like Amazon S3 or Google Storage.
 
 ## How to publish by hand
 
 may be used to validate deploy without Travis
+
+don't forget to build site before running commands below
 
 ```bash
 bash scripts/ci/build.sh
@@ -142,8 +146,10 @@ bash scripts/ci/deploy.sh
 
 see https://pauldambra.dev/using-travis-to-build-jekyll.html
 
-## How to validate that is pushed to gh-pages branch
+## How to validate that was pushed to gh-pages branch
 
+
+Clone `gh-pages` and run it in `http.server`:
 
 ```bash
 # CHANGE TO YOURS
@@ -160,7 +166,9 @@ cd - # return back
 rm -rf ._validate # remove cloned repo
 ```
 
-## Build
+## Build in docker
+
+NOTE: builds only jekyll. Use `jekyll_gulp` container if you want to update theme.
 
 ```bash
 docker run --volume="$PWD/blog:/srv/jekyll" -p 4000:4000 -p 3000:3000 -p 3001:3001 -it jekyll/jekyll:3.8 \
@@ -169,12 +177,16 @@ docker run --volume="$PWD/blog:/srv/jekyll" -p 4000:4000 -p 3000:3000 -p 3001:30
 
 ## Interactive shell to the container
 
+NOTE: builds only jekyll. Use `jekyll_gulp` container if you want to update theme.
+
 ```bash
 docker run --rm --volume="$PWD/blog:/srv/jekyll" -p 4000:4000 -p 3000:3000 -p 3001:3001 -it jekyll/jekyll:3.8 \
   bash
 ```
 
 ## Running the server locally with Docker
+
+NOTE: builds only jekyll. Use `jekyll_gulp` container if you want to update theme.
 
 ```bash
 docker run --rm --volume="$PWD/blog:/srv/jekyll" -p 4000:4000 -p 3000:3000 -p 3001:3001 -it jekyll/jekyll:3.8 \
@@ -192,6 +204,8 @@ open interactive shell:
 docker run --rm --volume="$PWD/blog:/srv/jekyll" --volume="/usr/local/share/ca-certificates:/srv/ca-certificates" -p 4000:4000 -p 3000:3000 -p 3001:3001 -it jekyll/jekyll:3.8 \
   bash
 ```
+
+now we in interactive shell of container
 
 change `http_proxy` and `GIT_CA_INFO` below:
 
@@ -315,6 +329,8 @@ DEBUG=true bundle exec jekyll serve -H 0.0.0.0 --watch
 
 you can also edit ~/.gemrc, see
 
+you cn type `exit` to close interactive shell of container
+
 ## Travis (alternative approach with environment variable in .travis.yml)
 
 ```bash
@@ -387,7 +403,7 @@ bundle install
 
 `gulp` must build files in separate folders and `deploy.sh` script can copy files of website theme into `_site` folder created by Travis
 
-### Use `| relative_url`
+### Use `| relative_url` to convert url based on `baseurl` from `_config.yml`
 
 see https://jekyllrb.com/docs/liquid/filters/
 
