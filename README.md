@@ -79,6 +79,11 @@ rm -rf blog/css
 sudo -E docker build --no-cache -t jekyll_gulp -f $PWD/blog/Dockerfile .
 docker run --volume="$PWD/blog:/srv/jekyll" -w /srv/jekyll -p 4000:4000 -p 3000:3000 -p 3001:3001 --name DEV_jekyll_gulp -it jekyll_gulp \
     bash -c "export GEM_HOME=/gems && export GEM_PATH=/gems && export BUNDLE_PATH=/gems && export BUNDLE_PATH=/gems && PATH=/usr/bin/:/usr/local/bin/:/gems:/gems/bin:$HOME/gems:$HOME/gems/bin:$PATH && cd /srv/jekyll && bundler --version && bundle install && bundle exec jekyll --version && rm -rf package-lock.json && rm -rf node_modules && bundle config set git.allow_insecure true && npm install && bundle exec gulp build && bundle exec jekyll build --verbose --trace && npm run build"
+# you can add 
+# bundle exec jekyll serve -H 0.0.0.0 --watch
+# after npm run build
+# to run the server locally with Docker at http://localhost:4000
+docker stop DEV_jekyll_gulp
 docker rm DEV_jekyll_gulp
 ```
 
@@ -381,3 +386,7 @@ bundle install
 `_site` folder must be empty (not in version control) cause it is created by Travis
 
 `gulp` must build files in separate folders and `deploy.sh` script can copy files of website theme into `_site` folder created by Travis
+
+### Use `| relative_url`
+
+see https://jekyllrb.com/docs/liquid/filters/

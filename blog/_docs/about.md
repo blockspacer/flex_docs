@@ -24,7 +24,7 @@ and many more
 
 ## For impatient
 
-You can find usage examples on [tutorial page]({{ site.data.global.tutorial.url }})
+You can find usage examples on [tutorial page]({{ site.data.global.tutorial.url | relative_url }})
 
 ## flextool is build dependency
 

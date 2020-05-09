@@ -117,6 +117,12 @@ sudo apt -y upgrade
 see:
 [https://github.com/jneen/rouge/wiki/List-of-supported-languages-and-lexers](https://github.com/jneen/rouge/wiki/List-of-supported-languages-and-lexers)
 
+**demo: gist**
+
+{% gist c08ee0f2726fd0e3909d test.md %}
+
+see [https://github.com/jekyll/jekyll-gist](https://github.com/jekyll/jekyll-gist)
+
 **demo: raw & endraw**
 see [Jekyll & Liquid Cheatsheet](https://gist.github.com/smutnyleszek/9803727#raw)
 
