@@ -1,4 +1,34 @@
+# Travis CI is used to deploy the site to S3 every time a new commit is pushed. 
+# With open source repositories on Github Travis-CI is free. Setting up travis is simple
 # see https://jekyllrb.com/docs/continuous-integration/travis-ci/
+
+# 0 `npm run build` does not run on CI, so use it to build theme locally and don't forget to commit *.min.css files!
+# using docker:
+# sudo -E docker build --no-cache -t jekyll_gulp -f $PWD/blog/Dockerfile .
+# docker run --volume="$PWD/blog:/srv/jekyll" -w /srv/jekyll -p 4000:4000 -p 3000:3000 -p 3001:3001 --name DEV_jekyll_gulp -it jekyll_gulp \
+#   bash -c "export GEM_HOME=/gems && export GEM_PATH=/gems && export BUNDLE_PATH=/gems && export BUNDLE_PATH=/gems && PATH=/usr/bin/:/usr/local/bin/:/gems:/gems/bin:$HOME/gems:$HOME/gems/bin:$PATH && cd /srv/jekyll && bundler --version && bundle exec jekyll --version && rm -rf package-lock.json node_modules && bundle config set git.allow_insecure true && npm install && bundle install && bundle exec gulp build && bundle exec jekyll build --verbose --trace && npm run build"
+# docker rm DEV_jekyll_gulp
+#
+# OR without docker:
+# install jekyll https://jekyllrb.com/docs/installation/ubuntu/
+# gem install bundler
+# sudo apt install jekyll # note jekyll not from gem
+# npm install -g gulp-cli # may require sudo
+# cd blog
+# gem install jekyll-typogrify jekyll-archives jekyll-feed html-proofer jekyll-manager jekyll-graphviz jekyll-typogrify jekyll-picture-tag jekyll-archives jekyll-gist
+# npm install
+# gulp build
+# jekyll build --verbose --trace
+#
+# validate locally with
+# cd blog/_site && python3 -m http.server 8000 --bind 127.0.0.1
+# open http://localhost:8000/
+# cd - # return back to /blog
+#
+# 1 create branch gh-pages
+# 2 create branch pages-releases
+# 3 integrate your github repo with travis. See https://github.com/settings/installations/
+# 4 push to pages-releases. It will trigger Travis build
 
 # This line tells Travis to use a Ruby build container. It gives your script access to Bundler, RubyGems, and a Ruby runtime.
 language: ruby
@@ -12,6 +42,7 @@ language: ruby
 env:
   global:
     # see https://docs.travis-ci.com/user/environment-variables/
+    # see https://hackernoon.com/ci-cd-continuous-integration-tools-delivery-react-web-travis-github-example-tutorial-javascript-vue-db8afe9f9a81
     - secure: "j8woHK36R6WqYt2Uby7G7+xPjCelYVBGpZzuagI6e521q1nnXUkI9ctwk8/aGsZutgXmIhsfydhRIGZ0Xrn9kAH/3ijo5DqAggh3s6M78Y6ch0ZuFfJFaszIRLL7UW9u+xy9NmPOiSmhwup1LBhE6urtNUjsvXrmWRgZ+TmKOAWtUDZyV3OE31lwqfnzvu454swFYUcADGRTg3fYP6Egzh0phNdMHdcH7lyWm5BBvknRuFJyL9Eut7aPVft3NjPd0V5z2QQyH+T5YspnYqWg06ts/WVICrZWJ3Go+0xo5M/iWGTS1f+Cx8bOIL5VA99qFljxNlAmHp/gg0fqYXxZYkxPcIyfVclAK4cwdZ3Ksoeq2Qbqj/3ySlWzKcsMpxJynQXDAx/ojqWhnKaBA0IdmjxQi+A6kjN3PUdy+lDtWlFk+2NXanIrcm4/pDs0DqTIuNCrOeJbtTu0caNDvHhoFzVIR8FS7Pr3zsy5gU+8ooALpxLrAGTaCMT7rfBF2BF7MnRZpeQl3XpjmtprcSQ82rqqF3rTNTZMBSiaVXRi40XMc9fx0Ply6DG1pH8r8WefukcQUxQxv9eaOa7Sml2uWeuUuZTYcy+Le78wa7am0r2L4LAWR5UlpCWpNuKMhcXZgxjP1FCO7K8aeEO/EDS+tNmkQnbdB/sO3hrpqWajgdQ="
 
 services:

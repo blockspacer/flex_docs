@@ -249,9 +249,9 @@ gulp.task('generate-service-worker', (callback) => {
   //  });
   //});
 
-gulp.task('jekyll-build', ['scripts', 'scss', 'sass-lint'], $.shell.task(['jekyll build']));
+gulp.task('jekyll-build', ['scripts', 'scss', 'sass-lint'], $.shell.task(['bundle exec jekyll build --verbose --trace']));
 
-gulp.task('jekyll-build-for-deploy', $.shell.task(['jekyll build']));
+gulp.task('jekyll-build-for-deploy', $.shell.task(['bundle exec jekyll build --verbose --trace']));
 
 // Default task.
 gulp.task('build', () =>

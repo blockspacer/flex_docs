@@ -1,6 +1,8 @@
 #! /bin/sh
 set -e
 
+ls -artl 
+
 ls -artl blog/_site
 
 mkdir -p _deploy
