@@ -259,6 +259,10 @@ Use `conan create` or `conan install` as usual, see for details [https://docs.co
 
 Use `conan remove` as usual, see for details [https://docs.conan.io/en/latest/reference/commands/misc/remove.html](https://docs.conan.io/en/latest/reference/commands/misc/remove.html)
 
+## System-wide installation using conan
+
+that page in development
+
 ## For contibutors
 
 Fell free to open [GitHub Issue](https://github.com/blockspacer/flextool/issues) if you know how to improve that page

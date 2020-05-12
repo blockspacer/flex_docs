@@ -161,7 +161,7 @@ For simplisity we didn't use template engine. You can integrate with any templat
 
 flextool will save file with all source code transformations applied, including `rewriter.InsertText`. flextool will save file with `.generated` extention, but user can provide custom path for each generated file.
 
-You can find full code of demo project at [https://github.com/blockspacer/flex_meta_plugin/blob/master/src/AnnotationPipeline.cc](https://github.com/blockspacer/flex_meta_plugin/blob/master/src/AnnotationPipeline.cc)
+You can find full code of demo project at [https://github.com/blockspacer/flex_meta_plugin/](https://github.com/blockspacer/flex_meta_plugin/)
 
 ## For contibutors
 

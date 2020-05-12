@@ -7,29 +7,43 @@ pin: true
 permalink: /tutorial/
 ---
 
-## TODO
-
-that page in development
-
 ## First things first
 
 Make sure you have downloaded and installed flextool (the exact approach for doing this will depend your operating system: Linux, Windows, or Mac).
 
-## Verifying flextool
-
-that page in development
-
-## Running flextool by hand
-
-that page in development
+See for detailed installation instructions [{{ site.data.global.download.url | relative_url }}]({{ site.data.global.download.url | relative_url }})
 
 ## Running flextool using conan and CMake
 
-that page in development
+See for detailed usage instructions [{{ site.data.global.building_projects.url | relative_url }}]({{ site.data.global.building_projects.url | relative_url }})
+
+## Introduction
+
+There are some boilerplate code in many projects:
+
+- Enum to string conversion (and vice versa)
+- Editor integration (UE4, Unity, Godot)
+- Serialization/deserialization
+- Object RPC and proxy/stubs
+- ORM
+- GUI controls binding and models
+- <your own case>
+
+
+How flextool works:
+
+- It takes a piece of handwritten regular C++ code
+- It parses this code with the Clang LibTooling
+- It analyses the parsing result and produces another piece of code (or performs custom actions defined by plugins)
+
 
 ## Using existing plugin to add custom C++ metaclasses
 
 that page in development
+
+You can learn more about metaclasses at
+
+- https://youtu.be/80BZxujhY38
 
 ## Integration with template engines
 
@@ -38,6 +52,105 @@ that page in development
 ## Writing custom plugin to generate C++ files
 
 that page in development
+
+## Use case: enum to string and string to enum
+
+```cpp
+const char* SomeEnumToString(SomeEnum e)
+{
+   switch (e)
+   {
+   case Item1:
+       return "Item1";
+   case Item2:
+       return "Item2";
+   case Item3:
+       return "Item3";
+   }
+  
+   return "Unknown Item";
+}
+
+SomeEnum StringToSomeEnum(const char* itemName)
+{
+   static std::pair<const char*, SomeEnum> items[] = {
+       {"Item1", Item1},
+       {"Item2", Item2},
+       {"Item3", Item3},
+   };
+   auto p = std::lower_bound(begin(items), end(items), itemName,
+                             [](auto&& i, auto&& v) {return strcmp(i.first, v) < 0;});
+   if (p == end(items) || strcmp(p->first, itemName) != 0)
+       throw std::bad_cast();
+  
+   return p->second;
+}
+```
+
+Code generator should do:
+
+- Find all enum declarations in the input file
+- Extract items from the particular enum declaration and convert them to the string form
+- Generate ‘enum to string’ conversion function with the ‘switch’ statement (be careful with scoped enums!)
+- Sort enum items (in string representation)
+- Generate ‘string to enum’ conversion function with array and std::lower_bound
+
+`MatchFinder` allows to find enum declaration (`clang::EnumDecl`):
+
+```cpp
+class EnumHandler : public MatchFinder::MatchCallback
+{
+public:
+   void run(const MatchFinder::MatchResult& result) override
+   {
+       // Access to the named matching results
+       if (const clang::EnumDecl* decl = result.Nodes.getNodeAs<clang::EnumDecl>("enum"))
+       {
+           // do something useful with the found enum declaration
+       }
+   }
+};
+```
+
+Code generation:
+
+```cpp
+// generates C++ code for enum to string conversion
+void WriteEnumToStringConversion(std::ostream& os, const EnumDescriptor& enumDescr)
+{
+   auto& enumName = enumDescr.enumName;  
+   os << "inline const char* " << enumName << "ToString(" << enumName << " e)\n{\n";
+   os << "    switch (e)\n";
+   os << "    {\n";
+   auto scopePrefix = enumDescr.isScoped ? enumName + "::" : std::string();
+   for (auto& i : enumDescr.enumItems)
+   {
+       os << "    case " << scopePrefix << i << ":\n";
+       os << "        return \"" << i << "\";\n";
+   }
+   os << "    }\n";
+   os << "    return \"Unknown Item\";\n";
+   os << "}\n\n";   
+}
+
+// generates C++ code for string to enum conversion
+void WriteEnumFromStringConversion(std::ostream& os, const EnumDescriptor& enumDescr)
+{
+   auto& enumName = enumDescr.enumName;
+   auto scopePrefix = enumDescr.isScoped ? enumName + "::" : std::string();
+   os << "inline " << enumName << " StringTo" << enumName << "(const char* itemName)\n{\n";
+   os << "    static std::pair<const char*, " << enumName << "> items[] = {\n";
+   for (auto& i : enumDescr.enumItems)
+       os << "        {\"" << i << "\", " << scopePrefix << i << "},\n";
+   os <<R"(    };
+   auto p = std::lower_bound(begin(items), end(items), itemName,
+                     [](auto&& i, auto&& v) {return strcmp(i.first, v) < 0;});
+   if (p == end(items) || strcmp(p->first, itemName) != 0)
+       throw std::bad_cast();
+   return p->second;
+})";
+}
+```
 
 ## Generating not-C++ files
 
@@ -65,7 +178,19 @@ that page in development
 
 ## Detecting flextool in Preprocessor
 
-that page in development
+flextool defines for clang:
+
+```bash
+-DCLANG_ENABLED=1
+-DCLANG_IS_ON=1
+```
+
+flextool defines for cling:
+
+```bash
+-DCLING_ENABLED=1
+-DCLING_IS_ON=1
+```
 
 ## Example: Avoid Repetitive Code
 
@@ -239,29 +364,61 @@ that page in development
 
 that page in development
 
-## About `cxxctp_callback`
+## About `SourceTransformCallback`
 
-Function signature for code transformation must be compatible with `cxxctp_callback`:
+Function signature for code transformation must be compatible with `SourceTransformCallback`:
 
 ```cpp
-typedef std::function<const char*(
-    const cxxctp::parsed_func& func_with_args,
-    const clang::ast_matchers::MatchFinder::MatchResult& matchResult,
-    clang::Rewriter& rewriter,
-    const clang::Decl* decl,
-    const std::vector<cxxctp::parsed_func>& all_funcs_with_args)> cxxctp_callback;
+struct SourceTransformResult {
+  ///\brief may be used to replace orginal code.
+  /// To keep orginal code set it as nullptr.
+  const char* replacer = nullptr;
+};
+
+/**
+  * \brief callback that will be called then parser
+  *        found custom attribute.
+**/
+struct SourceTransformOptions {
+  /**
+    * currently executed function
+    * (function name parsed from annotation)
+  **/
+  const flexlib::parsed_func& func_with_args;
+
+  /**
+    * see https://xinhuang.github.io/posts/2015-02-08-clang-tutorial-the-ast-matcher.html
+  **/
+  const clang::ast_matchers::MatchFinder::MatchResult& matchResult;
+
+  /**
+    * see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-3-rewriting-code-with-clang-tidy/
+  **/
+  clang::Rewriter& rewriter;
+
+  /**
+    * found by MatchFinder
+    * see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-2-examining-the-clang-ast-with-clang-query/
+  **/
+  const clang::Decl* decl = nullptr;
+
+  /**
+    * All arguments extracted from attribute.
+    * Example:
+    * $apply(interface, foo_with_args(1, "2"))
+    * becomes two `parsed_func` - `interface` and `foo_with_args`.
+  **/
+  const std::vector<flexlib::parsed_func>& all_func_with_args;
+};
+
+typedef
+  base::RepeatingCallback<
+    SourceTransformResult(const SourceTransformOptions& callback_args)
+  >
+  SourceTransformCallback;
 ```
 
-Detailed function signature:
-
-- return value (const char\*) - used to replace original code, if needed.
-- func_with_args - currently executed function from list `all_funcs_with_args` (see below)
-- clang::ast_matchers::MatchFinder::MatchResult - see https://xinhuang.github.io/posts/2015-02-08-clang-tutorial-the-ast-matcher.html
-- clang::Rewriter - see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-3-rewriting-code-with-clang-tidy/
-- clang::Decl - found by MatchFinder, see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-2-examining-the-clang-ast-with-clang-query/
-- std::vector<parsed_func> - all arguments extracted from attribute. Example: \$apply(interface, foo_with_args(1, "2")) becomes two `parsed_func` - `interface` and `foo_with_args`.
-
-Think about function name as one of `__VA_ARGS__` from
+Think about `function name` as one of `__VA_ARGS__` from
 
 ```cpp
 #define $apply(...) \

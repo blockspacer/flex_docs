@@ -192,6 +192,7 @@ That project possible because of [flexferrum's `autoprogrammer`](https://github.
 
 Articles about flexferrum's `autoprogrammer` in media:
 
+- [ENG] https://www.youtube.com/watch?v=aPTyatTI42k
 - [RUS] https://habr.com/ru/article/448466/
 - [RUS] https://assets.ctfassets.net/oxjq45e8ilak/55bGdX2PnYzmrpM8rwCjcE/791e7eee3236c2023e86e169faca8a0e/Sergei_Sadovnikov_Metaclasses_in_C___dream_Reality.pdf
 

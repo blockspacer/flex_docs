@@ -57,6 +57,10 @@ https://www.chromium.org/developers/how-tos/trace-event-profiling-tool
 https://www.chromium.org/developers/how-tos/trace-event-profiling-tool/using-frameviewer
 https://slack.engineering/chrome-tracing-for-fun-and-profit-a15ec83aa908
 
+## Currently tool does not support compilation database
+
+Currently tool does not support compilation database, so ignore warning about missing compilation database
+
 ## Debugging with Sanitizers
 
 that page in development

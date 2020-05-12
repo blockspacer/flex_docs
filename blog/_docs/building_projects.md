@@ -38,6 +38,8 @@ Now you can use `flextool` in `CMakeLists.txt` of your project
 Add in `CMakeLists.txt`:
 
 ```cmake
+list(APPEND CMAKE_PROGRAM_PATH ${CONAN_BIN_DIRS})
+
 find_package(flextool MODULE REQUIRED)
 
 find_program(flextool flextool NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH)
