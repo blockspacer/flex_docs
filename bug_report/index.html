@@ -1222,12 +1222,14 @@ $( document ).ready(function() {
 
 <p>Please supply as much relevant information as possible, including:</p>
 
-<p>flextool version
-Original source code.
-Used plugins
-Environment information — including compiler versions
-Error symptoms.
-Proposed solutions, ideally with a pull request.</p>
+<ul>
+  <li>Used version</li>
+  <li>Original source code.</li>
+  <li>Used plugins</li>
+  <li>Environment information including compiler versions</li>
+  <li>Error symptoms.</li>
+  <li>Proposed solutions, ideally with a pull request.</li>
+</ul>
 
 <h2 id="how-to-debug-in-case-of-crash-or-bugs">How to debug in case of crash or bugs</h2>
 
@@ -1238,15 +1240,38 @@ Proposed solutions, ideally with a pull request.</p>
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gdb <span class="nt">-ex</span> <span class="s2">"r"</span> <span class="nt">-ex</span> <span class="s2">"bt"</span> <span class="nt">--args</span> app_name .........
 </code></pre></div></div>
 
+<h2 id="how-to-increase-log-level">How to increase log level</h2>
+
+<p>Add command-line arguments:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">--vmodule</span><span class="o">=</span><span class="k">*</span>main<span class="k">*</span><span class="o">=</span>100,<span class="k">*</span><span class="o">=</span>200 <span class="nt">--enable-logging</span><span class="o">=</span>stderr <span class="nt">--log-level</span><span class="o">=</span>100
+</code></pre></div></div>
+
+<p>see https://www.chromium.org/for-testers/enable-logging</p>
+
+<h2 id="how-to-capture-trace-report">How to capture trace report</h2>
+
+<p>Add command-line arguments:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">--start_tracing</span> <span class="nt">--tracing_categories</span><span class="o">=</span><span class="k">*</span>,disabled-by-default-memory-infra
+</code></pre></div></div>
+
+<p>After app close event trace report will be saved into json file.</p>
+
+<p>You can view saved trace report in <code class="highlighter-rouge">chrome://tracing/</code></p>
+
+<p>see
+https://aras-p.info/blog/2017/01/23/Chrome-Tracing-as-Profiler-Frontend/
+https://www.chromium.org/developers/how-tos/trace-event-profiling-tool/trace-event-reading
+https://www.chromium.org/developers/how-tos/trace-event-profiling-tool
+https://www.chromium.org/developers/how-tos/trace-event-profiling-tool/using-frameviewer
+https://slack.engineering/chrome-tracing-for-fun-and-profit-a15ec83aa908</p>
+
 <h2 id="debugging-with-sanitizers">Debugging with Sanitizers</h2>
 
 <p>that page in development</p>
 
-<h2 id="profiling-performance-and-tracing">Profiling performance and tracing</h2>
-
-<p>that page in development</p>
-
-<h2 id="increasing-log-level">Increasing log level</h2>
+<h2 id="profiling-performance">Profiling performance</h2>
 
 <p>that page in development</p>
 
@@ -1256,10 +1281,11 @@ Proposed solutions, ideally with a pull request.</p>
 
 <p>Include relevant information including:</p>
 
-<p>The URL and title of the affected page(s).
-A description of the problem.
-Suggestions for a possible solution.
-Tip</p>
+<ul>
+  <li>The URL and title of the affected page(s).</li>
+  <li>A description of the problem.</li>
+  <li>Suggestions for a possible solution.</li>
+</ul>
 
 <h2 id="for-contibutors">For contibutors</h2>
 
@@ -1333,7 +1359,7 @@ Tip</p>
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 09.05.2020 10:55:04</p>
+        <p class="text">Last update: 12.05.2020 02:33:18</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>

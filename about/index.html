@@ -1245,13 +1245,13 @@ $( document ).ready(function() {
 
 <h2 id="metaprogramming">Metaprogramming</h2>
 
-<p>Metaprogramming is an “art” of writing programs to treat other programs as their data. This means that a program could generate, read, analyse, and transform code or even itself to achieve a certain solution.</p>
+<p>Metaprogramming is an art of writing programs to treat other programs as their data. This means that a program could generate, read, analyse, and transform code or even itself to achieve a certain solution.</p>
 
 <h2 id="dependency-manager-for-flextool-plugins">Dependency manager for flextool plugins</h2>
 
 <p>We recommend conan - a crossplatform dependency manager for C++.</p>
 
-<p>It can be used to install both flextool and all plugins required by flextool into your build folder of your project.</p>
+<p>It can be used to install both flextool and all plugins required by flextool into build folder.</p>
 
 <p>conan also allows to provide important information in each <code class="highlighter-rouge">conan package</code>:</p>
 
@@ -1261,7 +1261,7 @@ $( document ).ready(function() {
   <li>path to LLVM_ROOT</li>
 </ul>
 
-<p>Note: It is also possible to install <code class="highlighter-rouge">flextool</code> system-wide and provide command-line argumets like <code class="highlighter-rouge">-extra-arg=-I$PWD/include -extra-arg=-I$PWD/include/foo -extra-arg=-DMY_DEFINITION=1 -extra-arg=-DONE_MORE_DEFINITION=1</code> by hand.</p>
+<p>Note: It is also possible to install <code class="highlighter-rouge">flextool</code> system-wide and provide command-line argumets like <code class="highlighter-rouge">--extra-arg=-I$PWD/include --extra-arg=-I$PWD/include/foo --extra-arg=-DMY_DEFINITION=1 --extra-arg=-DONE_MORE_DEFINITION=1</code> by hand.</p>
 
 <h2 id="flextool-toolchain">flextool toolchain</h2>
 
@@ -1290,9 +1290,9 @@ $( document ).ready(function() {
 
 <h2 id="about-flex_reflect_plugin">About flex_reflect_plugin</h2>
 
-<p><code class="highlighter-rouge">flex_reflect_plugin</code> is plugin to flextool. It can be disabled (as any plugin) or completely replaced with custom plugin(s).</p>
-
 <p>Default plugin https://github.com/blockspacer/flex_reflect_plugin allows to execute custom logic based on data stored in C++ annotations.</p>
+
+<p>flex_reflect_plugin can be disabled (as any plugin) or completely replaced with custom plugin(s).</p>
 
 <p>For example, annotation starting with “{funccall};” may be used to call C++ logic by some name.</p>
 
@@ -1403,86 +1403,6 @@ $( document ).ready(function() {
   <li>https://github.com/caiorss/C-Cpp-Notes/blob/master/Root-cern-repl.org</li>
 </ul>
 
-<h3 id="contributors-list-example-profile">Contributors List: Example Profile</h3>
-
-<ul>
-  <li>I’m an example that you can copy, if you want :)</li>
-  <li>I work on many things like…</li>
-  <li>My hobbies include…</li>
-  <li><a href="https://twitter.com/example">twitter</a>
-<a href="https://facebook.com/example">![facebook-alt][facebook-img]</a>
-<a href="https://plus.google.com/+Example">![google-img][google-img]</a>
-<a href="https://example.tumblr.com">![tumblr-alt][tumblr-img]</a>
-<a href="https://dribbble.com/example">![dribbble-alt][dribbble-img]</a>
-<a href="https://github.com/example">github</a>
-<a href="https://www.freecodecamp.org/example"><img src="imgs/freecodecamp.png" alt="freeCodeCamp" /></a>
-<a href="https://www.linkedin.com/in/example/">linkedin</a></li>
-</ul>
-
-<h3 id="contributors-list-">Contributors List 👌</h3>
-
-<h4 id="a">A</h4>
-
-<h5 id="anindita-basu">Anindita Basu</h5>
-
-<ul>
-  <li>Technical writer</li>
-  <li><a href="https://twitter.com/anindita_basu">twitter</a>
-<a href="https://github.com/AninditaBasu">github</a></li>
-</ul>
-
-<h5 id="anna-hayhurst">Anna Hayhurst</h5>
-
-<ul>
-  <li>Junior Developer</li>
-  <li><a href="https://github.com/annahayhurst">github</a></li>
-</ul>
-
-<h4 id="c">C</h4>
-
-<h5 id="cássio-espíndola">Cássio Espíndola</h5>
-
-<ul>
-  <li>Analyst Developer</li>
-  <li><a href="https://github.com/cassioesp">github</a></li>
-</ul>
-
-<h4 id="d">D</h4>
-
-<h5 id="denis-trofimov">Denis trofimov</h5>
-
-<ul>
-  <li>C++ Developer</li>
-  <li><a href="https://github.com/blockspacer">github</a></li>
-  <li><a href="https://github.com/derofim">github</a></li>
-  <li><a href="https://www.linkedin.com/in/denis-trofimov-4335bb13b/">linkedin</a></li>
-</ul>
-
-<h4 id="m">M</h4>
-
-<h5 id="mohib-qureshi">Mohib Qureshi</h5>
-
-<ul>
-  <li>Software Development Enthusiast</li>
-  <li><a href="https://github.com/mohibqureshi">github</a></li>
-</ul>
-
-<h4 id="y">Y</h4>
-
-<h5 id="yousif-alebyary">Yousif Alebyary</h5>
-
-<ul>
-  <li>Web/Mobile Developer.</li>
-  <li><a href="https://github.com/yousifm">github</a></li>
-</ul>
-
-<h5 id="yves-mancera">Yves Mancera</h5>
-
-<ul>
-  <li>Software Engineer</li>
-  <li><a href="https://github.com/yvesmh">github</a></li>
-</ul>
-
 <h2 id="standing-on-the-shoulders-of-giants">Standing on the Shoulders of Giants</h2>
 
 <p>That project possible because of <a href="https://github.com/flexferrum/autoprogrammer">flexferrum’s <code class="highlighter-rouge">autoprogrammer</code></a>.</p>
@@ -1490,8 +1410,8 @@ $( document ).ready(function() {
 <p>Articles about flexferrum’s <code class="highlighter-rouge">autoprogrammer</code> in media:</p>
 
 <ul>
-  <li>[RUS] метаклассах по-русски https://habr.com/ru/article/448466/</li>
-  <li>[RUS] Метаклассы в C++17 Фантастика? Реальность! https://assets.ctfassets.net/oxjq45e8ilak/55bGdX2PnYzmrpM8rwCjcE/791e7eee3236c2023e86e169faca8a0e/Sergei_Sadovnikov_Metaclasses_in_C___dream_Reality.pdf</li>
+  <li>[RUS] https://habr.com/ru/article/448466/</li>
+  <li>[RUS] https://assets.ctfassets.net/oxjq45e8ilak/55bGdX2PnYzmrpM8rwCjcE/791e7eee3236c2023e86e169faca8a0e/Sergei_Sadovnikov_Metaclasses_in_C___dream_Reality.pdf</li>
 </ul>
 
 <h2 id="license">License</h2>
@@ -1614,7 +1534,7 @@ $( document ).ready(function() {
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 09.05.2020 10:55:04</p>
+        <p class="text">Last update: 12.05.2020 02:33:18</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>

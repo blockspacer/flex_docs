@@ -1218,17 +1218,149 @@ $( document ).ready(function() {
 
 
 
-<h2 id="todo">TODO</h2>
+<h2 id="about">About</h2>
 
-<p>that page in development</p>
+<p>That page provides information about plugin development for flextool.</p>
+
+<h2 id="example-project-flex_meta_plugin">Example project: flex_meta_plugin</h2>
+
+<p>Github repository: <a href="https://github.com/blockspacer/flex_meta_plugin">https://github.com/blockspacer/flex_meta_plugin</a></p>
+
+<p>Uses conanfile and CMakeLists.txt to integrate with flextool</p>
+
+<h2 id="example-project-flex_meta_demo">Example project: flex_meta_demo</h2>
+
+<p>Github repository: <a href="https://github.com/blockspacer/flex_meta_demo">https://github.com/blockspacer/flex_meta_demo</a></p>
+
+<p>Plugin provides rules for source code transformation and generation.</p>
 
 <h2 id="how-to-create-new-plugins-for-flextool">How to create new plugins for flextool</h2>
 
-<p>that page in development</p>
+<p>Plugin can add custom rules for source code transformation or generation during <code class="highlighter-rouge">Events::RegisterAnnotationMethods</code></p>
 
-<h2 id="how-to-test-plugins">How to test plugins</h2>
+<p>Example:</p>
 
-<p>that page in development</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="o">::</span><span class="n">clang_utils</span><span class="o">::</span><span class="n">SourceTransformPipeline</span><span class="o">&amp;</span> <span class="n">sourceTransformPipeline</span>
+      <span class="o">=</span> <span class="o">*</span><span class="n">event</span><span class="p">.</span><span class="n">sourceTransformPipeline</span><span class="p">;</span>
+
+    <span class="o">::</span><span class="n">clang_utils</span><span class="o">::</span><span class="n">SourceTransformRules</span><span class="o">&amp;</span> <span class="n">sourceTransformRules</span>
+      <span class="o">=</span> <span class="n">sourceTransformPipeline</span><span class="p">.</span><span class="n">sourceTransformRules</span><span class="p">;</span>
+
+    <span class="n">sourceTransformRules</span><span class="p">[</span><span class="s">"make_reflect"</span><span class="p">]</span> <span class="o">=</span>
+      <span class="n">base</span><span class="o">::</span><span class="n">BindRepeating</span><span class="p">(</span>
+        <span class="o">&amp;</span><span class="n">AnnotationPipeline</span><span class="o">::</span><span class="n">make_reflect</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">::</span><span class="n">Unretained</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">make_reflect</code> can be used as part of annotation attribute:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// make_reflect can be used with some other rules, for example: make_interface;make_removefuncbody</span>
+<span class="n">__attribute__</span><span class="p">((</span><span class="n">annotate</span><span class="p">(</span><span class="s">"{gen};{funccall};make_reflect;make_interface;make_removefuncbody"</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<p>We bound C++ function <code class="highlighter-rouge">&amp;AnnotationPipeline::make_reflect</code> with string <code class="highlighter-rouge">make_reflect</code>:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">sourceTransformRules</span><span class="p">[</span><span class="s">"make_reflect"</span><span class="p">]</span> <span class="o">=</span>
+      <span class="n">base</span><span class="o">::</span><span class="n">BindRepeating</span><span class="p">(</span>
+        <span class="o">&amp;</span><span class="n">AnnotationPipeline</span><span class="o">::</span><span class="n">make_reflect</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">::</span><span class="n">Unretained</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+</code></pre></div></div>
+
+<p>Where C++ function <code class="highlighter-rouge">&amp;AnnotationPipeline::make_reflect</code> can use clang LibTooling to parse or modify source code. You can also save information about parsed code in files, transfer via network, etc.</p>
+
+<p>That C++ function must recieve information about used annotation attribute in <code class="highlighter-rouge">const clang_utils::SourceTransformOptions&amp;</code>.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="c1">// must point to record associated with annotation attribute</span>
+    <span class="c1">// __attribute__((annotate("{gen};{funccall};make_reflect;...")))</span>
+    <span class="n">clang</span><span class="o">::</span><span class="n">CXXRecordDecl</span> <span class="k">const</span> <span class="o">*</span><span class="n">record</span> <span class="o">=</span>
+        <span class="n">sourceTransformOptions</span><span class="p">.</span><span class="n">matchResult</span><span class="p">.</span><span class="n">Nodes</span>
+        <span class="p">.</span><span class="n">getNodeAs</span><span class="o">&lt;</span><span class="n">clang</span><span class="o">::</span><span class="n">CXXRecordDecl</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"bind_gen"</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>For example, we can print record name:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">if</span> <span class="p">(</span><span class="n">record</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">LOG</span><span class="p">(</span><span class="n">INFO</span><span class="p">)</span>
+        <span class="o">&lt;&lt;</span> <span class="s">"record name is "</span>
+        <span class="o">&lt;&lt;</span> <span class="n">record</span><span class="o">-&gt;</span><span class="n">getNameAsString</span><span class="p">().</span><span class="n">c_str</span><span class="p">();</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>Usage example what must print <code class="highlighter-rouge">SomeStructName</code> as record name:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include &lt;string&gt;
+#include &lt;vector&gt;
+</span>
+<span class="k">struct</span>
+  <span class="err">$</span><span class="nc">apply</span><span class="p">(</span>
+    <span class="n">make_reflect</span>
+  <span class="p">)</span>
+<span class="n">SomeStructName</span> <span class="p">{</span>
+ <span class="nl">public:</span>
+  <span class="n">SomeStructName</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+  <span class="p">}</span>
+
+ <span class="nl">private:</span>
+  <span class="n">__attribute__</span><span class="p">((</span><span class="n">annotate</span><span class="p">(</span><span class="s">"{gen};{attr};reflectable;"</span><span class="p">)))</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">m_VecStr2</span><span class="p">;</span>
+<span class="p">};</span></code></pre></figure>
+
+<p>We can iterate all fields in <code class="highlighter-rouge">SomeStructName</code> and print them (prints <code class="highlighter-rouge">std::vector&lt;std::string&gt; m_VecStr2</code>):</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="p">(</span><span class="n">clang</span><span class="o">::</span><span class="n">Decl</span> <span class="o">*</span><span class="n">decl</span> <span class="o">:</span> <span class="n">record</span><span class="o">-&gt;</span><span class="n">decls</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">clang</span><span class="o">::</span><span class="n">FieldDecl</span> <span class="o">*</span><span class="n">field</span> <span class="o">=</span> <span class="n">llvm</span><span class="o">::</span><span class="n">dyn_cast</span><span class="o">&lt;</span><span class="n">clang</span><span class="o">::</span><span class="n">FieldDecl</span><span class="o">&gt;</span><span class="p">(</span><span class="n">decl</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">LOG</span><span class="p">(</span><span class="n">INFO</span><span class="p">)</span>
+            <span class="o">&lt;&lt;</span> <span class="s">"field type is"</span>
+            <span class="o">&lt;&lt;</span> <span class="n">field</span><span class="o">-&gt;</span><span class="n">getType</span><span class="p">().</span><span class="n">getUnqualifiedType</span><span class="p">().</span><span class="n">getAsString</span><span class="p">().</span><span class="n">c_str</span><span class="p">()</span>
+            <span class="o">&lt;&lt;</span> <span class="s">" and field name is "</span>
+            <span class="o">&lt;&lt;</span> <span class="n">field</span><span class="o">-&gt;</span><span class="n">getNameAsString</span><span class="p">().</span><span class="n">c_str</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>What if we don’t want to print information about some fields?</p>
+
+<p>We can add custom annotation near field similar to <code class="highlighter-rouge">__attribute__((annotate("{gen};{attr};reflectable;")))</code>. That annotation can be used to filter fields using some data, in our case it is <code class="highlighter-rouge">{attr};reflectable</code>.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span> <span class="k">auto</span> <span class="n">annotate</span> <span class="o">=</span> <span class="n">decl</span><span class="o">-&gt;</span><span class="n">getAttr</span><span class="o">&lt;</span><span class="n">clang</span><span class="o">::</span><span class="n">AnnotateAttr</span><span class="o">&gt;</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">annotationCode</span> <span class="o">=</span>
+      <span class="n">annotate</span><span class="o">-&gt;</span><span class="n">getAnnotation</span><span class="p">().</span><span class="n">str</span><span class="p">();</span>
+    <span class="n">LOG</span><span class="p">(</span><span class="n">INFO</span><span class="p">)</span>
+        <span class="o">&lt;&lt;</span> <span class="s">"annotation code: "</span>
+        <span class="o">&lt;&lt;</span> <span class="n">annotationCode</span><span class="p">;</span>
+    <span class="c1">// ... parse |std::string annotationCode| and return true if it is valid ...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Suppose we want to add new field with reflection data at the end of the <code class="highlighter-rouge">SomeStructName</code> and store that data in <code class="highlighter-rouge">tatic std::map&lt;std::string, std::string&gt; fields</code>.</p>
+
+<p>We can iterate all fields and generate C++ code:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="k">for</span><span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="p">[</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span> <span class="o">:</span> <span class="n">fields</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">output</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">indent</span>
+                        <span class="o">+</span> <span class="n">indent</span> <span class="o">+</span> <span class="s">"{ "</span><span class="p">);</span>
+        <span class="n">output</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">"</span><span class="se">\"</span><span class="s">"</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s">"</span><span class="se">\"</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">output</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">", "</span><span class="p">);</span>
+        <span class="n">output</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">"</span><span class="se">\"</span><span class="s">"</span> <span class="o">+</span> <span class="n">value</span> <span class="o">+</span> <span class="s">"</span><span class="se">\"</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">output</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">" }"</span><span class="p">);</span>
+        <span class="n">output</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+      <span class="p">}</span>
+</code></pre></div></div>
+
+<p>For simplisity we didn’t use template engine. You can integrate with any template engine to avoid code like <code class="highlighter-rouge">output.append("\n");</code></p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="k">auto</span> <span class="n">locEnd</span> <span class="o">=</span> <span class="n">record</span><span class="o">-&gt;</span><span class="n">getLocEnd</span><span class="p">();</span>
+
+      <span class="c1">// add new field with reflection data at the end of the C++ record</span>
+      <span class="n">sourceTransformOptions</span><span class="p">.</span><span class="n">rewriter</span><span class="p">.</span><span class="n">InsertText</span><span class="p">(</span><span class="n">locEnd</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span>
+        <span class="cm">/*InsertAfter=*/</span><span class="nb">true</span><span class="p">,</span> <span class="cm">/*IndentNewLines*/</span> <span class="nb">false</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>flextool will save file with all source code transformations applied, including <code class="highlighter-rouge">rewriter.InsertText</code>. flextool will save file with <code class="highlighter-rouge">.generated</code> extention, but user can provide custom path for each generated file.</p>
+
+<p>You can find full code of demo project at <a href="https://github.com/blockspacer/flex_meta_plugin/blob/master/src/AnnotationPipeline.cc">https://github.com/blockspacer/flex_meta_plugin/blob/master/src/AnnotationPipeline.cc</a></p>
 
 <h2 id="for-contibutors">For contibutors</h2>
 
@@ -1302,7 +1434,7 @@ $( document ).ready(function() {
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 09.05.2020 10:55:04</p>
+        <p class="text">Last update: 12.05.2020 02:33:18</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>

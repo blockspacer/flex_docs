@@ -1218,21 +1218,193 @@ $( document ).ready(function() {
 
 
 
-<h2 id="todo">TODO</h2>
+<h2 id="about">About</h2>
 
-<p>that page in development</p>
+<p>That page provides information about flextool integration with C++ projects.</p>
+
+<h2 id="example-project-flex_meta_demo">Example project: flex_meta_demo</h2>
+
+<p>Github repository: <a href="https://github.com/blockspacer/flex_meta_demo">https://github.com/blockspacer/flex_meta_demo</a></p>
+
+<p>Uses conanfile and CMakeLists.txt to integrate with flextool</p>
 
 <h2 id="adding-flextool-to-conanfile-and-cmakeliststxt">Adding flextool to conanfile and CMakeLists.txt</h2>
 
-<p>that page in development</p>
+<p>Make sure you installed <code class="highlighter-rouge">flextool</code> using <code class="highlighter-rouge">conan</code>. You can find installation instructions in <code class="highlighter-rouge">README.md</code> at <a href="https://github.com/blockspacer/flextool">https://github.com/blockspacer/flextool</a></p>
+
+<p>If you built flextool using <code class="highlighter-rouge">conan create</code>, than <code class="highlighter-rouge">flextool</code> must be in output of command <code class="highlighter-rouge">conan search flextool</code></p>
+
+<p>Make sure that your project uses <code class="highlighter-rouge">conanfile.py</code>. See <a href="https://docs.conan.io/en/latest/mastering/conanfile_py.html">https://docs.conan.io/en/latest/mastering/conanfile_py.html</a> for details</p>
+
+<p>Add in <code class="highlighter-rouge">conanfile.py</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="bp">self</span><span class="p">.</span><span class="n">requires</span><span class="p">(</span><span class="s">"flextool/master@conan/stable"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Run <code class="highlighter-rouge">conan install</code>. See <a href="https://docs.conan.io/en/latest/using_packages/conanfile_txt.html">https://docs.conan.io/en/latest/using_packages/conanfile_txt.html</a> for details</p>
+
+<p>Now you can use <code class="highlighter-rouge">flextool</code> in <code class="highlighter-rouge">CMakeLists.txt</code> of your project</p>
+
+<p>Add in <code class="highlighter-rouge">CMakeLists.txt</code>:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">find_package</span><span class="p">(</span>flextool MODULE REQUIRED<span class="p">)</span>
+
+<span class="nb">find_program</span><span class="p">(</span>flextool flextool NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH<span class="p">)</span>
+<span class="nb">message</span><span class="p">(</span>STATUS <span class="s2">"find_program for flextool </span><span class="si">${</span><span class="nv">flextool</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="nb">if</span><span class="p">(</span><span class="si">${</span><span class="nv">flextool</span><span class="si">}</span> STREQUAL <span class="s2">""</span><span class="p">)</span>
+    <span class="nb">message</span><span class="p">(</span>FATAL_ERROR <span class="s2">"flextool not found </span><span class="si">${</span><span class="nv">flextool</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>Run configure step for your cmake based project. See <a href="https://cmake.org/cmake/help/latest/guide/tutorial/index.html">https://cmake.org/cmake/help/latest/guide/tutorial/index.html</a> for details</p>
+
+<p>Make sure that added <code class="highlighter-rouge">message</code> prints valid path to <code class="highlighter-rouge">flextool</code> installed using <code class="highlighter-rouge">conan</code> package manager.</p>
+
+<p>Now you can use <code class="highlighter-rouge">execute_process</code> to run <code class="highlighter-rouge">${flextool}</code> using <code class="highlighter-rouge">cmake</code> with desired arguments.</p>
+
+<p>Example that prints version of flextool:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">execute_process</span><span class="p">(</span>
+  COMMAND <span class="si">${</span><span class="nv">flextool</span><span class="si">}</span>
+          --version
+  RESULT_VARIABLE retcode
+  ERROR_VARIABLE _ERROR_VARIABLE<span class="p">)</span>
+<span class="nb">if</span><span class="p">(</span>NOT <span class="s2">"</span><span class="si">${</span><span class="nv">retcode</span><span class="si">}</span><span class="s2">"</span> STREQUAL <span class="s2">"0"</span><span class="p">)</span>
+  <span class="nb">message</span><span class="p">(</span>FATAL_ERROR <span class="s2">"Bad exit status </span><span class="si">${</span><span class="nv">retcode</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">_ERROR_VARIABLE</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+<span class="nb">message</span><span class="p">(</span>STATUS <span class="s2">"flextool output: </span><span class="si">${</span><span class="nv">retcode</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">_ERROR_VARIABLE</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>You can find full code of example project at <a href="https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt">https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt</a></p>
 
 <h2 id="adding-existing-plugins-to-conanfile-and-cmakeliststxt">Adding existing plugins to conanfile and CMakeLists.txt</h2>
 
-<p>that page in development</p>
+<p>flextool uses plugins to execute custom logic while parsing code using clang LibTooling.</p>
 
-<h2 id="running-flextool-with-custom-arguments">Running flextool with custom arguments</h2>
+<p>Make sure that your project uses <code class="highlighter-rouge">conanfile.py</code>. See <a href="https://docs.conan.io/en/latest/mastering/conanfile_py.html">https://docs.conan.io/en/latest/mastering/conanfile_py.html</a> for details</p>
 
-<p>that page in development</p>
+<p>Add in <code class="highlighter-rouge">conanfile.py</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="bp">self</span><span class="p">.</span><span class="n">requires</span><span class="p">(</span><span class="s">"flex_reflect_plugin/master@conan/stable"</span><span class="p">)</span>
+
+      <span class="bp">self</span><span class="p">.</span><span class="n">requires</span><span class="p">(</span><span class="s">"flex_meta_plugin/master@conan/stable"</span><span class="p">)</span>
+
+      <span class="bp">self</span><span class="p">.</span><span class="n">requires</span><span class="p">(</span><span class="s">"flex_support_headers/master@conan/stable"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Where <code class="highlighter-rouge">flex_meta_plugin</code> is plugin example that can be found at <a href="https://github.com/blockspacer/flex_meta_plugin">https://github.com/blockspacer/flex_meta_plugin</a></p>
+
+<p>Where <code class="highlighter-rouge">flex_reflect_plugin</code> is plugin example that can be found at <a href="https://github.com/blockspacer/flex_reflect_plugin">https://github.com/blockspacer/flex_reflect_plugin</a></p>
+
+<p>Where <code class="highlighter-rouge">flex_support_headers</code> is header-only library that can simplify usage of <code class="highlighter-rouge">Cling C++ interpreter</code> with flextool. <code class="highlighter-rouge">flex_support_headers</code> can be found at <a href="https://github.com/blockspacer/flex_support_headers">https://github.com/blockspacer/flex_support_headers</a></p>
+
+<p>Make sure you installed <code class="highlighter-rouge">flex_reflect_plugin</code>, <code class="highlighter-rouge">flex_meta_plugin</code> and <code class="highlighter-rouge">flex_support_headers</code> using <code class="highlighter-rouge">conan</code>. You can find installation instructions in <code class="highlighter-rouge">README.md</code> at <a href="https://github.com/blockspacer/flex_meta_plugin">https://github.com/blockspacer/flex_meta_plugin</a>, <a href="https://github.com/blockspacer/flex_support_headers">https://github.com/blockspacer/flex_support_headers</a> and  <a href="https://github.com/blockspacer/flex_support_headers">https://github.com/blockspacer/flex_support_headers</a></p>
+
+<p>Note that plugins can depend on each other, so order of <code class="highlighter-rouge">conan create</code> may be important (or you will get build errors).</p>
+
+<p>If you built flextool using <code class="highlighter-rouge">conan create</code>, than <code class="highlighter-rouge">flextool</code> must be in output of command <code class="highlighter-rouge">conan search flextool</code>. Same must apply for plugins, example: <code class="highlighter-rouge">conan search flex_meta_plugin</code></p>
+
+<p>Run <code class="highlighter-rouge">conan install</code>. See <a href="https://docs.conan.io/en/latest/using_packages/conanfile_txt.html">https://docs.conan.io/en/latest/using_packages/conanfile_txt.html</a> for details</p>
+
+<p>Now <code class="highlighter-rouge">cmake</code> must be able to find path for installed plugins</p>
+
+<p>Add in <code class="highlighter-rouge">CMakeLists.txt</code>:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set</span><span class="p">(</span>flex_reflect_plugin
+  <span class="si">${</span><span class="nv">CONAN_FLEX_REFLECT_PLUGIN_ROOT</span><span class="si">}</span>/lib/flex_reflect_plugin<span class="si">${</span><span class="nv">CMAKE_SHARED_LIBRARY_SUFFIX</span><span class="si">}</span>
+<span class="p">)</span>
+<span class="nb">message</span><span class="p">(</span>STATUS <span class="s2">"flex_reflect_plugin=</span><span class="si">${</span><span class="nv">flex_reflect_plugin</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Run configure step for your cmake based project. See <a href="https://cmake.org/cmake/help/latest/guide/tutorial/index.html">https://cmake.org/cmake/help/latest/guide/tutorial/index.html</a> for details</p>
+
+<p>Make sure that added <code class="highlighter-rouge">message</code> prints valid path to <code class="highlighter-rouge">flex_reflect_plugin</code> installed using <code class="highlighter-rouge">conan</code> package manager.</p>
+
+<p>You can pass command-line argument <code class="highlighter-rouge">--load_plugin</code> to flextool that must conatain path to plugin file. We use <code class="highlighter-rouge">${CMAKE_SHARED_LIBRARY_SUFFIX}</code> that is suffix to use for the end of a shared library filename, <code class="highlighter-rouge">.dll</code> on Windows, <code class="highlighter-rouge">.so</code> on Linux.</p>
+
+<p>Usage example:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">execute_process</span><span class="p">(</span>
+  COMMAND <span class="si">${</span><span class="nv">flextool</span><span class="si">}</span>
+          --indir=<span class="si">${</span><span class="nv">CMAKE_CURRENT_SOURCE_DIR</span><span class="si">}</span>
+          --outdir=<span class="si">${</span><span class="nv">flextool_outdir</span><span class="si">}</span>
+          --load_plugin <span class="si">${</span><span class="nv">flex_reflect_plugin</span><span class="si">}</span>
+          --load_plugin <span class="si">${</span><span class="nv">flex_meta_plugin</span><span class="si">}</span>
+          --extra-arg=-I<span class="si">${</span><span class="nv">cling_includes</span><span class="si">}</span>
+          --extra-arg=-I<span class="si">${</span><span class="nv">clang_includes</span><span class="si">}</span>
+          --extra-arg=-I<span class="si">${</span><span class="nv">chromium_base_headers</span><span class="si">}</span>
+          --extra-arg=-I<span class="si">${</span><span class="nv">chromium_build_util_headers</span><span class="si">}</span>
+          --extra-arg=-I<span class="si">${</span><span class="nv">basis_headers</span><span class="si">}</span>
+          --extra-arg=-I<span class="si">${</span><span class="nv">flexlib_headers</span><span class="si">}</span>
+          --extra-arg=-Wno-undefined-inline
+          <span class="si">${</span><span class="nv">flextool_extra_args</span><span class="si">}</span>
+          <span class="si">${</span><span class="nv">flextool_input_files</span><span class="si">}</span>
+          --cling_scripts=<span class="si">${</span><span class="nv">flex_support_headers</span><span class="si">}</span>
+          <span class="c1">#TIMEOUT 7200 # sec</span>
+  RESULT_VARIABLE retcode
+  ERROR_VARIABLE _ERROR_VARIABLE<span class="p">)</span>
+<span class="nb">if</span><span class="p">(</span>NOT <span class="s2">"</span><span class="si">${</span><span class="nv">retcode</span><span class="si">}</span><span class="s2">"</span> STREQUAL <span class="s2">"0"</span><span class="p">)</span>
+  <span class="nb">message</span><span class="p">(</span>FATAL_ERROR <span class="s2">"Bad exit status </span><span class="si">${</span><span class="nv">retcode</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">_ERROR_VARIABLE</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+<span class="nb">message</span><span class="p">(</span>STATUS <span class="s2">"flextool output: </span><span class="si">${</span><span class="nv">retcode</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">_ERROR_VARIABLE</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Make sure you changed <code class="highlighter-rouge">${flextool_outdir}</code> to directory path where generated files must be stored.</p>
+
+<p>You can find full code of example project at <a href="https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt">https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt</a></p>
+
+<h2 id="running-flextool-from-conanfile">Running flextool from conanfile</h2>
+
+<p>Usually you want to execute <code class="highlighter-rouge">flextool</code> as part of <code class="highlighter-rouge">build</code> or <code class="highlighter-rouge">configure</code> step using <code class="highlighter-rouge">CMakeLists.txt</code></p>
+
+<p>But if you want to test plugin created for <code class="highlighter-rouge">flextool</code>, than you can run <code class="highlighter-rouge">flextool</code> as part of <code class="highlighter-rouge">test_package/conanfile.py</code></p>
+
+<p>You can find full code at <a href="https://github.com/blockspacer/flex_meta_plugin/blob/master/test_package/conanfile.py">https://github.com/blockspacer/flex_meta_plugin/blob/master/test_package/conanfile.py</a></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tools</span><span class="p">.</span><span class="n">cross_building</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">settings</span><span class="p">):</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">output</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">'self.source_folder = %s'</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">source_folder</span><span class="p">))</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="s">".so"</span> <span class="k">if</span> <span class="n">os_info</span><span class="p">.</span><span class="n">is_linux</span> <span class="k">else</span> <span class="s">".dll"</span>
+            <span class="c1">#
+</span>            <span class="n">flex_reflect_plugin_ROOT</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">deps_cpp_info</span><span class="p">[</span><span class="s">"flex_reflect_plugin"</span><span class="p">].</span><span class="n">rootpath</span>
+            <span class="n">flex_reflect_plugin_file</span> <span class="o">=</span> <span class="n">flex_reflect_plugin_ROOT</span>
+            <span class="n">flex_reflect_plugin_file</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">flex_reflect_plugin_file</span><span class="p">,</span> <span class="s">"lib"</span><span class="p">)</span>
+            <span class="n">flex_reflect_plugin_file</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">flex_reflect_plugin_file</span><span class="p">,</span> <span class="s">"flex_reflect_plugin"</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">output</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">'flex_reflect_plugin_file = %s'</span> <span class="o">%</span> <span class="p">(</span><span class="n">flex_reflect_plugin_file</span><span class="p">))</span>
+            <span class="c1">#
+</span>            <span class="n">flex_meta_plugin_ROOT</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">deps_cpp_info</span><span class="p">[</span><span class="s">"flex_meta_plugin"</span><span class="p">].</span><span class="n">rootpath</span>
+            <span class="n">flex_meta_plugin_file</span> <span class="o">=</span> <span class="n">flex_meta_plugin_ROOT</span>
+            <span class="n">flex_meta_plugin_file</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">flex_meta_plugin_file</span><span class="p">,</span> <span class="s">"lib"</span><span class="p">)</span>
+            <span class="n">flex_meta_plugin_file</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">flex_meta_plugin_file</span><span class="p">,</span> <span class="s">"flex_meta_plugin"</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">output</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">'flex_meta_plugin_file = %s'</span> <span class="o">%</span> <span class="p">(</span><span class="n">flex_meta_plugin_file</span><span class="p">))</span>
+            <span class="c1">#
+</span>            <span class="c1"># cling_includes must point to cling/Interpreter/RuntimeUniverse.h
+</span>            <span class="n">cling_conan_ROOT</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">deps_cpp_info</span><span class="p">[</span><span class="s">"cling_conan"</span><span class="p">].</span><span class="n">rootpath</span>
+            <span class="n">cling_includes</span> <span class="o">=</span> <span class="n">cling_conan_ROOT</span>
+            <span class="n">cling_includes</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">cling_includes</span><span class="p">,</span> <span class="s">"include"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">output</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">'cling_includes = %s'</span> <span class="o">%</span> <span class="p">(</span><span class="n">cling_includes</span><span class="p">))</span>
+            <span class="c1">#
+</span>            <span class="c1"># clang_includes must point to stddef.h from lib/clang/5.0.0/include
+</span>            <span class="n">clang_includes</span> <span class="o">=</span> <span class="n">cling_conan_ROOT</span>
+            <span class="n">clang_includes</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">clang_includes</span><span class="p">,</span> <span class="s">"lib"</span><span class="p">)</span>
+            <span class="n">clang_includes</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">clang_includes</span><span class="p">,</span> <span class="s">"clang"</span><span class="p">)</span>
+            <span class="n">clang_includes</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">clang_includes</span><span class="p">,</span> <span class="s">"5.0.0"</span><span class="p">)</span>
+            <span class="n">clang_includes</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">clang_includes</span><span class="p">,</span> <span class="s">"include"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">output</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">'clang_includes = %s'</span> <span class="o">%</span> <span class="p">(</span><span class="n">clang_includes</span><span class="p">))</span>
+            <span class="c1">#
+</span>            <span class="n">flextool_cmd</span> <span class="o">=</span> <span class="s">"flextool"</span> \
+              <span class="s">" --outdir ."</span> \
+              <span class="s">" --indir ."</span> \
+              <span class="s">" --load_plugin {}"</span> \
+              <span class="s">" --load_plugin {}"</span> \
+              <span class="s">" --extra-arg=-I{}"</span> \
+              <span class="s">" --extra-arg=-I{}"</span> \
+              <span class="s">" {}/main.cpp"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+              <span class="n">flex_reflect_plugin_file</span><span class="p">,</span> <span class="n">flex_meta_plugin_file</span><span class="p">,</span> <span class="n">cling_includes</span><span class="p">,</span> <span class="n">clang_includes</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">source_folder</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">output</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">'flextool_cmd = %s'</span> <span class="o">%</span> <span class="p">(</span><span class="n">flextool_cmd</span><span class="p">))</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">flextool_cmd</span><span class="p">,</span> <span class="n">run_environment</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
 
 <h2 id="for-contibutors">For contibutors</h2>
 
@@ -1306,7 +1478,7 @@ $( document ).ready(function() {
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 09.05.2020 10:55:04</p>
+        <p class="text">Last update: 12.05.2020 02:33:18</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>
