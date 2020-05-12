@@ -7,27 +7,13 @@ pin: true
 permalink: /common/
 ---
 
-## TODO
+## Useful links
 
-that page in development
+- [Tutorial]({{ site.data.global.tutorial.url | relative_url }})
+- [Usage]({{ site.data.global.building_projects.url | relative_url }})
+- [Plugins]({{ site.data.global.adding_plugins.url | relative_url }})
+- [Tracing and log levels]({{ site.data.global.bug_report.url | relative_url }})
 
 ## For contibutors
 
 Fell free to open [GitHub Issue](https://github.com/blockspacer/flextool/issues) if you know how to improve that page
-
-<script>
-treeDataJson = JSON.parse(`{% include data/common.json %}`);
-var siblings = [/*{
-    type: "curve",
-    source: {
-        id: "flextool",
-        name: "flextool"
-    },
-    target: {
-        id: "flexlib",
-        name: "flexlib"
-    }
-}*/];
-</script>
-<div id="techTreeContainer"></div>
-

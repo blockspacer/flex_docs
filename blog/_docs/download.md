@@ -249,15 +249,15 @@ GIT_SSL_NO_VERIFY=true \
 
 ## Verifying the installation
 
-that page in development
+If you built flextool using `conan create`, than `flextool` must be in output of command `conan search flextool`
 
 ## Updating
 
-that page in development
+Use `conan create` or `conan install` as usual, see for details [https://docs.conan.io/en/latest/developing_packages/package_dev_flow.html](https://docs.conan.io/en/latest/developing_packages/package_dev_flow.html)
 
 ## Uninstalling
 
-that page in development
+Use `conan remove` as usual, see for details [https://docs.conan.io/en/latest/reference/commands/misc/remove.html](https://docs.conan.io/en/latest/reference/commands/misc/remove.html)
 
 ## For contibutors
 

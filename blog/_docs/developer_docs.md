@@ -7,21 +7,39 @@ pin: true
 permalink: /developer_docs/
 ---
 
-This section contains articles that are relevant to anyone who wants to contribute to Emscripten and help improve the project.
+## About
+
+This section contains articles that are relevant to anyone who wants to contribute and help improve the project.
 
 Contributing provides an introduction to contributing, along with a few ideas for how you can help.
 
-The Developer’s Guide contains contributor-relevant information, covering compiler operation and submitting patches to the Emscripten repositories.
+The Developer's Guide contains contributor-relevant information, covering compiler operation and submitting patches to the repositories.
 
-AUTHORS is a list of all Emscripten contributors. If you contribute you must accept the project’s open source licenses (MIT/LLVM) and add yourself to the list!
+If you contribute you must accept the project's open source licenses (MIT)!
 
-## TODO
+## Code style
 
-that page in development
+We use Chromium C++ style guide [https://www.chromium.org/developers/coding-style](https://www.chromium.org/developers/coding-style)
 
-## Contributing to flextool
+## C++ Banned Language Features
 
-that page in development
+We use Chromium Banned Language Features [https://chromium-cpp.appspot.com/](https://chromium-cpp.appspot.com/)
+
+## chromium/base
+
+We use fork of `chromium/base`.
+
+Original `chromium/base`, also contains docs: [https://github.com/chromium/chromium/tree/master/base](https://github.com/chromium/chromium/tree/master/base)
+
+Fork used by us: [https://github.com/blockspacer/chromium_base_conan](https://github.com/blockspacer/chromium_base_conan)
+
+## Developer docs
+
+Because we use fork of `chromium/base` - chromium docs may be useful
+
+[https://www.chromium.org/developers](https://www.chromium.org/developers)
+
+[https://github.com/chromium/chromium/tree/master/docs](https://github.com/chromium/chromium/tree/master/docs)
 
 ## For contibutors
 

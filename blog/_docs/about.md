@@ -32,13 +32,13 @@ Note that depending on flextool won't make users of your application depend on i
 
 ## Metaprogramming
 
-Metaprogramming is an “art” of writing programs to treat other programs as their data. This means that a program could generate, read, analyse, and transform code or even itself to achieve a certain solution.
+Metaprogramming is an art of writing programs to treat other programs as their data. This means that a program could generate, read, analyse, and transform code or even itself to achieve a certain solution.
 
 ## Dependency manager for flextool plugins
 
 We recommend conan - a crossplatform dependency manager for C++.
 
-It can be used to install both flextool and all plugins required by flextool into your build folder of your project.
+It can be used to install both flextool and all plugins required by flextool into build folder.
 
 conan also allows to provide important information in each `conan package`:
 
@@ -46,7 +46,7 @@ conan also allows to provide important information in each `conan package`:
 - path to cling and clang header files. That is very usefull cause conan allows to automatically set `-I` arguments required by clang LibTooling.
 - path to LLVM_ROOT
 
-Note: It is also possible to install `flextool` system-wide and provide command-line argumets like `-extra-arg=-I$PWD/include -extra-arg=-I$PWD/include/foo -extra-arg=-DMY_DEFINITION=1 -extra-arg=-DONE_MORE_DEFINITION=1` by hand.
+Note: It is also possible to install `flextool` system-wide and provide command-line argumets like `--extra-arg=-I$PWD/include --extra-arg=-I$PWD/include/foo --extra-arg=-DMY_DEFINITION=1 --extra-arg=-DONE_MORE_DEFINITION=1` by hand.
 
 ## flextool toolchain
 
@@ -73,9 +73,9 @@ and many more
 
 ## About flex_reflect_plugin
 
-`flex_reflect_plugin` is plugin to flextool. It can be disabled (as any plugin) or completely replaced with custom plugin(s).
-
 Default plugin https://github.com/blockspacer/flex_reflect_plugin allows to execute custom logic based on data stored in C++ annotations.
+
+flex_reflect_plugin can be disabled (as any plugin) or completely replaced with custom plugin(s).
 
 For example, annotation starting with "{funccall};" may be used to call C++ logic by some name.
 
@@ -192,8 +192,8 @@ That project possible because of [flexferrum's `autoprogrammer`](https://github.
 
 Articles about flexferrum's `autoprogrammer` in media:
 
-- [RUS] метаклассах по-русски https://habr.com/ru/article/448466/
-- [RUS] Метаклассы в C++17 Фантастика? Реальность! https://assets.ctfassets.net/oxjq45e8ilak/55bGdX2PnYzmrpM8rwCjcE/791e7eee3236c2023e86e169faca8a0e/Sergei_Sadovnikov_Metaclasses_in_C___dream_Reality.pdf
+- [RUS] https://habr.com/ru/article/448466/
+- [RUS] https://assets.ctfassets.net/oxjq45e8ilak/55bGdX2PnYzmrpM8rwCjcE/791e7eee3236c2023e86e169faca8a0e/Sergei_Sadovnikov_Metaclasses_in_C___dream_Reality.pdf
 
 ## License
 

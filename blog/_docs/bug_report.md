@@ -11,12 +11,12 @@ Bug reports can be posted in the GitHub Issue Tracker https://github.com/blocksp
 
 Please supply as much relevant information as possible, including:
 
-flextool version
-Original source code.
-Used plugins
-Environment information — including compiler versions
-Error symptoms.
-Proposed solutions, ideally with a pull request.
+- Used version
+- Original source code.
+- Used plugins
+- Environment information including compiler versions
+- Error symptoms.
+- Proposed solutions, ideally with a pull request.
 
 ## How to debug in case of crash or bugs
 
@@ -50,7 +50,7 @@ After app close event trace report will be saved into json file.
 
 You can view saved trace report in `chrome://tracing/`
 
-see 
+see
 https://aras-p.info/blog/2017/01/23/Chrome-Tracing-as-Profiler-Frontend/
 https://www.chromium.org/developers/how-tos/trace-event-profiling-tool/trace-event-reading
 https://www.chromium.org/developers/how-tos/trace-event-profiling-tool
@@ -61,11 +61,7 @@ https://slack.engineering/chrome-tracing-for-fun-and-profit-a15ec83aa908
 
 that page in development
 
-## Profiling performance and tracing
-
-that page in development
-
-## Increasing log level
+## Profiling performance
 
 that page in development
 
@@ -75,10 +71,9 @@ Documentation (site) bugs should be filed in the same Issue Tracker.
 
 Include relevant information including:
 
-The URL and title of the affected page(s).
-A description of the problem.
-Suggestions for a possible solution.
-Tip
+- The URL and title of the affected page(s).
+- A description of the problem.
+- Suggestions for a possible solution.
 
 ## For contibutors
 

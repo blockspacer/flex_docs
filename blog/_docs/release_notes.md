@@ -7,9 +7,9 @@ pin: true
 permalink: /release_notes/
 ---
 
-## TODO
+## `master` git branch
 
-that page in development
+`master` git branch must contain stable, well tested code.
 
 ## For contibutors
 

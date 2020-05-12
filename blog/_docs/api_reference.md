@@ -7,9 +7,9 @@ pin: true
 permalink: /api_reference/
 ---
 
-## TODO
+## API Documentation
 
-that page in development
+API Documentation can be generated based on comments in source code
 
 ## For contibutors
 

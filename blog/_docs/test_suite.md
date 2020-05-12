@@ -7,9 +7,9 @@ pin: true
 permalink: /test_suite/
 ---
 
-## TODO
+## About
 
-that page in development
+That page must contain information about test suite
 
 ## For contibutors
 
