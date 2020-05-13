@@ -1218,29 +1218,157 @@ $( document ).ready(function() {
 
 
 
-<h2 id="todo">TODO</h2>
-
-<p>that page in development</p>
-
 <h2 id="first-things-first">First things first</h2>
 
 <p>Make sure you have downloaded and installed flextool (the exact approach for doing this will depend your operating system: Linux, Windows, or Mac).</p>
 
-<h2 id="verifying-flextool">Verifying flextool</h2>
-
-<p>that page in development</p>
-
-<h2 id="running-flextool-by-hand">Running flextool by hand</h2>
-
-<p>that page in development</p>
+<p>See for detailed installation instructions <a href="/flex_docs/download/">/flex_docs/download/</a></p>
 
 <h2 id="running-flextool-using-conan-and-cmake">Running flextool using conan and CMake</h2>
 
+<p>See for detailed usage instructions <a href="/flex_docs/building_projects/">/flex_docs/building_projects/</a></p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>There are some boilerplate code in many projects:</p>
+
+<ul>
+  <li>Enum to string conversion (and vice versa)</li>
+  <li>Editor integration (UE4, Unity, Godot)</li>
+  <li>Serialization/deserialization</li>
+  <li>Object RPC and proxy/stubs</li>
+  <li>ORM</li>
+  <li>GUI controls binding and models</li>
+  <li>
+    <your own="" case="">
+
+</your>
+  </li>
+</ul>
+<p>How flextool works:</p>
+
+<ul>
+  <li>It takes a piece of handwritten regular C++ code</li>
+  <li>It parses this code with the Clang LibTooling</li>
+  <li>It analyses the parsing result and produces another piece of code (or performs custom actions defined by plugins)</li>
+</ul>
+
+<h2 id="using-existing-plugin-to-add-custom-c-typeclasses-using-type-erasure">Using existing plugin to add custom C++ typeclasses (using Type Erasure)</h2>
+
 <p>that page in development</p>
+
+<p>Type Erasure - Combination of static and dynamic polymorphism which gets the best of both sides with minimal overhead.</p>
+
+<p>Definition by Dave Abrahams and Aleksey Curtovoy in, C++ Template Metaprogramming:</p>
+
+<blockquote>
+  <p>In its fullest expression, type erasure is the process of turning a wide variety of types with a common interface into one type with that same interface</p>
+</blockquote>
+
+<p>Quotes from <a href="https://dragly.org/2018/04/21/rust-like-traits-in-cpp/">
+https://dragly.org/2018/04/21/rust-like-traits-in-cpp/</a></p>
+
+<blockquote>
+  <p>With inheritance in C++, it is easy to introduce new types,
+but hard to extend with new functionality
+(all existing types will need to implement any new functions).</p>
+
+  <p>Further, it is hard to add functionality after-the-fact.
+If a library has defined length() as a function of Vector3,
+but you need lengthSquared() for performance reasons,
+there is no easy way to add this to the Vector3 class.</p>
+
+  <p>You will typically have to make lengthSquared(Vector3 v)
+a free function, which makes it awkward,
+because you are now calling v.length() for the length,
+but lengthSquared(v) for the length squared.</p>
+</blockquote>
+
+<p>Quote from <a href="https://quuxplusone.github.io/blog/2019/03/18/what-is-type-erasure/#i-mean-ad-hoc-dynamic-polymorphism">https://quuxplusone.github.io/blog/2019/03/18/what-is-type-erasure/#i-mean-ad-hoc-dynamic-polymorphism</a></p>
+
+<blockquote>
+  <p>When I say “type erasure” in C++, I mean more than just a base class with a classical polymorphic interface.</p>
+
+  <p>I mean a non-virtual interface which encapsulates and hides the polymorphism from the end-user, and allows them to use “duck typing” without bothering to inherit from any library class. (This can allow several libraries to interoperate seamlessly, even if they don’t know about each other’s code.)</p>
+</blockquote>
+
+<p>You can find more information about <code class="highlighter-rouge">Type Erasure</code> as design pattern at <a href="https://caiorss.github.io/C-Cpp-Notes/cpp-design-patterns.html#orgdda5854">https://caiorss.github.io/C-Cpp-Notes/cpp-design-patterns.html#orgdda5854</a></p>
+
+<p>You can find more information about implementation details of <code class="highlighter-rouge">Type Erasure</code> at <a href="https://www.modernescpp.com/index.php/c-core-guidelines-type-erasure-with-templates">https://www.modernescpp.com/index.php/c-core-guidelines-type-erasure-with-templates</a> and <a href="http://www.goldsborough.me/cpp/2018/05/22/00-32-43-type_erasure_for_unopinionated_interfaces_in_c++/">http://www.goldsborough.me/cpp/2018/05/22/00-32-43-type_erasure_for_unopinionated_interfaces_in_c++/</a> and <a href="https://mropert.github.io/2017/11/30/polymorphic_ducks/">https://mropert.github.io/2017/11/30/polymorphic_ducks/</a></p>
+
+<p>You can also find interesting section about type erasure from the book <code class="highlighter-rouge">Hands-On Design Patterns with C++</code></p>
+
+<p>In C++ Rust-like-traits are usually called as typeclasses (similar to Haskell <a href="https://functionalcpp.wordpress.com/2013/08/16/type-classes/">https://functionalcpp.wordpress.com/2013/08/16/type-classes/</a>). You can find example code that uses typeclasses at <a href="https://github.com/TartanLlama/typeclasses">https://github.com/TartanLlama/typeclasses</a></p>
+
+<p>Also typeclasses may be called as <code class="highlighter-rouge">virtual concepts</code>, see for details <a href="https://github.com/andyprowl/virtual-concepts/blob/master/draft/Dynamic%20Generic%20Programming%20with%20Virtual%20Concepts.pdf">https://github.com/andyprowl/virtual-concepts/blob/master/draft/Dynamic%20Generic%20Programming%20with%20Virtual%20Concepts.pdf</a> and <a href="https://cdn2-ecros.pl/event/codedive/files/presentations/2017/code%20dive%202017%20-%20Michal%20Dominiak%20-%20Customization%20points%20that%20suck%20less.pdf">https://cdn2-ecros.pl/event/codedive/files/presentations/2017/code%20dive%202017%20-%20Michal%20Dominiak%20-%20Customization%20points%20that%20suck%20less.pdf</a></p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span><span class="err">(</span><span class="nc">typeclass</span><span class="p">)</span> <span class="n">printable</span> <span class="p">{</span>
+    <span class="kt">void</span> <span class="n">print</span><span class="p">();</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="nc">foo</span> <span class="p">{</span>
+    <span class="kt">void</span> <span class="n">print</span><span class="p">()</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"foo"</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="nc">bar</span> <span class="p">{</span>
+    <span class="kt">void</span> <span class="n">print</span><span class="p">()</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"bar"</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">printable</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">;</span>
+<span class="n">v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">foo</span><span class="p">{});</span>
+<span class="n">v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">bar</span><span class="p">{});</span>
+<span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">print</span><span class="p">();</span>
+<span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">print</span><span class="p">();</span>
+
+<span class="n">printable</span> <span class="n">a</span> <span class="o">=</span> <span class="n">foo</span><span class="p">{};</span>
+<span class="n">a</span><span class="p">.</span><span class="n">print</span><span class="p">();</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">bar</span><span class="p">{};</span>
+<span class="n">a</span><span class="p">.</span><span class="n">print</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>You can learn more about typeclasses at</p>
+
+<ul>
+  <li>http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1900r0.html#type-erasure</li>
+</ul>
+
+<p>To quote some lines:</p>
+
+<ul>
+  <li>
+    <p>There are no polymorphic types, only a polymorphic use of similar types</p>
+  </li>
+  <li>
+    <p>By using inheritance to capture polymorphic use, we shift the burden of use to the type implementation, tightly coupling components</p>
+  </li>
+  <li>
+    <p>Inheritance implies variable size, which implies heap allocation</p>
+  </li>
+  <li>
+    <p>Heap allocation forces a further burden to manage the object lifetime</p>
+  </li>
+  <li>
+    <p>Indirection, heap allocation, virtualization impacts performance</p>
+  </li>
+</ul>
+
+<p>Our implementation of typeclasses inspired by <a href="https://github.com/seanbaxter/circle/blob/master/erasure/type_erasure.md">https://github.com/seanbaxter/circle/blob/master/erasure/type_erasure.md</a></p>
+
+<p>Usage notes:</p>
+
+<ul>
+  <li>Typeclasses prefer composition over inheritance, so instead of saying a Rectangle is-a Drawable object, you might say it has-a thing which is Drawable</li>
+</ul>
 
 <h2 id="using-existing-plugin-to-add-custom-c-metaclasses">Using existing plugin to add custom C++ metaclasses</h2>
 
 <p>that page in development</p>
+
+<p>You can learn more about metaclasses at</p>
+
+<ul>
+  <li>https://youtu.be/80BZxujhY38</li>
+</ul>
 
 <h2 id="integration-with-template-engines">Integration with template engines</h2>
 
@@ -1249,6 +1377,104 @@ $( document ).ready(function() {
 <h2 id="writing-custom-plugin-to-generate-c-files">Writing custom plugin to generate C++ files</h2>
 
 <p>that page in development</p>
+
+<h2 id="use-case-enum-to-string-and-string-to-enum">Use case: enum to string and string to enum</h2>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="nf">SomeEnumToString</span><span class="p">(</span><span class="n">SomeEnum</span> <span class="n">e</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="k">switch</span> <span class="p">(</span><span class="n">e</span><span class="p">)</span>
+   <span class="p">{</span>
+   <span class="k">case</span> <span class="n">Item1</span><span class="p">:</span>
+       <span class="k">return</span> <span class="s">"Item1"</span><span class="p">;</span>
+   <span class="k">case</span> <span class="n">Item2</span><span class="p">:</span>
+       <span class="k">return</span> <span class="s">"Item2"</span><span class="p">;</span>
+   <span class="k">case</span> <span class="n">Item3</span><span class="p">:</span>
+       <span class="k">return</span> <span class="s">"Item3"</span><span class="p">;</span>
+   <span class="p">}</span>
+
+   <span class="k">return</span> <span class="s">"Unknown Item"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">SomeEnum</span> <span class="nf">StringToSomeEnum</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">itemName</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">,</span> <span class="n">SomeEnum</span><span class="o">&gt;</span> <span class="n">items</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+       <span class="p">{</span><span class="s">"Item1"</span><span class="p">,</span> <span class="n">Item1</span><span class="p">},</span>
+       <span class="p">{</span><span class="s">"Item2"</span><span class="p">,</span> <span class="n">Item2</span><span class="p">},</span>
+       <span class="p">{</span><span class="s">"Item3"</span><span class="p">,</span> <span class="n">Item3</span><span class="p">},</span>
+   <span class="p">};</span>
+   <span class="k">auto</span> <span class="n">p</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">lower_bound</span><span class="p">(</span><span class="n">begin</span><span class="p">(</span><span class="n">items</span><span class="p">),</span> <span class="n">end</span><span class="p">(</span><span class="n">items</span><span class="p">),</span> <span class="n">itemName</span><span class="p">,</span>
+                             <span class="p">[](</span><span class="k">auto</span><span class="o">&amp;&amp;</span> <span class="n">i</span><span class="p">,</span> <span class="k">auto</span><span class="o">&amp;&amp;</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span><span class="k">return</span> <span class="n">strcmp</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">first</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">;});</span>
+   <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">==</span> <span class="n">end</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">||</span> <span class="n">strcmp</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">,</span> <span class="n">itemName</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+       <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">bad_cast</span><span class="p">();</span>
+
+   <span class="k">return</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Code generator should do:</p>
+
+<ul>
+  <li>Find all enum declarations in the input file</li>
+  <li>Extract items from the particular enum declaration and convert them to the string form</li>
+  <li>Generate ‘enum to string’ conversion function with the ‘switch’ statement (be careful with scoped enums!)</li>
+  <li>Sort enum items (in string representation)</li>
+  <li>Generate ‘string to enum’ conversion function with array and std::lower_bound</li>
+</ul>
+
+<p><code class="highlighter-rouge">MatchFinder</code> allows to find enum declaration (<code class="highlighter-rouge">clang::EnumDecl</code>):</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">EnumHandler</span> <span class="o">:</span> <span class="k">public</span> <span class="n">MatchFinder</span><span class="o">::</span><span class="n">MatchCallback</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+   <span class="kt">void</span> <span class="n">run</span><span class="p">(</span><span class="k">const</span> <span class="n">MatchFinder</span><span class="o">::</span><span class="n">MatchResult</span><span class="o">&amp;</span> <span class="n">result</span><span class="p">)</span> <span class="k">override</span>
+   <span class="p">{</span>
+       <span class="c1">// Access to the named matching results</span>
+       <span class="k">if</span> <span class="p">(</span><span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">EnumDecl</span><span class="o">*</span> <span class="n">decl</span> <span class="o">=</span> <span class="n">result</span><span class="p">.</span><span class="n">Nodes</span><span class="p">.</span><span class="n">getNodeAs</span><span class="o">&lt;</span><span class="n">clang</span><span class="o">::</span><span class="n">EnumDecl</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"enum"</span><span class="p">))</span>
+       <span class="p">{</span>
+           <span class="c1">// do something useful with the found enum declaration</span>
+       <span class="p">}</span>
+   <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>Code generation:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// generates C++ code for enum to string conversion</span>
+<span class="kt">void</span> <span class="nf">WriteEnumToStringConversion</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span><span class="p">,</span> <span class="k">const</span> <span class="n">EnumDescriptor</span><span class="o">&amp;</span> <span class="n">enumDescr</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="k">auto</span><span class="o">&amp;</span> <span class="n">enumName</span> <span class="o">=</span> <span class="n">enumDescr</span><span class="p">.</span><span class="n">enumName</span><span class="p">;</span>
+   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"inline const char* "</span> <span class="o">&lt;&lt;</span> <span class="n">enumName</span> <span class="o">&lt;&lt;</span> <span class="s">"ToString("</span> <span class="o">&lt;&lt;</span> <span class="n">enumName</span> <span class="o">&lt;&lt;</span> <span class="s">" e)</span><span class="se">\n</span><span class="s">{</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"    switch (e)</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"    {</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+   <span class="k">auto</span> <span class="n">scopePrefix</span> <span class="o">=</span> <span class="n">enumDescr</span><span class="p">.</span><span class="n">isScoped</span> <span class="o">?</span> <span class="n">enumName</span> <span class="o">+</span> <span class="s">"::"</span> <span class="o">:</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">();</span>
+   <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">i</span> <span class="o">:</span> <span class="n">enumDescr</span><span class="p">.</span><span class="n">enumItems</span><span class="p">)</span>
+   <span class="p">{</span>
+       <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"    case "</span> <span class="o">&lt;&lt;</span> <span class="n">scopePrefix</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">":</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+       <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"        return </span><span class="se">\"</span><span class="s">"</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\"</span><span class="s">;</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+   <span class="p">}</span>
+   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"    }</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"    return </span><span class="se">\"</span><span class="s">Unknown Item</span><span class="se">\"</span><span class="s">;</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"}</span><span class="se">\n\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// generates C++ code for string to enum conversion</span>
+<span class="kt">void</span> <span class="nf">WriteEnumFromStringConversion</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span><span class="p">,</span> <span class="k">const</span> <span class="n">EnumDescriptor</span><span class="o">&amp;</span> <span class="n">enumDescr</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="k">auto</span><span class="o">&amp;</span> <span class="n">enumName</span> <span class="o">=</span> <span class="n">enumDescr</span><span class="p">.</span><span class="n">enumName</span><span class="p">;</span>
+   <span class="k">auto</span> <span class="n">scopePrefix</span> <span class="o">=</span> <span class="n">enumDescr</span><span class="p">.</span><span class="n">isScoped</span> <span class="o">?</span> <span class="n">enumName</span> <span class="o">+</span> <span class="s">"::"</span> <span class="o">:</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">();</span>
+   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"inline "</span> <span class="o">&lt;&lt;</span> <span class="n">enumName</span> <span class="o">&lt;&lt;</span> <span class="s">" StringTo"</span> <span class="o">&lt;&lt;</span> <span class="n">enumName</span> <span class="o">&lt;&lt;</span> <span class="s">"(const char* itemName)</span><span class="se">\n</span><span class="s">{</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"    static std::pair&lt;const char*, "</span> <span class="o">&lt;&lt;</span> <span class="n">enumName</span> <span class="o">&lt;&lt;</span> <span class="s">"&gt; items[] = {</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+   <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">i</span> <span class="o">:</span> <span class="n">enumDescr</span><span class="p">.</span><span class="n">enumItems</span><span class="p">)</span>
+       <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">"        {</span><span class="se">\"</span><span class="s">"</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\"</span><span class="s">, "</span> <span class="o">&lt;&lt;</span> <span class="n">scopePrefix</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">"},</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+   <span class="n">os</span> <span class="o">&lt;&lt;</span><span class="s">R"(    };
+   auto p = std::lower_bound(begin(items), end(items), itemName,
+                     [](auto&amp;&amp; i, auto&amp;&amp; v) {return strcmp(i.first, v) &lt; 0;});
+   if (p == end(items) || strcmp(p-&gt;first, itemName) != 0)
+       throw std::bad_cast();
+   return p-&gt;second;
+})"</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
 
 <h2 id="generating-not-c-files">Generating not-C++ files</h2>
 
@@ -1276,7 +1502,17 @@ $( document ).ready(function() {
 
 <h2 id="detecting-flextool-in-preprocessor">Detecting flextool in Preprocessor</h2>
 
-<p>that page in development</p>
+<p>flextool defines for clang:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">-DCLANG_ENABLED</span><span class="o">=</span>1
+<span class="nt">-DCLANG_IS_ON</span><span class="o">=</span>1
+</code></pre></div></div>
+
+<p>flextool defines for cling:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">-DCLING_ENABLED</span><span class="o">=</span>1
+<span class="nt">-DCLING_IS_ON</span><span class="o">=</span>1
+</code></pre></div></div>
 
 <h2 id="example-avoid-repetitive-code">Example: Avoid Repetitive Code</h2>
 
@@ -1445,30 +1681,60 @@ $( document ).ready(function() {
 
 <p>that page in development</p>
 
-<h2 id="about-cxxctp_callback">About <code class="highlighter-rouge">cxxctp_callback</code></h2>
+<h2 id="about-sourcetransformcallback">About <code class="highlighter-rouge">SourceTransformCallback</code></h2>
 
-<p>Function signature for code transformation must be compatible with <code class="highlighter-rouge">cxxctp_callback</code>:</p>
+<p>Function signature for code transformation must be compatible with <code class="highlighter-rouge">SourceTransformCallback</code>:</p>
 
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">(</span>
-    <span class="k">const</span> <span class="n">cxxctp</span><span class="o">::</span><span class="n">parsed_func</span><span class="o">&amp;</span> <span class="n">func_with_args</span><span class="p">,</span>
-    <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">ast_matchers</span><span class="o">::</span><span class="n">MatchFinder</span><span class="o">::</span><span class="n">MatchResult</span><span class="o">&amp;</span> <span class="n">matchResult</span><span class="p">,</span>
-    <span class="n">clang</span><span class="o">::</span><span class="n">Rewriter</span><span class="o">&amp;</span> <span class="n">rewriter</span><span class="p">,</span>
-    <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">Decl</span><span class="o">*</span> <span class="n">decl</span><span class="p">,</span>
-    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cxxctp</span><span class="o">::</span><span class="n">parsed_func</span><span class="o">&gt;&amp;</span> <span class="n">all_funcs_with_args</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">cxxctp_callback</span><span class="p">;</span>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="nc">SourceTransformResult</span> <span class="p">{</span>
+  <span class="c1">///\brief may be used to replace orginal code.</span>
+  <span class="c1">/// To keep orginal code set it as nullptr.</span>
+  <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">replacer</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="cm">/**
+  * \brief callback that will be called then parser
+  *        found custom attribute.
+**/</span>
+<span class="k">struct</span> <span class="nc">SourceTransformOptions</span> <span class="p">{</span>
+  <span class="cm">/**
+    * currently executed function
+    * (function name parsed from annotation)
+  **/</span>
+  <span class="k">const</span> <span class="n">flexlib</span><span class="o">::</span><span class="n">parsed_func</span><span class="o">&amp;</span> <span class="n">func_with_args</span><span class="p">;</span>
+
+  <span class="cm">/**
+    * see https://xinhuang.github.io/posts/2015-02-08-clang-tutorial-the-ast-matcher.html
+  **/</span>
+  <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">ast_matchers</span><span class="o">::</span><span class="n">MatchFinder</span><span class="o">::</span><span class="n">MatchResult</span><span class="o">&amp;</span> <span class="n">matchResult</span><span class="p">;</span>
+
+  <span class="cm">/**
+    * see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-3-rewriting-code-with-clang-tidy/
+  **/</span>
+  <span class="n">clang</span><span class="o">::</span><span class="n">Rewriter</span><span class="o">&amp;</span> <span class="n">rewriter</span><span class="p">;</span>
+
+  <span class="cm">/**
+    * found by MatchFinder
+    * see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-2-examining-the-clang-ast-with-clang-query/
+  **/</span>
+  <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">Decl</span><span class="o">*</span> <span class="n">decl</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+  <span class="cm">/**
+    * All arguments extracted from attribute.
+    * Example:
+    * $apply(interface, foo_with_args(1, "2"))
+    * becomes two `parsed_func` - `interface` and `foo_with_args`.
+  **/</span>
+  <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">flexlib</span><span class="o">::</span><span class="n">parsed_func</span><span class="o">&gt;&amp;</span> <span class="n">all_func_with_args</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">typedef</span>
+  <span class="n">base</span><span class="o">::</span><span class="n">RepeatingCallback</span><span class="o">&lt;</span>
+    <span class="n">SourceTransformResult</span><span class="p">(</span><span class="k">const</span> <span class="n">SourceTransformOptions</span><span class="o">&amp;</span> <span class="n">callback_args</span><span class="p">)</span>
+  <span class="o">&gt;</span>
+  <span class="n">SourceTransformCallback</span><span class="p">;</span>
 </code></pre></div></div>
 
-<p>Detailed function signature:</p>
-
-<ul>
-  <li>return value (const char*) - used to replace original code, if needed.</li>
-  <li>func_with_args - currently executed function from list <code class="highlighter-rouge">all_funcs_with_args</code> (see below)</li>
-  <li>clang::ast_matchers::MatchFinder::MatchResult - see https://xinhuang.github.io/posts/2015-02-08-clang-tutorial-the-ast-matcher.html</li>
-  <li>clang::Rewriter - see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-3-rewriting-code-with-clang-tidy/</li>
-  <li>clang::Decl - found by MatchFinder, see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-2-examining-the-clang-ast-with-clang-query/</li>
-  <li>std::vector<parsed_func> - all arguments extracted from attribute. Example: \$apply(interface, foo_with_args(1, "2")) becomes two `parsed_func` - `interface` and `foo_with_args`.</parsed_func></li>
-</ul>
-
-<p>Think about function name as one of <code class="highlighter-rouge">__VA_ARGS__</code> from</p>
+<p>Think about <code class="highlighter-rouge">function name</code> as one of <code class="highlighter-rouge">__VA_ARGS__</code> from</p>
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#define $apply(...) \
   __attribute__((annotate("{gen};{funccall};" #__VA_ARGS__)))
@@ -1552,7 +1818,7 @@ $( document ).ready(function() {
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 12.05.2020 02:33:18</p>
+        <p class="text">Last update: 13.05.2020 12:48:50</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>

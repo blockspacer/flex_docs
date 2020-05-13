@@ -1247,7 +1247,9 @@ $( document ).ready(function() {
 
 <p>Add in <code class="highlighter-rouge">CMakeLists.txt</code>:</p>
 
-<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">find_package</span><span class="p">(</span>flextool MODULE REQUIRED<span class="p">)</span>
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">list</span><span class="p">(</span>APPEND CMAKE_PROGRAM_PATH <span class="si">${</span><span class="nv">CONAN_BIN_DIRS</span><span class="si">}</span><span class="p">)</span>
+
+<span class="nb">find_package</span><span class="p">(</span>flextool MODULE REQUIRED<span class="p">)</span>
 
 <span class="nb">find_program</span><span class="p">(</span>flextool flextool NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH<span class="p">)</span>
 <span class="nb">message</span><span class="p">(</span>STATUS <span class="s2">"find_program for flextool </span><span class="si">${</span><span class="nv">flextool</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -1478,7 +1480,7 @@ $( document ).ready(function() {
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 12.05.2020 02:33:18</p>
+        <p class="text">Last update: 13.05.2020 12:48:50</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>
