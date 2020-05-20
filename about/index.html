@@ -1256,16 +1256,20 @@ $( document ).ready(function() {
 <p>conan also allows to provide important information in each <code class="highlighter-rouge">conan package</code>:</p>
 
 <ul>
-  <li>path where flextool executable can be found. You don’t need to install anything system-wide. Just run <code class="highlighter-rouge">conan install</code> and you will be able to use <code class="highlighter-rouge">flextool</code>!</li>
-  <li>path to cling and clang header files. That is very usefull cause conan allows to automatically set <code class="highlighter-rouge">-I</code> arguments required by clang LibTooling.</li>
-  <li>path to LLVM_ROOT</li>
+  <li>
+    <p>path where flextool executable can be found. You don’t need to install anything system-wide. Just run <code class="highlighter-rouge">conan install</code> and you will be able to use <code class="highlighter-rouge">flextool</code>!</p>
+  </li>
+  <li>
+    <p>path to cling and clang header files. That is very usefull cause conan allows to automatically set <code class="highlighter-rouge">-I</code> arguments required by clang LibTooling.</p>
+  </li>
+  <li>
+    <p>path to LLVM_ROOT</p>
+  </li>
 </ul>
 
 <p>Note: It is also possible to install <code class="highlighter-rouge">flextool</code> system-wide and provide command-line argumets like <code class="highlighter-rouge">--extra-arg=-I$PWD/include --extra-arg=-I$PWD/include/foo --extra-arg=-DMY_DEFINITION=1 --extra-arg=-DONE_MORE_DEFINITION=1</code> by hand.</p>
 
 <h2 id="flextool-toolchain">flextool toolchain</h2>
-
-<p>The main tool is the flextool.</p>
 
 <p>flextool uses Clang LibTooling and LLVM to parse source code.</p>
 
@@ -1278,12 +1282,24 @@ $( document ).ready(function() {
 <p>Plugin can do arbitrary logic with information provided by flextool. For example, you can:</p>
 
 <ul>
-  <li>modify source files (implement metaclasses, transpile from C++X to C++Y etc.)</li>
-  <li>create new files (separate generated class to .hpp and .cpp, etc.)</li>
-  <li>check source files (implement style checks, validate design patterns, etc.)</li>
-  <li>compile scripts (rules for code transformations) for maximum performance, not only interpret them in Cling.</li>
-  <li>use C++ as compile-time scripting language (uses https://github.com/derofim/cling-cmake)</li>
-  <li>use template engine with full C++ power (transpiles template to valid C++ code, supports Cling, etc.). uses https://github.com/blockspacer/CXTPL</li>
+  <li>
+    <p>modify source files (implement metaclasses, transpile from C++X to C++Y etc.)</p>
+  </li>
+  <li>
+    <p>create new files (separate generated class to .hpp and .cpp, etc.)</p>
+  </li>
+  <li>
+    <p>check source files (implement style checks, validate design patterns, etc.)</p>
+  </li>
+  <li>
+    <p>compile scripts (rules for code transformations) for maximum performance, not only interpret them in Cling.</p>
+  </li>
+  <li>
+    <p>use C++ as compile-time scripting language (uses https://github.com/derofim/cling-cmake)</p>
+  </li>
+  <li>
+    <p>use template engine with full C++ power (transpiles template to valid C++ code, supports Cling, etc.). uses https://github.com/blockspacer/CXTPL</p>
+  </li>
 </ul>
 
 <p>and many more</p>
@@ -1369,9 +1385,9 @@ $( document ).ready(function() {
 <p>Useful links:</p>
 
 <ul>
-  <li>https://clang.llvm.org/extra/clang-rename.html</li>
-  <li>Clang Tooling I (add override keyword) https://medium.com/@chichunchen844/clang-tooling-i-add-override-keyword-ddfdf6113b24</li>
-  <li>llvm-clang-samples https://github.com/eliben/llvm-clang-samples/blob/master/src_clang/tooling_sample.cpp</li>
+  <li><a href="https://clang.llvm.org/extra/clang-rename.html">https://clang.llvm.org/extra/clang-rename.html</a></li>
+  <li>Clang Tooling I (add override keyword) <a href="https://medium.com/@chichunchen844/clang-tooling-i-add-override-keyword-ddfdf6113b24">https://medium.com/@chichunchen844/clang-tooling-i-add-override-keyword-ddfdf6113b24</a></li>
+  <li>llvm-clang-samples <a href="https://github.com/eliben/llvm-clang-samples/blob/master/src_clang/tooling_sample.cpp">https://github.com/eliben/llvm-clang-samples/blob/master/src_clang/tooling_sample.cpp</a></li>
   <li>https://chromium.googlesource.com/chromium/src/+/master/tools/clang/rewrite_to_chrome_style/RewriteToChromeStyle.cpp</li>
   <li>http://www.dreamlandcoder.com/system-security/how-i-learned/clang-libtool/</li>
   <li>https://jonasdevlieghere.com/understanding-the-clang-ast/</li>
@@ -1398,7 +1414,7 @@ $( document ).ready(function() {
 <p>Useful links:</p>
 
 <ul>
-  <li>(how to add Cling into CMake project) https://github.com/derofim/cling-cmake</li>
+  <li>(how to add Cling into CMake project) <a href="https://github.com/derofim/cling-cmake">https://github.com/derofim/cling-cmake</a></li>
   <li>https://github.com/root-project/cling/tree/master/www/docs/talks</li>
   <li>https://github.com/caiorss/C-Cpp-Notes/blob/master/Root-cern-repl.org</li>
 </ul>
@@ -1535,7 +1551,7 @@ $( document ).ready(function() {
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 13.05.2020 12:48:50</p>
+        <p class="text">Last update: 20.05.2020 14:53:15</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>
