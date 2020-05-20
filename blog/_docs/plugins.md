@@ -30,6 +30,12 @@ Example project
 
 Github repository: [https://github.com/blockspacer/flex_meta_demo](https://github.com/blockspacer/flex_meta_demo)
 
+## flex_typeclass_plugin
+
+Github repository: [https://github.com/blockspacer/flex_typeclass_plugin](https://github.com/blockspacer/flex_typeclass_plugin)
+
+Uses conanfile and CMakeLists.txt to integrate with flextool. Plugin provides support for typeclasses (or Rust-like traits or "TEPS" - "Type Erasure Parent Style" or virtual concepts).
+
 ## For contibutors
 
 Fell free to open [GitHub Issue](https://github.com/blockspacer/flextool/issues) if you know how to improve that page

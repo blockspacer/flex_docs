@@ -23,9 +23,19 @@ Github repository: [https://github.com/blockspacer/flex_meta_demo](https://githu
 
 Plugin provides rules for source code transformation and generation.
 
+## Example project: flex_typeclass_plugin
+
+Github repository: [https://github.com/blockspacer/flex_typeclass_plugin](https://github.com/blockspacer/flex_typeclass_plugin)
+
+Uses conanfile and CMakeLists.txt to integrate with flextool. Plugin provides support for typeclasses (or Rust-like traits or "TEPS" - "Type Erasure Parent Style" or virtual concepts).
+
 ## How to create new plugins for flextool
 
-Plugin can add custom rules for source code transformation or generation during `Events::RegisterAnnotationMethods`
+Default plugin https://github.com/blockspacer/flex_reflect_plugin allows to execute custom logic based on data stored in C++ annotations. flex_reflect_plugin can be disabled (as any plugin) or completely replaced with custom plugin(s). Tutorial below assumes that you use flex_reflect_plugin.
+
+Suppose you want to create custom C++ annotation (like `[[make_reflect]]`) and perform some actions with annotated code.
+
+Any plugin can add custom rules for source code transformation or generation during `Events::RegisterAnnotationMethods`
 
 Example:
 
@@ -42,14 +52,14 @@ Example:
         base::Unretained(this));
 ```
 
-`make_reflect` can be used as part of annotation attribute:
+`make_reflect` (from `sourceTransformRules["make_reflect"]`) can be used as part of annotation attribute:
 
 ```cpp
 // make_reflect can be used with some other rules, for example: make_interface;make_removefuncbody
 __attribute__((annotate("{gen};{funccall};make_reflect;make_interface;make_removefuncbody")))
 ```
 
-We bound C++ function `&AnnotationPipeline::make_reflect` with string `make_reflect`:
+Code below allows to bind C++ function `&AnnotationPipeline::make_reflect` with string `make_reflect`:
 
 ```cpp
     sourceTransformRules["make_reflect"] =
@@ -58,9 +68,9 @@ We bound C++ function `&AnnotationPipeline::make_reflect` with string `make_refl
         base::Unretained(this));
 ```
 
-Where C++ function `&AnnotationPipeline::make_reflect` can use clang LibTooling to parse or modify source code. You can also save information about parsed code in files, transfer via network, etc.
+Where C++ function `&AnnotationPipeline::make_reflect` can use clang LibTooling to parse or modify source code. You can save information about parsed code in files, transfer parsed information over network, etc.
 
-That C++ function must recieve information about used annotation attribute in `const clang_utils::SourceTransformOptions&`.
+We created custom C++ annotation. But how to get information about annotated code? - `&AnnotationPipeline::make_reflect` must recieve information about used annotation attribute in `const clang_utils::SourceTransformOptions&`.
 
 ```cpp
     // must point to record associated with annotation attribute
@@ -80,7 +90,7 @@ For example, we can print record name:
     }
 ```
 
-Usage example what must print `SomeStructName` as record name:
+Usage example below prints `SomeStructName` as record name (using `record->getNameAsString()`):
 
 {% highlight cpp %}
 
@@ -103,7 +113,7 @@ SomeStructName {
 };
 {% endhighlight %}
 
-We can iterate all fields in `SomeStructName` and print them (prints `std::vector<std::string> m_VecStr2`):
+We can iterate all fields in `SomeStructName` and print them (example below prints `std::vector<std::string> m_VecStr2`):
 
 ```cpp
 for (clang::Decl *decl : record->decls()) {
@@ -117,9 +127,11 @@ for (clang::Decl *decl : record->decls()) {
 }
 ```
 
+Note that we used `clang::FieldDecl *field = llvm::dyn_cast<clang::FieldDecl>(decl)`. That code used clang LibTooling. You can find a lot of information about LibTooling over the internet, example video `Building a C++ Reflection System: Using LLVM and Clang`: [https://www.youtube.com/watch?v=DUiUBt-fqEY](https://www.youtube.com/watch?v=DUiUBt-fqEY)
+
 What if we don't want to print information about some fields?
 
-We can add custom annotation near field similar to `__attribute__((annotate("{gen};{attr};reflectable;")))`. That annotation can be used to filter fields using some data, in our case it is `{attr};reflectable`.
+We can add custom annotation near some fields similar to `__attribute__((annotate("{gen};{attr};reflectable;")))`. That annotation can be used to filter fields using some data, in our case it is `{attr};reflectable`. Example below can parse `annotate->getAnnotation()` to perform custom actions.
 
 ```cpp
 if ( auto annotate = decl->getAttr<clang::AnnotateAttr>() )
@@ -133,7 +145,9 @@ if ( auto annotate = decl->getAttr<clang::AnnotateAttr>() )
 }
 ```
 
-Suppose we want to add new field with reflection data at the end of the `SomeStructName` and store that data in `tatic std::map<std::string, std::string> fields`.
+Can we add information about fields of `SomeStructName` at the end of `SomeStructName`?
+
+Suppose we want to add new field with reflection data at the end of the `SomeStructName` and store that data in `static std::map<std::string, std::string> fields`.
 
 We can iterate all fields and generate C++ code:
 
@@ -149,7 +163,9 @@ We can iterate all fields and generate C++ code:
       }
 ```
 
-For simplisity we didn't use template engine. You can integrate with any template engine to avoid code like `output.append("\n");`
+For simplisity we did not use template engine. You can integrate with any template engine to avoid code like `output.append("\n");`. You may want to use template engine provided by [https://github.com/blockspacer/flex_squarets_plugin](https://github.com/blockspacer/flex_squarets_plugin).
+
+We can save generated code (stored in variable `output`) at the end of `SomeStructName`:
 
 ```cpp
       auto locEnd = record->getLocEnd();

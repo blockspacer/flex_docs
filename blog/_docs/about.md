@@ -43,14 +43,14 @@ It can be used to install both flextool and all plugins required by flextool int
 conan also allows to provide important information in each `conan package`:
 
 - path where flextool executable can be found. You don't need to install anything system-wide. Just run `conan install` and you will be able to use `flextool`!
+
 - path to cling and clang header files. That is very usefull cause conan allows to automatically set `-I` arguments required by clang LibTooling.
+
 - path to LLVM_ROOT
 
 Note: It is also possible to install `flextool` system-wide and provide command-line argumets like `--extra-arg=-I$PWD/include --extra-arg=-I$PWD/include/foo --extra-arg=-DMY_DEFINITION=1 --extra-arg=-DONE_MORE_DEFINITION=1` by hand.
 
 ## flextool toolchain
-
-The main tool is the flextool.
 
 flextool uses Clang LibTooling and LLVM to parse source code.
 
@@ -63,10 +63,15 @@ Usually plugin is shared library (.so or .dll file). But it is possible to link 
 Plugin can do arbitrary logic with information provided by flextool. For example, you can:
 
 - modify source files (implement metaclasses, transpile from C++X to C++Y etc.)
+
 - create new files (separate generated class to .hpp and .cpp, etc.)
+
 - check source files (implement style checks, validate design patterns, etc.)
+
 - compile scripts (rules for code transformations) for maximum performance, not only interpret them in Cling.
+
 - use C++ as compile-time scripting language (uses https://github.com/derofim/cling-cmake)
+
 - use template engine with full C++ power (transpiles template to valid C++ code, supports Cling, etc.). uses https://github.com/blockspacer/CXTPL
 
 and many more
@@ -155,9 +160,9 @@ LibTooling is a library to support writing standalone tools based on Clang.
 
 Useful links:
 
-- https://clang.llvm.org/extra/clang-rename.html
-- Clang Tooling I (add override keyword) https://medium.com/@chichunchen844/clang-tooling-i-add-override-keyword-ddfdf6113b24
-- llvm-clang-samples https://github.com/eliben/llvm-clang-samples/blob/master/src_clang/tooling_sample.cpp
+- [https://clang.llvm.org/extra/clang-rename.html](https://clang.llvm.org/extra/clang-rename.html)
+- Clang Tooling I (add override keyword) [https://medium.com/@chichunchen844/clang-tooling-i-add-override-keyword-ddfdf6113b24](https://medium.com/@chichunchen844/clang-tooling-i-add-override-keyword-ddfdf6113b24)
+- llvm-clang-samples [https://github.com/eliben/llvm-clang-samples/blob/master/src_clang/tooling_sample.cpp](https://github.com/eliben/llvm-clang-samples/blob/master/src_clang/tooling_sample.cpp)
 - https://chromium.googlesource.com/chromium/src/+/master/tools/clang/rewrite_to_chrome_style/RewriteToChromeStyle.cpp
 - http://www.dreamlandcoder.com/system-security/how-i-learned/clang-libtool/
 - https://jonasdevlieghere.com/understanding-the-clang-ast/
@@ -182,7 +187,7 @@ You can use cling for hot code reload / REPL / Fast C++ prototyping / Scripting 
 
 Useful links:
 
-- (how to add Cling into CMake project) https://github.com/derofim/cling-cmake
+- (how to add Cling into CMake project) [https://github.com/derofim/cling-cmake](https://github.com/derofim/cling-cmake)
 - https://github.com/root-project/cling/tree/master/www/docs/talks
 - https://github.com/caiorss/C-Cpp-Notes/blob/master/Root-cern-repl.org
 
