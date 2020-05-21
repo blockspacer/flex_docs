@@ -59,6 +59,7 @@ Now you can use `execute_process` to run `${flextool}` using `cmake` with desire
 Example that prints version of flextool:
 
 ```cmake
+# NOTE: You may want to generate files only if some source files were changed, so prefer `add_custom_command` with `DEPENDS` to `execute_process`
 execute_process(
   COMMAND ${flextool}
           --version
@@ -122,6 +123,7 @@ You can pass command-line argument `--load_plugin` to flextool that must conatai
 Usage example:
 
 ```cmake
+# NOTE: You may want to generate files only if some source files were changed, so prefer `add_custom_command` with `DEPENDS` to `execute_process`
 execute_process(
   COMMAND ${flextool}
           --indir=${CMAKE_CURRENT_SOURCE_DIR}
@@ -145,11 +147,69 @@ if(NOT "${retcode}" STREQUAL "0")
   message(FATAL_ERROR "Bad exit status ${retcode} ${_ERROR_VARIABLE}")
 endif()
 message(STATUS "flextool output: ${retcode} ${_ERROR_VARIABLE}")
+
+# Set GENERATED properties of your generated source file.
+# So cmake won't complain about missing source file.
+set_source_files_properties(
+  ${generated_files}
+  PROPERTIES GENERATED 1)
 ```
 
 Make sure you changed `${flextool_outdir}` to directory path where generated files must be stored.
 
+You may want to generate files only if some source files were changed, so prefer `add_custom_command` with `DEPENDS` to `execute_process`:
+
+```cmake
+# you can link with library via --extra-arg=-l
+# example: --extra-arg=-l${flexlib_file}
+add_custom_command(
+    OUTPUT ${generated_typeclasses}
+    # code generator COMMAND will only be launched
+    # if some of DEPENDS files were changed.
+    DEPENDS
+      ${flextool_input_files}
+    COMMAND
+      ${CMAKE_COMMAND} -E echo " Removing ${generated_typeclasses}."
+    COMMAND
+      ${CMAKE_COMMAND} -E remove ${generated_typeclasses}
+    COMMAND
+      ${flextool}
+        --vmodule=*=200 --enable-logging=stderr --log-level=100
+        --indir=${CMAKE_SOURCE_DIR}
+        --outdir=${flextool_outdir}
+        --load_plugin=${flex_squarets_plugin}
+        #--load_plugin=${flex_meta_plugin}
+        --load_plugin=${flex_reflect_plugin}
+        --load_plugin=${${LIB_NAME}_file}
+        --extra-arg=-I${cling_includes}
+        --extra-arg=-I${clang_includes}
+        --extra-arg=-I${corrade_includes}
+        --extra-arg=-I${entt_includes}
+        # NOTE: Cling does not support compile_commands.json
+        # so we must add headers used by `flex_support_headers` package
+        # place into `flex_support_headers` includes that can be used by Cling
+        --extra-arg=-I${chromium_base_headers}
+        --extra-arg=-I${chromium_build_util_headers}
+        --extra-arg=-I${basis_headers}
+        --extra-arg=-I${flexlib_headers}
+        --extra-arg=-DCLING_IS_ON=1
+        # path to tests/example_datatypes.hpp
+        --extra-arg=-I${CMAKE_CURRENT_SOURCE_DIR}
+        --extra-arg=-Wno-undefined-inline
+        ${flextool_extra_args}
+        ${flextool_input_files}
+        # cling_scripts must be ending argument
+        --cling_scripts=${flex_support_headers}
+        --cling_scripts=${flex_typeclass_plugin_settings}
+    DEPENDS ${LIB_NAME} ${ROOT_PROJECT_LIB} ${${LIB_NAME}_file}
+    COMMENT "running ${flextool}"
+    VERBATIM # to support \t for example
+)
+```
+
 You can find full code of example project at [https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt](https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt)
+
+You can also find useful `CMakeLists.txt` from `flex_typeclass_plugin` at [https://github.com/blockspacer/flex_typeclass_plugin/blob/master/CMakeLists.txt](https://github.com/blockspacer/flex_typeclass_plugin/blob/master/CMakeLists.txt)
 
 ## Running flextool from conanfile
 
