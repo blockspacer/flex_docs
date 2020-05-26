@@ -35,9 +35,7 @@ How flextool works:
 - It parses this code with the Clang LibTooling
 - It analyses the parsing result and produces another piece of code (or performs custom actions defined by plugins)
 
-## Using existing plugin to add custom C++ typeclasses (using Type Erasure)
-
-that page in development
+## Using `flex_typeclass_plugin` to add custom C++ typeclasses (using Type Erasure)
 
 Type Erasure - Combination of static and dynamic polymorphism which gets the best of both sides with minimal overhead.
 
@@ -126,6 +124,249 @@ Usage notes:
 
 - Typeclasses prefer composition over inheritance, so instead of saying a Rectangle is-a Drawable object, you might say it has-a thing which is Drawable
 
+See for details [https://github.com/blockspacer/flex_typeclass_plugin](https://github.com/blockspacer/flex_typeclass_plugin)
+
+See `README` file from [https://github.com/blockspacer/flex_typeclass_plugin](https://github.com/blockspacer/flex_typeclass_plugin) for usage examples.
+
+## Fast pimpl or type-safe Pimpl implementation without overhead
+
+You can read about Fast pimpl at [https://www.cleeus.de/w/blog/2017/03/10/static_pimpl_idiom.html](https://www.cleeus.de/w/blog/2017/03/10/static_pimpl_idiom.html) and [https://github.com/sqjk/pimpl_ptr](https://github.com/sqjk/pimpl_ptr)
+
+Classic pimpl uses heap to store impl (leads to slow construction time) and pointer (leads to slow access time due to cache miss on each function call through pointer to heap).
+
+Fast pimpl allows to increase performance in cost of maintainability.
+
+```cpp
+// Size and Alignment used by pimpl
+// must be specified by developer manually
+std::aligned_storage_t<Size, Alignment> storage_;
+```
+
+It is possible to minimize maintainability efforts using code generation.
+
+We can use clang libtooling to get `Size` and `Alignment` automatically based on provided data type.
+
+[https://github.com/blockspacer/flex_reflect_plugin/](https://github.com/blockspacer/flex_reflect_plugin/) allows to execute libtooling (or any valid C++ code) during compilation step.
+
+The basic idea is:
+
+1. Execute C++ code (before application build step) to store `Size` and `Alignment` of some data type.
+2. Store `Size` and `Alignment` in some cache (in our case, it is `std::map`)
+3. Get `Size` and `Alignment` from cache and paste them into source code (into `std::aligned_storage_t<Size, Alignment> storage_` used by fast pimpl).
+
+We will use Fast pimpl implementation via `#include <basis/core/pimpl.hpp>` from [https://github.com/blockspacer/basis/blob/ccf8996b67fe0a7d73e5ac8fa93f62c231d3b20c/basis/core/pimpl.hpp](https://github.com/blockspacer/basis/blob/ccf8996b67fe0a7d73e5ac8fa93f62c231d3b20c/basis/core/pimpl.hpp)
+
+`flex_reflect_plugin` allows to execute C++ code at runtime (we need to execute C++ code during compilation step).
+
+```cpp
+// exec is similar to executeCodeAndReplace,
+// but returns empty source code modification
+#define _executeCode(...) \
+  /* generate definition required to use __attribute__ */ \
+  __attribute__((annotate( \
+        "{gen};{executeCodeAndReplace};" \
+        #__VA_ARGS__ \
+    )))
+```
+
+See `README` from [https://github.com/blockspacer/flex_reflect_plugin/](https://github.com/blockspacer/flex_reflect_plugin/) for details.
+
+Now we can annotatate any C++ class with `_executeCode` to extract reflection information from that class (using clang LibTooling).
+
+```cpp
+class
+_executeCode(
+  []
+  (
+    const clang::ast_matchers::MatchFinder::MatchResult& clangMatchResult
+    , clang::Rewriter& clangRewriter
+    , const clang::Decl* clangDecl
+  )
+  {
+    clang::SourceManager &SM = clangRewriter.getSourceMgr();
+
+    clang::CXXRecordDecl const *record =
+      clangMatchResult.Nodes
+        .getNodeAs<clang::CXXRecordDecl>("bind_gen");
+
+    if (!record) {
+      CHECK(false);
+      return new llvm::Optional<std::string>{};
+    }
+
+    if (!record->isCompleteDefinition()) {
+      CHECK(false);
+      return new llvm::Optional<std::string>{};
+    }
+
+    LOG(INFO)
+      << "record name is "
+      << record->getNameAsString().c_str();
+
+    const clang::ASTRecordLayout& layout
+      = clangMatchResult.Context->getASTRecordLayout(record);
+
+    uint64_t typeSize =  layout.getSize().getQuantity();
+    // assume it could be a subclass.
+    unsigned fieldAlign = layout.getNonVirtualAlignment().getQuantity();
+
+    // If the class is final, then we know that the pointer points to an
+    // object of that type and can use the full alignment.
+    if (record->hasAttr<clang::FinalAttr>()) {
+      fieldAlign = layout.getAlignment().getQuantity();
+    }
+
+    const std::string typeToMapKey
+      = "Foo::FooImpl";
+
+    global_storage["global_typeSize_for_" + typeToMapKey]
+      = typeSize;
+    global_storage["global_fieldAlign_for_" + typeToMapKey]
+      = fieldAlign;
+
+    LOG(INFO)
+      << record->getNameAsString()
+      << " Size: " << typeSize
+      << " Alignment: " << fieldAlign << '\n';
+
+    return new llvm::Optional<std::string>{};
+  }(clangMatchResult, clangRewriter, clangDecl);
+)
+Foo::FooImpl
+{
+ public:
+  FooImpl();
+
+  ~FooImpl();
+
+  int foo();
+
+  std::string baz();
+
+ private:
+  std::string data_{"somedata"};
+};
+```
+
+`Foo::FooImpl` is class that stores implementation (as usual in pimpl pattern). It was annotated by custom annotation attrubute (`_executeCode` is macro that trasforms provided arguments into string via `#__VA_ARGS__` and creates annotation attrubute)
+
+`global_storage` is cache that can store arbitrary data, it is defined in [https://github.com/blockspacer/flex_support_headers/blob/ed723f79cf08b14a8ab1e225289a2ad858def154/flex/cling_preloader.inc](https://github.com/blockspacer/flex_support_headers/blob/ed723f79cf08b14a8ab1e225289a2ad858def154/flex/cling_preloader.inc) as below:
+
+```cpp
+std::map<
+    std::string
+    , std::any
+  > global_storage;
+```
+
+Path to that file (in our case `cling_preloader.inc`) must be passed to flextool via `--cling_scripts=` argument (flextool can load arbitrary file with C++ code using Cling interpreter). Note that `cling_preloader.inc` also included all required C++ header files.
+
+We executed C++ code stored in annotation attribute (code was converted into string, see `_executeCode` above).
+
+Executed C++ code used `clangMatchResult.Context->getASTRecordLayout(record);` to store `Size` and `Alignment` in `global_storage`
+
+Now we must get `Size` and `Alignment` from cache and paste them into source code (into `std::aligned_storage_t<Size, Alignment> storage_` used by fast pimpl).
+
+```cpp
+class Foo {
+public:
+  Foo();
+
+  ~Foo();
+
+  int foo();
+
+  std::string baz();
+
+private:
+  class FooImpl;
+
+#if !defined(FOO_HPP_NO_CODEGEN)
+  class
+  _executeCode(
+    []
+    (
+      const clang::ast_matchers::MatchFinder::MatchResult& clangMatchResult
+      , clang::Rewriter& clangRewriter
+      , const clang::Decl* clangDecl
+    )
+    {
+      const std::string typeToMapKey
+        = "Foo::FooImpl";
+
+      uint64_t typeSize
+        = std::any_cast<uint64_t>(
+            global_storage["global_typeSize_for_" + typeToMapKey]);
+
+      unsigned fieldAlign
+        = std::any_cast<unsigned>(
+            global_storage["global_fieldAlign_for_" + typeToMapKey]);
+
+      std::string fastPimplCode
+        = "pimpl::FastPimpl<";
+
+      fastPimplCode += "FooImpl";
+
+      // sizeof(Foo::FooImpl)
+      fastPimplCode += ", /*Size*/";
+      fastPimplCode += std::to_string(typeSize);
+
+      // alignof(Foo::FooImpl)
+      fastPimplCode += ", /*Alignment*/";
+      fastPimplCode += std::to_string(fieldAlign);
+
+      fastPimplCode += "> m_impl;";
+
+      /**
+       * generates code similar to:
+       *  pimpl::FastPimpl<FooImpl, Size, Alignment> m_impl;
+       **/
+      return new llvm::Optional<std::string>{std::move(fastPimplCode)};
+    }(clangMatchResult, clangRewriter, clangDecl);
+  ) {}
+#endif // !defined(FOO_HPP_NO_CODEGEN)
+};
+```
+
+We used `_executeCode` again and returned `llvm::Optional<std::string>`, that string will store generated code similar to `pimpl::FastPimpl<FooImpl, /*Size*/ 64, /*Alignment*/ 12> m_impl;`
+
+Remaining problems:
+
+Problem 1: We used Cling C++ interpreter. Resulting code is ugly and (maybe) not fast.
+
+Solution: We can create plugin for flextool (plugin is shared library). Comparing to Cling C++ interpreter - plugin must be fast and allows to create custom C++ annotations (custom and beautiful C++ annotations).
+
+Problem 2: `Size` differs from compiler to compiler (and even used `std` version affects `Size`)
+
+Solution: add to retrieved `Size` approximately 8 bytes (minimal overhead, depends on use-case) and test that code compiles on all desired compilers. Note that if `Size` is invalid - code will not compile, so it is safe to use Fast Pimpl in production. Make sure that you use `SizePolicy::AtLeast`, see `#include <basis/core/pimpl.hpp>` for details.
+
+Problem 3: We must parse impl before generation of `pimpl::FastPimpl<FooImpl, /*Size*/ 64, /*Alignment*/ 12> m_impl;` cause it requires `Size` and `Alignment` (file order matters).
+
+Solution: Make sure that you store impl in separate file from `pimpl::FastPimpl` and their code generation do not affect each other.
+
+We passed `FooImpl.hpp` to flextool before `Foo.cc` because `Foo.cc` requires `Size` and `Alignment` from `FooImpl.hpp`.
+
+We do not want to run gode generation based on included header `Foo.hpp` while parsing `FooImpl.hpp` (`FooImpl.hpp` includes `Foo.hpp`), thats why we used `#if !defined(FOO_HPP_NO_CODEGEN)` and included `Foo.hpp` from `FooImpl.hpp` like so:
+
+```cpp
+#if defined(CODEGEN_RUNNING)
+#define FOO_HPP_NO_CODEGEN 1
+#include "Foo.hpp"
+#else
+#include "Foo.hpp.generated.hpp"
+#endif
+```
+
+Also we passed `extra-args=-DCODEGEN_RUNNING=1` as argument to flextool.
+
+Switching from Cling C++ interpreter to flextool plugin (plugin is shared library) can solve a lot of problems listed above. For example, we can inject `Foo::Impl` code into `Foo` based on arbitrary data type (to avoid `FOO_HPP_NO_CODEGEN` and `CODEGEN_RUNNING`).
+
+Problem 4: Source file with public class implementation contains a lot of boilerplate code.
+
+Solution: We can generate C++ code that calls the corresponding method of the 'private' class and passes arguments to it (proxy method calls to implementation).
+
+TODO: add plugin example
+
 ## Using existing plugin to add custom C++ metaclasses
 
 that page in development
@@ -136,7 +377,29 @@ You can learn more about metaclasses at
 
 ## Integration with template engines
 
-that page in development
+You can use [https://github.com/blockspacer/flex_squarets_plugin](https://github.com/blockspacer/flex_squarets_plugin)
+
+For example, `flex_squarets_plugin` allows to use syntax similar `javascript template literals` in C++:
+
+```js
+// javascript template literals
+const myVariable = 'test'
+const mystring = `something ${myVariable}` //something test
+```
+
+Default template engine syntax (CXTPL) allows to rewrite code above as:
+
+```cpp
+// custom C++ template syntax using flex_squarets_plugin
+// After code generation `mystring` will store text `something test`.
+const std::string myVariable = "test";
+_squaretsString(
+  R"raw(
+    something [[+ myVariable +]]
+  )raw"
+)
+std::string mystring;
+```
 
 ## Writing custom plugin to generate C++ files
 
@@ -259,7 +522,7 @@ that page in development
 
 ## Using cling interpreter
 
-that page in development
+[https://github.com/blockspacer/flex_reflect_plugin](https://github.com/blockspacer/flex_reflect_plugin) allows to execute arbitrary C++ code stored in annotation attributes.
 
 ## Integrating with more build systems
 
@@ -279,6 +542,14 @@ flextool defines for cling:
 ```bash
 -DCLING_ENABLED=1
 -DCLING_IS_ON=1
+```
+
+You can pass `extra-args=-DCODEGEN_RUNNING=1` as argument to flextool and use it as usual C++ define:
+
+```cpp
+#if defined(CODEGEN_RUNNING)
+// ... code here ...
+#endif
 ```
 
 ## Example: Avoid Repetitive Code
@@ -426,6 +697,20 @@ You can find complete code of that example on Github.
 TODO
 
 ## Example: using as REST API router (networking)
+
+TODO
+
+## Example: Pattern-matching expressions
+
+TODO
+
+## Example: Spaceship operator
+
+TODO
+
+## Example: format library
+
+Embeds the arguments themselves into the format specifier string. It's like Python f-strings, but for C++.
 
 TODO
 
