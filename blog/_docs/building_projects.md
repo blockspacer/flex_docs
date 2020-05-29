@@ -136,6 +136,7 @@ execute_process(
           --extra-arg=-I${chromium_build_util_headers}
           --extra-arg=-I${basis_headers}
           --extra-arg=-I${flexlib_headers}
+          --extra-arg=-I${flextool_outdir}
           --extra-arg=-Wno-undefined-inline
           ${flextool_extra_args}
           ${flextool_input_files}
@@ -192,6 +193,7 @@ add_custom_command(
         --extra-arg=-I${chromium_build_util_headers}
         --extra-arg=-I${basis_headers}
         --extra-arg=-I${flexlib_headers}
+        --extra-arg=-I${flextool_outdir}
         --extra-arg=-DCLING_IS_ON=1
         # path to tests/example_datatypes.hpp
         --extra-arg=-I${CMAKE_CURRENT_SOURCE_DIR}

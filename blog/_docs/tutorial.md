@@ -315,11 +315,11 @@ private:
       fastPimplCode += ", /*Alignment*/";
       fastPimplCode += std::to_string(fieldAlign);
 
-      fastPimplCode += "> m_impl;";
+      fastPimplCode += "> impl_;";
 
       /**
        * generates code similar to:
-       *  pimpl::FastPimpl<FooImpl, Size, Alignment> m_impl;
+       *  pimpl::FastPimpl<FooImpl, Size, Alignment> impl_;
        **/
       return new llvm::Optional<std::string>{std::move(fastPimplCode)};
     }(clangMatchResult, clangRewriter, clangDecl);
@@ -328,7 +328,7 @@ private:
 };
 ```
 
-We used `_executeCode` again and returned `llvm::Optional<std::string>`, that string will store generated code similar to `pimpl::FastPimpl<FooImpl, /*Size*/ 64, /*Alignment*/ 12> m_impl;`
+We used `_executeCode` again and returned `llvm::Optional<std::string>`, that string will store generated code similar to `pimpl::FastPimpl<FooImpl, /*Size*/ 64, /*Alignment*/ 12> impl_;`
 
 Remaining problems:
 
@@ -340,7 +340,7 @@ Problem 2: `Size` differs from compiler to compiler (and even used `std` version
 
 Solution: add to retrieved `Size` approximately 8 bytes (minimal overhead, depends on use-case) and test that code compiles on all desired compilers. Note that if `Size` is invalid - code will not compile, so it is safe to use Fast Pimpl in production. Make sure that you use `SizePolicy::AtLeast`, see `#include <basis/core/pimpl.hpp>` for details.
 
-Problem 3: We must parse impl before generation of `pimpl::FastPimpl<FooImpl, /*Size*/ 64, /*Alignment*/ 12> m_impl;` cause it requires `Size` and `Alignment` (file order matters).
+Problem 3: We must parse impl before generation of `pimpl::FastPimpl<FooImpl, /*Size*/ 64, /*Alignment*/ 12> impl_;` cause it requires `Size` and `Alignment` (file order matters).
 
 Solution: Make sure that you store impl in separate file from `pimpl::FastPimpl` and their code generation do not affect each other.
 
@@ -359,13 +359,17 @@ We do not want to run gode generation based on included header `Foo.hpp` while p
 
 Also we passed `extra-args=-DCODEGEN_RUNNING=1` as argument to flextool.
 
-Switching from Cling C++ interpreter to flextool plugin (plugin is shared library) can solve a lot of problems listed above. For example, we can inject `Foo::Impl` code into `Foo` based on arbitrary data type (to avoid `FOO_HPP_NO_CODEGEN` and `CODEGEN_RUNNING`).
+Switching from Cling C++ interpreter to flextool plugin (plugin is shared library) can solve a lot of problems listed above. For example, we can inject `Foo::Impl` code into `Foo` based on arbitrary data type (to avoid `FOO_HPP_NO_CODEGEN` and `CODEGEN_RUNNING`). We can also create custom data structure to cache reflected data in plugin, to avoid `global_storage`.
 
 Problem 4: Source file with public class implementation contains a lot of boilerplate code.
 
 Solution: We can generate C++ code that calls the corresponding method of the 'private' class and passes arguments to it (proxy method calls to implementation).
 
-TODO: add plugin example
+Prefer not to create you own solution but use existing one:
+
+You can use [https://github.com/blockspacer/flex_pimpl_plugin](https://github.com/blockspacer/flex_pimpl_plugin)
+
+See `README` file for usage examples: [https://github.com/blockspacer/flex_pimpl_plugin](https://github.com/blockspacer/flex_pimpl_plugin)
 
 ## Using existing plugin to add custom C++ metaclasses
 
