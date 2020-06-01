@@ -170,9 +170,8 @@ blockquote {
   color: #828282;
   border-left: 4px solid #e8e8e8;
   padding-left: 15px;
-  font-size: 18px;
+  font-size: 20px;
   letter-spacing: -1px;
-  font-style: italic;
 }
 
 blockquote > :last-child {
@@ -184,7 +183,7 @@ blockquote > :last-child {
  */
 pre,
 code {
-  font-size: 15px;
+  font-size: 18px;
   border: 1px solid #e8e8e8;
   border-radius: 3px;
   background-color: #eef;
