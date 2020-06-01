@@ -154,7 +154,7 @@ The basic idea is:
 2. Store `Size` and `Alignment` in some cache (in our case, it is `std::map`)
 3. Get `Size` and `Alignment` from cache and paste them into source code (into `std::aligned_storage_t<Size, Alignment> storage_` used by fast pimpl).
 
-We will use Fast pimpl implementation via `#include <basis/core/pimpl.hpp>` from [https://github.com/blockspacer/basis/blob/ccf8996b67fe0a7d73e5ac8fa93f62c231d3b20c/basis/core/pimpl.hpp](https://github.com/blockspacer/basis/blob/ccf8996b67fe0a7d73e5ac8fa93f62c231d3b20c/basis/core/pimpl.hpp)
+We will use Fast pimpl implementation via `#include <basis/core/pimpl.hpp>` from [https://github.com/blockspacer/basis/blob/c54ed26250ac3acc0ea5e31cd9424f08204cb450/basis/core/pimpl.hpp](https://github.com/blockspacer/basis/blob/c54ed26250ac3acc0ea5e31cd9424f08204cb450/basis/core/pimpl.hpp)
 
 `flex_reflect_plugin` allows to execute C++ code at runtime (we need to execute C++ code during compilation step).
 
@@ -334,7 +334,7 @@ Remaining problems:
 
 Problem 1: We used Cling C++ interpreter. Resulting code is ugly and (maybe) not fast.
 
-Solution: We can create plugin for flextool (plugin is shared library). Comparing to Cling C++ interpreter - plugin must be fast and allows to create custom C++ annotations (custom and beautiful C++ annotations).
+Solution: We can create plugin for flextool (plugin is shared library). Comparing to approach that uses Cling C++ interpreter - plugin must be fast and allows to create custom C++ annotations (custom and beautiful C++ annotations).
 
 Problem 2: `Size` differs from compiler to compiler (and even used `std` version affects `Size`)
 
@@ -359,7 +359,7 @@ We do not want to run gode generation based on included header `Foo.hpp` while p
 
 Also we passed `extra-args=-DCODEGEN_RUNNING=1` as argument to flextool.
 
-Switching from Cling C++ interpreter to flextool plugin (plugin is shared library) can solve a lot of problems listed above. For example, we can inject `Foo::Impl` code into `Foo` based on arbitrary data type (to avoid `FOO_HPP_NO_CODEGEN` and `CODEGEN_RUNNING`). We can also create custom data structure to cache reflected data in plugin, to avoid `global_storage`.
+Switching from approach that uses Cling C++ interpreter to flextool plugin (plugin is shared library) can solve a lot of problems listed above. For example, we can inject `Foo::Impl` code into `Foo` based on arbitrary data type (to avoid `FOO_HPP_NO_CODEGEN` and `CODEGEN_RUNNING`). We can also create custom data structure to cache reflected data in plugin, to avoid `global_storage`.
 
 Problem 4: Source file with public class implementation contains a lot of boilerplate code.
 
