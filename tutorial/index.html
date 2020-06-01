@@ -13,7 +13,7 @@
     <link rel="mask-icon" href="/flex_docs/images/favicons/safari-pinned-tab.svg" color="#5bbad5">
 
     <title>tutorial</title>
-    <meta name="description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.">
+    <meta name="description" content="flextool is a transpiler that extends C++ for new introspection, reflection and compile-time execution..">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -1253,9 +1253,7 @@ $( document ).ready(function() {
   <li>It analyses the parsing result and produces another piece of code (or performs custom actions defined by plugins)</li>
 </ul>
 
-<h2 id="using-existing-plugin-to-add-custom-c-typeclasses-using-type-erasure">Using existing plugin to add custom C++ typeclasses (using Type Erasure)</h2>
-
-<p>that page in development</p>
+<h2 id="using-flex_typeclass_plugin-to-add-custom-c-typeclasses-using-type-erasure">Using <code class="highlighter-rouge">flex_typeclass_plugin</code> to add custom C++ typeclasses (using Type Erasure)</h2>
 
 <p>Type Erasure - Combination of static and dynamic polymorphism which gets the best of both sides with minimal overhead.</p>
 
@@ -1360,6 +1358,249 @@ but lengthSquared(v) for the length squared.</p>
   <li>Typeclasses prefer composition over inheritance, so instead of saying a Rectangle is-a Drawable object, you might say it has-a thing which is Drawable</li>
 </ul>
 
+<p>See for details <a href="https://github.com/blockspacer/flex_typeclass_plugin">https://github.com/blockspacer/flex_typeclass_plugin</a></p>
+
+<p>See <code class="highlighter-rouge">README</code> file from <a href="https://github.com/blockspacer/flex_typeclass_plugin">https://github.com/blockspacer/flex_typeclass_plugin</a> for usage examples.</p>
+
+<h2 id="fast-pimpl-or-type-safe-pimpl-implementation-without-overhead">Fast pimpl or type-safe Pimpl implementation without overhead</h2>
+
+<p>You can read about Fast pimpl at <a href="https://www.cleeus.de/w/blog/2017/03/10/static_pimpl_idiom.html">https://www.cleeus.de/w/blog/2017/03/10/static_pimpl_idiom.html</a> and <a href="https://github.com/sqjk/pimpl_ptr">https://github.com/sqjk/pimpl_ptr</a></p>
+
+<p>Classic pimpl uses heap to store impl (leads to slow construction time) and pointer (leads to slow access time due to cache miss on each function call through pointer to heap).</p>
+
+<p>Fast pimpl allows to increase performance in cost of maintainability.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Size and Alignment used by pimpl</span>
+<span class="c1">// must be specified by developer manually</span>
+<span class="n">std</span><span class="o">::</span><span class="n">aligned_storage_t</span><span class="o">&lt;</span><span class="n">Size</span><span class="p">,</span> <span class="n">Alignment</span><span class="o">&gt;</span> <span class="n">storage_</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>It is possible to minimize maintainability efforts using code generation.</p>
+
+<p>We can use clang libtooling to get <code class="highlighter-rouge">Size</code> and <code class="highlighter-rouge">Alignment</code> automatically based on provided data type.</p>
+
+<p><a href="https://github.com/blockspacer/flex_reflect_plugin/">https://github.com/blockspacer/flex_reflect_plugin/</a> allows to execute libtooling (or any valid C++ code) during compilation step.</p>
+
+<p>The basic idea is:</p>
+
+<ol>
+  <li>Execute C++ code (before application build step) to store <code class="highlighter-rouge">Size</code> and <code class="highlighter-rouge">Alignment</code> of some data type.</li>
+  <li>Store <code class="highlighter-rouge">Size</code> and <code class="highlighter-rouge">Alignment</code> in some cache (in our case, it is <code class="highlighter-rouge">std::map</code>)</li>
+  <li>Get <code class="highlighter-rouge">Size</code> and <code class="highlighter-rouge">Alignment</code> from cache and paste them into source code (into <code class="highlighter-rouge">std::aligned_storage_t&lt;Size, Alignment&gt; storage_</code> used by fast pimpl).</li>
+</ol>
+
+<p>We will use Fast pimpl implementation via <code class="highlighter-rouge">#include &lt;basis/core/pimpl.hpp&gt;</code> from <a href="https://github.com/blockspacer/basis/blob/ccf8996b67fe0a7d73e5ac8fa93f62c231d3b20c/basis/core/pimpl.hpp">https://github.com/blockspacer/basis/blob/ccf8996b67fe0a7d73e5ac8fa93f62c231d3b20c/basis/core/pimpl.hpp</a></p>
+
+<p><code class="highlighter-rouge">flex_reflect_plugin</code> allows to execute C++ code at runtime (we need to execute C++ code during compilation step).</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// exec is similar to executeCodeAndReplace,</span>
+<span class="c1">// but returns empty source code modification</span>
+<span class="cp">#define _executeCode(...) \
+  </span><span class="cm">/* generate definition required to use __attribute__ */</span><span class="cp"> \
+  __attribute__((annotate( \
+        "{gen};{executeCodeAndReplace};" \
+        #__VA_ARGS__ \
+    )))
+</span></code></pre></div></div>
+
+<p>See <code class="highlighter-rouge">README</code> from <a href="https://github.com/blockspacer/flex_reflect_plugin/">https://github.com/blockspacer/flex_reflect_plugin/</a> for details.</p>
+
+<p>Now we can annotatate any C++ class with <code class="highlighter-rouge">_executeCode</code> to extract reflection information from that class (using clang LibTooling).</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span>
+<span class="nf">_executeCode</span><span class="p">(</span>
+  <span class="p">[]</span>
+  <span class="p">(</span>
+    <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">ast_matchers</span><span class="o">::</span><span class="n">MatchFinder</span><span class="o">::</span><span class="n">MatchResult</span><span class="o">&amp;</span> <span class="n">clangMatchResult</span>
+    <span class="p">,</span> <span class="n">clang</span><span class="o">::</span><span class="n">Rewriter</span><span class="o">&amp;</span> <span class="n">clangRewriter</span>
+    <span class="p">,</span> <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">Decl</span><span class="o">*</span> <span class="n">clangDecl</span>
+  <span class="p">)</span>
+  <span class="p">{</span>
+    <span class="n">clang</span><span class="o">::</span><span class="n">SourceManager</span> <span class="o">&amp;</span><span class="n">SM</span> <span class="o">=</span> <span class="n">clangRewriter</span><span class="p">.</span><span class="n">getSourceMgr</span><span class="p">();</span>
+
+    <span class="n">clang</span><span class="o">::</span><span class="n">CXXRecordDecl</span> <span class="k">const</span> <span class="o">*</span><span class="n">record</span> <span class="o">=</span>
+      <span class="n">clangMatchResult</span><span class="p">.</span><span class="n">Nodes</span>
+        <span class="p">.</span><span class="n">getNodeAs</span><span class="o">&lt;</span><span class="n">clang</span><span class="o">::</span><span class="n">CXXRecordDecl</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"bind_gen"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">record</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">CHECK</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">llvm</span><span class="o">::</span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{};</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">record</span><span class="o">-&gt;</span><span class="n">isCompleteDefinition</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">CHECK</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">llvm</span><span class="o">::</span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{};</span>
+    <span class="p">}</span>
+
+    <span class="n">LOG</span><span class="p">(</span><span class="n">INFO</span><span class="p">)</span>
+      <span class="o">&lt;&lt;</span> <span class="s">"record name is "</span>
+      <span class="o">&lt;&lt;</span> <span class="n">record</span><span class="o">-&gt;</span><span class="n">getNameAsString</span><span class="p">().</span><span class="n">c_str</span><span class="p">();</span>
+
+    <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">ASTRecordLayout</span><span class="o">&amp;</span> <span class="n">layout</span>
+      <span class="o">=</span> <span class="n">clangMatchResult</span><span class="p">.</span><span class="n">Context</span><span class="o">-&gt;</span><span class="n">getASTRecordLayout</span><span class="p">(</span><span class="n">record</span><span class="p">);</span>
+
+    <span class="kt">uint64_t</span> <span class="n">typeSize</span> <span class="o">=</span>  <span class="n">layout</span><span class="p">.</span><span class="n">getSize</span><span class="p">().</span><span class="n">getQuantity</span><span class="p">();</span>
+    <span class="c1">// assume it could be a subclass.</span>
+    <span class="kt">unsigned</span> <span class="n">fieldAlign</span> <span class="o">=</span> <span class="n">layout</span><span class="p">.</span><span class="n">getNonVirtualAlignment</span><span class="p">().</span><span class="n">getQuantity</span><span class="p">();</span>
+
+    <span class="c1">// If the class is final, then we know that the pointer points to an</span>
+    <span class="c1">// object of that type and can use the full alignment.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">record</span><span class="o">-&gt;</span><span class="n">hasAttr</span><span class="o">&lt;</span><span class="n">clang</span><span class="o">::</span><span class="n">FinalAttr</span><span class="o">&gt;</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">fieldAlign</span> <span class="o">=</span> <span class="n">layout</span><span class="p">.</span><span class="n">getAlignment</span><span class="p">().</span><span class="n">getQuantity</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">typeToMapKey</span>
+      <span class="o">=</span> <span class="s">"Foo::FooImpl"</span><span class="p">;</span>
+
+    <span class="n">global_storage</span><span class="p">[</span><span class="s">"global_typeSize_for_"</span> <span class="o">+</span> <span class="n">typeToMapKey</span><span class="p">]</span>
+      <span class="o">=</span> <span class="n">typeSize</span><span class="p">;</span>
+    <span class="n">global_storage</span><span class="p">[</span><span class="s">"global_fieldAlign_for_"</span> <span class="o">+</span> <span class="n">typeToMapKey</span><span class="p">]</span>
+      <span class="o">=</span> <span class="n">fieldAlign</span><span class="p">;</span>
+
+    <span class="n">LOG</span><span class="p">(</span><span class="n">INFO</span><span class="p">)</span>
+      <span class="o">&lt;&lt;</span> <span class="n">record</span><span class="o">-&gt;</span><span class="n">getNameAsString</span><span class="p">()</span>
+      <span class="o">&lt;&lt;</span> <span class="s">" Size: "</span> <span class="o">&lt;&lt;</span> <span class="n">typeSize</span>
+      <span class="o">&lt;&lt;</span> <span class="s">" Alignment: "</span> <span class="o">&lt;&lt;</span> <span class="n">fieldAlign</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="k">new</span> <span class="n">llvm</span><span class="o">::</span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{};</span>
+  <span class="p">}(</span><span class="n">clangMatchResult</span><span class="p">,</span> <span class="n">clangRewriter</span><span class="p">,</span> <span class="n">clangDecl</span><span class="p">);</span>
+<span class="p">)</span>
+<span class="n">Foo</span><span class="o">::</span><span class="n">FooImpl</span>
+<span class="p">{</span>
+ <span class="nl">public:</span>
+  <span class="n">FooImpl</span><span class="p">();</span>
+
+  <span class="o">~</span><span class="n">FooImpl</span><span class="p">();</span>
+
+  <span class="kt">int</span> <span class="n">foo</span><span class="p">();</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">baz</span><span class="p">();</span>
+
+ <span class="nl">private:</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">data_</span><span class="p">{</span><span class="s">"somedata"</span><span class="p">};</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">Foo::FooImpl</code> is class that stores implementation (as usual in pimpl pattern). It was annotated by custom annotation attrubute (<code class="highlighter-rouge">_executeCode</code> is macro that trasforms provided arguments into string via <code class="highlighter-rouge">#__VA_ARGS__</code> and creates annotation attrubute)</p>
+
+<p><code class="highlighter-rouge">global_storage</code> is cache that can store arbitrary data, it is defined in <a href="https://github.com/blockspacer/flex_support_headers/blob/ed723f79cf08b14a8ab1e225289a2ad858def154/flex/cling_preloader.inc">https://github.com/blockspacer/flex_support_headers/blob/ed723f79cf08b14a8ab1e225289a2ad858def154/flex/cling_preloader.inc</a> as below:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span>
+    <span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">any</span>
+  <span class="o">&gt;</span> <span class="n">global_storage</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Path to that file (in our case <code class="highlighter-rouge">cling_preloader.inc</code>) must be passed to flextool via <code class="highlighter-rouge">--cling_scripts=</code> argument (flextool can load arbitrary file with C++ code using Cling interpreter). Note that <code class="highlighter-rouge">cling_preloader.inc</code> also included all required C++ header files.</p>
+
+<p>We executed C++ code stored in annotation attribute (code was converted into string, see <code class="highlighter-rouge">_executeCode</code> above).</p>
+
+<p>Executed C++ code used <code class="highlighter-rouge">clangMatchResult.Context-&gt;getASTRecordLayout(record);</code> to store <code class="highlighter-rouge">Size</code> and <code class="highlighter-rouge">Alignment</code> in <code class="highlighter-rouge">global_storage</code></p>
+
+<p>Now we must get <code class="highlighter-rouge">Size</code> and <code class="highlighter-rouge">Alignment</code> from cache and paste them into source code (into <code class="highlighter-rouge">std::aligned_storage_t&lt;Size, Alignment&gt; storage_</code> used by fast pimpl).</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+<span class="nl">public:</span>
+  <span class="n">Foo</span><span class="p">();</span>
+
+  <span class="o">~</span><span class="n">Foo</span><span class="p">();</span>
+
+  <span class="kt">int</span> <span class="n">foo</span><span class="p">();</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">baz</span><span class="p">();</span>
+
+<span class="nl">private:</span>
+  <span class="k">class</span> <span class="nc">FooImpl</span><span class="p">;</span>
+
+<span class="cp">#if !defined(FOO_HPP_NO_CODEGEN)
+</span>  <span class="k">class</span>
+  <span class="nc">_executeCode</span><span class="p">(</span>
+    <span class="p">[]</span>
+    <span class="p">(</span>
+      <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">ast_matchers</span><span class="o">::</span><span class="n">MatchFinder</span><span class="o">::</span><span class="n">MatchResult</span><span class="o">&amp;</span> <span class="n">clangMatchResult</span>
+      <span class="p">,</span> <span class="n">clang</span><span class="o">::</span><span class="n">Rewriter</span><span class="o">&amp;</span> <span class="n">clangRewriter</span>
+      <span class="p">,</span> <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">Decl</span><span class="o">*</span> <span class="n">clangDecl</span>
+    <span class="p">)</span>
+    <span class="p">{</span>
+      <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">typeToMapKey</span>
+        <span class="o">=</span> <span class="s">"Foo::FooImpl"</span><span class="p">;</span>
+
+      <span class="kt">uint64_t</span> <span class="n">typeSize</span>
+        <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">any_cast</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span><span class="p">(</span>
+            <span class="n">global_storage</span><span class="p">[</span><span class="s">"global_typeSize_for_"</span> <span class="o">+</span> <span class="n">typeToMapKey</span><span class="p">]);</span>
+
+      <span class="kt">unsigned</span> <span class="n">fieldAlign</span>
+        <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">any_cast</span><span class="o">&lt;</span><span class="kt">unsigned</span><span class="o">&gt;</span><span class="p">(</span>
+            <span class="n">global_storage</span><span class="p">[</span><span class="s">"global_fieldAlign_for_"</span> <span class="o">+</span> <span class="n">typeToMapKey</span><span class="p">]);</span>
+
+      <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">fastPimplCode</span>
+        <span class="o">=</span> <span class="s">"pimpl::FastPimpl&lt;"</span><span class="p">;</span>
+
+      <span class="n">fastPimplCode</span> <span class="o">+=</span> <span class="s">"FooImpl"</span><span class="p">;</span>
+
+      <span class="c1">// sizeof(Foo::FooImpl)</span>
+      <span class="n">fastPimplCode</span> <span class="o">+=</span> <span class="s">", /*Size*/"</span><span class="p">;</span>
+      <span class="n">fastPimplCode</span> <span class="o">+=</span> <span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">typeSize</span><span class="p">);</span>
+
+      <span class="c1">// alignof(Foo::FooImpl)</span>
+      <span class="n">fastPimplCode</span> <span class="o">+=</span> <span class="s">", /*Alignment*/"</span><span class="p">;</span>
+      <span class="n">fastPimplCode</span> <span class="o">+=</span> <span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">fieldAlign</span><span class="p">);</span>
+
+      <span class="n">fastPimplCode</span> <span class="o">+=</span> <span class="s">"&gt; impl_;"</span><span class="p">;</span>
+
+      <span class="cm">/**
+       * generates code similar to:
+       *  pimpl::FastPimpl&lt;FooImpl, Size, Alignment&gt; impl_;
+       **/</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">llvm</span><span class="o">::</span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">fastPimplCode</span><span class="p">)};</span>
+    <span class="p">}(</span><span class="n">clangMatchResult</span><span class="p">,</span> <span class="n">clangRewriter</span><span class="p">,</span> <span class="n">clangDecl</span><span class="p">);</span>
+  <span class="p">)</span> <span class="p">{}</span>
+<span class="cp">#endif // !defined(FOO_HPP_NO_CODEGEN)
+</span><span class="p">};</span>
+</code></pre></div></div>
+
+<p>We used <code class="highlighter-rouge">_executeCode</code> again and returned <code class="highlighter-rouge">llvm::Optional&lt;std::string&gt;</code>, that string will store generated code similar to <code class="highlighter-rouge">pimpl::FastPimpl&lt;FooImpl, /*Size*/ 64, /*Alignment*/ 12&gt; impl_;</code></p>
+
+<p>Remaining problems:</p>
+
+<p>Problem 1: We used Cling C++ interpreter. Resulting code is ugly and (maybe) not fast.</p>
+
+<p>Solution: We can create plugin for flextool (plugin is shared library). Comparing to Cling C++ interpreter - plugin must be fast and allows to create custom C++ annotations (custom and beautiful C++ annotations).</p>
+
+<p>Problem 2: <code class="highlighter-rouge">Size</code> differs from compiler to compiler (and even used <code class="highlighter-rouge">std</code> version affects <code class="highlighter-rouge">Size</code>)</p>
+
+<p>Solution: add to retrieved <code class="highlighter-rouge">Size</code> approximately 8 bytes (minimal overhead, depends on use-case) and test that code compiles on all desired compilers. Note that if <code class="highlighter-rouge">Size</code> is invalid - code will not compile, so it is safe to use Fast Pimpl in production. Make sure that you use <code class="highlighter-rouge">SizePolicy::AtLeast</code>, see <code class="highlighter-rouge">#include &lt;basis/core/pimpl.hpp&gt;</code> for details.</p>
+
+<p>Problem 3: We must parse impl before generation of <code class="highlighter-rouge">pimpl::FastPimpl&lt;FooImpl, /*Size*/ 64, /*Alignment*/ 12&gt; impl_;</code> cause it requires <code class="highlighter-rouge">Size</code> and <code class="highlighter-rouge">Alignment</code> (file order matters).</p>
+
+<p>Solution: Make sure that you store impl in separate file from <code class="highlighter-rouge">pimpl::FastPimpl</code> and their code generation do not affect each other.</p>
+
+<p>We passed <code class="highlighter-rouge">FooImpl.hpp</code> to flextool before <code class="highlighter-rouge">Foo.cc</code> because <code class="highlighter-rouge">Foo.cc</code> requires <code class="highlighter-rouge">Size</code> and <code class="highlighter-rouge">Alignment</code> from <code class="highlighter-rouge">FooImpl.hpp</code>.</p>
+
+<p>We do not want to run gode generation based on included header <code class="highlighter-rouge">Foo.hpp</code> while parsing <code class="highlighter-rouge">FooImpl.hpp</code> (<code class="highlighter-rouge">FooImpl.hpp</code> includes <code class="highlighter-rouge">Foo.hpp</code>), thats why we used <code class="highlighter-rouge">#if !defined(FOO_HPP_NO_CODEGEN)</code> and included <code class="highlighter-rouge">Foo.hpp</code> from <code class="highlighter-rouge">FooImpl.hpp</code> like so:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#if defined(CODEGEN_RUNNING)
+#define FOO_HPP_NO_CODEGEN 1
+#include "Foo.hpp"
+#else
+#include "Foo.hpp.generated.hpp"
+#endif
+</span></code></pre></div></div>
+
+<p>Also we passed <code class="highlighter-rouge">extra-args=-DCODEGEN_RUNNING=1</code> as argument to flextool.</p>
+
+<p>Switching from Cling C++ interpreter to flextool plugin (plugin is shared library) can solve a lot of problems listed above. For example, we can inject <code class="highlighter-rouge">Foo::Impl</code> code into <code class="highlighter-rouge">Foo</code> based on arbitrary data type (to avoid <code class="highlighter-rouge">FOO_HPP_NO_CODEGEN</code> and <code class="highlighter-rouge">CODEGEN_RUNNING</code>). We can also create custom data structure to cache reflected data in plugin, to avoid <code class="highlighter-rouge">global_storage</code>.</p>
+
+<p>Problem 4: Source file with public class implementation contains a lot of boilerplate code.</p>
+
+<p>Solution: We can generate C++ code that calls the corresponding method of the ‘private’ class and passes arguments to it (proxy method calls to implementation).</p>
+
+<p>Prefer not to create you own solution but use existing one:</p>
+
+<p>You can use <a href="https://github.com/blockspacer/flex_pimpl_plugin">https://github.com/blockspacer/flex_pimpl_plugin</a></p>
+
+<p>See <code class="highlighter-rouge">README</code> file for usage examples: <a href="https://github.com/blockspacer/flex_pimpl_plugin">https://github.com/blockspacer/flex_pimpl_plugin</a></p>
+
 <h2 id="using-existing-plugin-to-add-custom-c-metaclasses">Using existing plugin to add custom C++ metaclasses</h2>
 
 <p>that page in development</p>
@@ -1372,7 +1613,27 @@ but lengthSquared(v) for the length squared.</p>
 
 <h2 id="integration-with-template-engines">Integration with template engines</h2>
 
-<p>that page in development</p>
+<p>You can use <a href="https://github.com/blockspacer/flex_squarets_plugin">https://github.com/blockspacer/flex_squarets_plugin</a></p>
+
+<p>For example, <code class="highlighter-rouge">flex_squarets_plugin</code> allows to use syntax similar <code class="highlighter-rouge">javascript template literals</code> in C++:</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// javascript template literals</span>
+<span class="kd">const</span> <span class="nx">myVariable</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">test</span><span class="dl">'</span>
+<span class="kd">const</span> <span class="nx">mystring</span> <span class="o">=</span> <span class="s2">`something </span><span class="p">${</span><span class="nx">myVariable</span><span class="p">}</span><span class="s2">`</span> <span class="c1">//something test</span>
+</code></pre></div></div>
+
+<p>Default template engine syntax (CXTPL) allows to rewrite code above as:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// custom C++ template syntax using flex_squarets_plugin</span>
+<span class="c1">// After code generation `mystring` will store text `something test`.</span>
+<span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">myVariable</span> <span class="o">=</span> <span class="s">"test"</span><span class="p">;</span>
+<span class="n">_squaretsString</span><span class="p">(</span>
+  <span class="s">R"raw(
+    something [[+ myVariable +]]
+  )raw"</span>
+<span class="p">)</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mystring</span><span class="p">;</span>
+</code></pre></div></div>
 
 <h2 id="writing-custom-plugin-to-generate-c-files">Writing custom plugin to generate C++ files</h2>
 
@@ -1494,7 +1755,7 @@ but lengthSquared(v) for the length squared.</p>
 
 <h2 id="using-cling-interpreter">Using cling interpreter</h2>
 
-<p>that page in development</p>
+<p><a href="https://github.com/blockspacer/flex_reflect_plugin">https://github.com/blockspacer/flex_reflect_plugin</a> allows to execute arbitrary C++ code stored in annotation attributes.</p>
 
 <h2 id="integrating-with-more-build-systems">Integrating with more build systems</h2>
 
@@ -1513,6 +1774,13 @@ but lengthSquared(v) for the length squared.</p>
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">-DCLING_ENABLED</span><span class="o">=</span>1
 <span class="nt">-DCLING_IS_ON</span><span class="o">=</span>1
 </code></pre></div></div>
+
+<p>You can pass <code class="highlighter-rouge">extra-args=-DCODEGEN_RUNNING=1</code> as argument to flextool and use it as usual C++ define:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#if defined(CODEGEN_RUNNING)
+</span><span class="c1">// ... code here ...</span>
+<span class="cp">#endif
+</span></code></pre></div></div>
 
 <h2 id="example-avoid-repetitive-code">Example: Avoid Repetitive Code</h2>
 
@@ -1654,6 +1922,20 @@ but lengthSquared(v) for the length squared.</p>
 <p>TODO</p>
 
 <h2 id="example-using-as-rest-api-router-networking">Example: using as REST API router (networking)</h2>
+
+<p>TODO</p>
+
+<h2 id="example-pattern-matching-expressions">Example: Pattern-matching expressions</h2>
+
+<p>TODO</p>
+
+<h2 id="example-spaceship-operator">Example: Spaceship operator</h2>
+
+<p>TODO</p>
+
+<h2 id="example-format-library">Example: format library</h2>
+
+<p>Embeds the arguments themselves into the format specifier string. It’s like Python f-strings, but for C++.</p>
 
 <p>TODO</p>
 
@@ -1818,7 +2100,7 @@ but lengthSquared(v) for the length squared.</p>
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 20.05.2020 14:53:15</p>
+        <p class="text">Last update: 01.06.2020 09:55:22</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>

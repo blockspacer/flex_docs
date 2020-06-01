@@ -13,7 +13,7 @@
     <link rel="mask-icon" href="/flex_docs/images/favicons/safari-pinned-tab.svg" color="#5bbad5">
 
     <title>building_projects</title>
-    <meta name="description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.">
+    <meta name="description" content="flextool is a transpiler that extends C++ for new introspection, reflection and compile-time execution..">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -1267,7 +1267,8 @@ $( document ).ready(function() {
 
 <p>Example that prints version of flextool:</p>
 
-<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">execute_process</span><span class="p">(</span>
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># NOTE: You may want to generate files only if some source files were changed, so prefer `add_custom_command` with `DEPENDS` to `execute_process`</span>
+<span class="nb">execute_process</span><span class="p">(</span>
   COMMAND <span class="si">${</span><span class="nv">flextool</span><span class="si">}</span>
           --version
   RESULT_VARIABLE retcode
@@ -1327,7 +1328,8 @@ $( document ).ready(function() {
 
 <p>Usage example:</p>
 
-<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">execute_process</span><span class="p">(</span>
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># NOTE: You may want to generate files only if some source files were changed, so prefer `add_custom_command` with `DEPENDS` to `execute_process`</span>
+<span class="nb">execute_process</span><span class="p">(</span>
   COMMAND <span class="si">${</span><span class="nv">flextool</span><span class="si">}</span>
           --indir=<span class="si">${</span><span class="nv">CMAKE_CURRENT_SOURCE_DIR</span><span class="si">}</span>
           --outdir=<span class="si">${</span><span class="nv">flextool_outdir</span><span class="si">}</span>
@@ -1339,6 +1341,7 @@ $( document ).ready(function() {
           --extra-arg=-I<span class="si">${</span><span class="nv">chromium_build_util_headers</span><span class="si">}</span>
           --extra-arg=-I<span class="si">${</span><span class="nv">basis_headers</span><span class="si">}</span>
           --extra-arg=-I<span class="si">${</span><span class="nv">flexlib_headers</span><span class="si">}</span>
+          --extra-arg=-I<span class="si">${</span><span class="nv">flextool_outdir</span><span class="si">}</span>
           --extra-arg=-Wno-undefined-inline
           <span class="si">${</span><span class="nv">flextool_extra_args</span><span class="si">}</span>
           <span class="si">${</span><span class="nv">flextool_input_files</span><span class="si">}</span>
@@ -1350,11 +1353,69 @@ $( document ).ready(function() {
   <span class="nb">message</span><span class="p">(</span>FATAL_ERROR <span class="s2">"Bad exit status </span><span class="si">${</span><span class="nv">retcode</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">_ERROR_VARIABLE</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="nb">endif</span><span class="p">()</span>
 <span class="nb">message</span><span class="p">(</span>STATUS <span class="s2">"flextool output: </span><span class="si">${</span><span class="nv">retcode</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">_ERROR_VARIABLE</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Set GENERATED properties of your generated source file.</span>
+<span class="c1"># So cmake won't complain about missing source file.</span>
+<span class="nb">set_source_files_properties</span><span class="p">(</span>
+  <span class="si">${</span><span class="nv">generated_files</span><span class="si">}</span>
+  PROPERTIES GENERATED 1<span class="p">)</span>
 </code></pre></div></div>
 
 <p>Make sure you changed <code class="highlighter-rouge">${flextool_outdir}</code> to directory path where generated files must be stored.</p>
 
+<p>You may want to generate files only if some source files were changed, so prefer <code class="highlighter-rouge">add_custom_command</code> with <code class="highlighter-rouge">DEPENDS</code> to <code class="highlighter-rouge">execute_process</code>:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># you can link with library via --extra-arg=-l</span>
+<span class="c1"># example: --extra-arg=-l${flexlib_file}</span>
+<span class="nb">add_custom_command</span><span class="p">(</span>
+    OUTPUT <span class="si">${</span><span class="nv">generated_typeclasses</span><span class="si">}</span>
+    <span class="c1"># code generator COMMAND will only be launched</span>
+    <span class="c1"># if some of DEPENDS files were changed.</span>
+    DEPENDS
+      <span class="si">${</span><span class="nv">flextool_input_files</span><span class="si">}</span>
+    COMMAND
+      <span class="si">${</span><span class="nv">CMAKE_COMMAND</span><span class="si">}</span> -E echo <span class="s2">" Removing </span><span class="si">${</span><span class="nv">generated_typeclasses</span><span class="si">}</span><span class="s2">."</span>
+    COMMAND
+      <span class="si">${</span><span class="nv">CMAKE_COMMAND</span><span class="si">}</span> -E remove <span class="si">${</span><span class="nv">generated_typeclasses</span><span class="si">}</span>
+    COMMAND
+      <span class="si">${</span><span class="nv">flextool</span><span class="si">}</span>
+        --vmodule=*=200 --enable-logging=stderr --log-level=100
+        --indir=<span class="si">${</span><span class="nv">CMAKE_SOURCE_DIR</span><span class="si">}</span>
+        --outdir=<span class="si">${</span><span class="nv">flextool_outdir</span><span class="si">}</span>
+        --load_plugin=<span class="si">${</span><span class="nv">flex_squarets_plugin</span><span class="si">}</span>
+        <span class="c1">#--load_plugin=${flex_meta_plugin}</span>
+        --load_plugin=<span class="si">${</span><span class="nv">flex_reflect_plugin</span><span class="si">}</span>
+        --load_plugin=<span class="si">${${</span><span class="nv">LIB_NAME</span><span class="si">}</span><span class="nv">_file</span><span class="si">}</span>
+        --extra-arg=-I<span class="si">${</span><span class="nv">cling_includes</span><span class="si">}</span>
+        --extra-arg=-I<span class="si">${</span><span class="nv">clang_includes</span><span class="si">}</span>
+        --extra-arg=-I<span class="si">${</span><span class="nv">corrade_includes</span><span class="si">}</span>
+        --extra-arg=-I<span class="si">${</span><span class="nv">entt_includes</span><span class="si">}</span>
+        <span class="c1"># NOTE: Cling does not support compile_commands.json</span>
+        <span class="c1"># so we must add headers used by `flex_support_headers` package</span>
+        <span class="c1"># place into `flex_support_headers` includes that can be used by Cling</span>
+        --extra-arg=-I<span class="si">${</span><span class="nv">chromium_base_headers</span><span class="si">}</span>
+        --extra-arg=-I<span class="si">${</span><span class="nv">chromium_build_util_headers</span><span class="si">}</span>
+        --extra-arg=-I<span class="si">${</span><span class="nv">basis_headers</span><span class="si">}</span>
+        --extra-arg=-I<span class="si">${</span><span class="nv">flexlib_headers</span><span class="si">}</span>
+        --extra-arg=-I<span class="si">${</span><span class="nv">flextool_outdir</span><span class="si">}</span>
+        --extra-arg=-DCLING_IS_ON=1
+        <span class="c1"># path to tests/example_datatypes.hpp</span>
+        --extra-arg=-I<span class="si">${</span><span class="nv">CMAKE_CURRENT_SOURCE_DIR</span><span class="si">}</span>
+        --extra-arg=-Wno-undefined-inline
+        <span class="si">${</span><span class="nv">flextool_extra_args</span><span class="si">}</span>
+        <span class="si">${</span><span class="nv">flextool_input_files</span><span class="si">}</span>
+        <span class="c1"># cling_scripts must be ending argument</span>
+        --cling_scripts=<span class="si">${</span><span class="nv">flex_support_headers</span><span class="si">}</span>
+        --cling_scripts=<span class="si">${</span><span class="nv">flex_typeclass_plugin_settings</span><span class="si">}</span>
+    DEPENDS <span class="si">${</span><span class="nv">LIB_NAME</span><span class="si">}</span> <span class="si">${</span><span class="nv">ROOT_PROJECT_LIB</span><span class="si">}</span> <span class="si">${${</span><span class="nv">LIB_NAME</span><span class="si">}</span><span class="nv">_file</span><span class="si">}</span>
+    COMMENT <span class="s2">"running </span><span class="si">${</span><span class="nv">flextool</span><span class="si">}</span><span class="s2">"</span>
+    VERBATIM <span class="c1"># to support \t for example</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
 <p>You can find full code of example project at <a href="https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt">https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt</a></p>
+
+<p>You can also find useful <code class="highlighter-rouge">CMakeLists.txt</code> from <code class="highlighter-rouge">flex_typeclass_plugin</code> at <a href="https://github.com/blockspacer/flex_typeclass_plugin/blob/master/CMakeLists.txt">https://github.com/blockspacer/flex_typeclass_plugin/blob/master/CMakeLists.txt</a></p>
 
 <h2 id="running-flextool-from-conanfile">Running flextool from conanfile</h2>
 
@@ -1480,7 +1541,7 @@ $( document ).ready(function() {
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 20.05.2020 14:53:15</p>
+        <p class="text">Last update: 01.06.2020 09:55:22</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>
