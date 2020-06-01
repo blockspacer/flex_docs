@@ -18,6 +18,8 @@ See https://jlintusaari.github.io/2018/06/github-hosted-jekyll-blog-custom-theme
 
 - Change `blog/_config.yml`
 
+change `title` and `description`
+
 change `baseurl` and `url`
 
 ```bash
@@ -81,7 +83,7 @@ rm -rf blog/css
 sudo -E docker build --no-cache -t jekyll_gulp -f $PWD/blog/Dockerfile .
 docker run --volume="$PWD/blog:/srv/jekyll" -w /srv/jekyll -p 4000:4000 -p 3000:3000 -p 3001:3001 --name DEV_jekyll_gulp -it jekyll_gulp \
     bash -c "export GEM_HOME=/gems && export GEM_PATH=/gems && export BUNDLE_PATH=/gems && export BUNDLE_PATH=/gems && PATH=/usr/bin/:/usr/local/bin/:/gems:/gems/bin:$HOME/gems:$HOME/gems/bin:$PATH && cd /srv/jekyll && bundler --version && bundle install && bundle exec jekyll --version && rm -rf package-lock.json && rm -rf node_modules && bundle config set git.allow_insecure true && npm install && bundle exec gulp build && bundle exec jekyll build --verbose --trace && npm run build"
-# you can add 
+# you can add
 # bundle exec jekyll serve -H 0.0.0.0 --watch
 # after npm run build
 # to run the server locally with Docker at http://localhost:4000
@@ -103,7 +105,7 @@ cd - # return back to /blog
 
 - Open in travis repo settings. Set `Environment Variables`, see https://docs.travis-ci.com/user/environment-variables/
 
-`GITHUB_REPO` (like `github.com/user/repo.git`) 
+`GITHUB_REPO` (like `github.com/user/repo.git`)
 
 `GITHUB_REPO` must NOT contain protocol, without `https://`
 
@@ -383,7 +385,7 @@ npm run start
 
 ### add `.nojekyll` file
 
-You can add an empty `.nojekyll` file at the root of your repository. 
+You can add an empty `.nojekyll` file at the root of your repository.
 
 This will instruct github pages to publish your files without processing them with jekyll.
 
