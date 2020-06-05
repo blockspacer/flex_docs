@@ -1389,7 +1389,7 @@ but lengthSquared(v) for the length squared.</p>
   <li>Get <code class="highlighter-rouge">Size</code> and <code class="highlighter-rouge">Alignment</code> from cache and paste them into source code (into <code class="highlighter-rouge">std::aligned_storage_t&lt;Size, Alignment&gt; storage_</code> used by fast pimpl).</li>
 </ol>
 
-<p>We will use Fast pimpl implementation via <code class="highlighter-rouge">#include &lt;basis/core/pimpl.hpp&gt;</code> from <a href="https://github.com/blockspacer/basis/blob/ccf8996b67fe0a7d73e5ac8fa93f62c231d3b20c/basis/core/pimpl.hpp">https://github.com/blockspacer/basis/blob/ccf8996b67fe0a7d73e5ac8fa93f62c231d3b20c/basis/core/pimpl.hpp</a></p>
+<p>We will use Fast pimpl implementation via <code class="highlighter-rouge">#include &lt;basis/core/pimpl.hpp&gt;</code> from <a href="https://github.com/blockspacer/basis/blob/c54ed26250ac3acc0ea5e31cd9424f08204cb450/basis/core/pimpl.hpp">https://github.com/blockspacer/basis/blob/c54ed26250ac3acc0ea5e31cd9424f08204cb450/basis/core/pimpl.hpp</a></p>
 
 <p><code class="highlighter-rouge">flex_reflect_plugin</code> allows to execute C++ code at runtime (we need to execute C++ code during compilation step).</p>
 
@@ -1565,7 +1565,7 @@ but lengthSquared(v) for the length squared.</p>
 
 <p>Problem 1: We used Cling C++ interpreter. Resulting code is ugly and (maybe) not fast.</p>
 
-<p>Solution: We can create plugin for flextool (plugin is shared library). Comparing to Cling C++ interpreter - plugin must be fast and allows to create custom C++ annotations (custom and beautiful C++ annotations).</p>
+<p>Solution: We can create plugin for flextool (plugin is shared library). Comparing to approach that uses Cling C++ interpreter - plugin must be fast and allows to create custom C++ annotations (custom and beautiful C++ annotations).</p>
 
 <p>Problem 2: <code class="highlighter-rouge">Size</code> differs from compiler to compiler (and even used <code class="highlighter-rouge">std</code> version affects <code class="highlighter-rouge">Size</code>)</p>
 
@@ -1589,7 +1589,7 @@ but lengthSquared(v) for the length squared.</p>
 
 <p>Also we passed <code class="highlighter-rouge">extra-args=-DCODEGEN_RUNNING=1</code> as argument to flextool.</p>
 
-<p>Switching from Cling C++ interpreter to flextool plugin (plugin is shared library) can solve a lot of problems listed above. For example, we can inject <code class="highlighter-rouge">Foo::Impl</code> code into <code class="highlighter-rouge">Foo</code> based on arbitrary data type (to avoid <code class="highlighter-rouge">FOO_HPP_NO_CODEGEN</code> and <code class="highlighter-rouge">CODEGEN_RUNNING</code>). We can also create custom data structure to cache reflected data in plugin, to avoid <code class="highlighter-rouge">global_storage</code>.</p>
+<p>Switching from approach that uses Cling C++ interpreter to flextool plugin (plugin is shared library) can solve a lot of problems listed above. For example, we can inject <code class="highlighter-rouge">Foo::Impl</code> code into <code class="highlighter-rouge">Foo</code> based on arbitrary data type (to avoid <code class="highlighter-rouge">FOO_HPP_NO_CODEGEN</code> and <code class="highlighter-rouge">CODEGEN_RUNNING</code>). We can also create custom data structure to cache reflected data in plugin, to avoid <code class="highlighter-rouge">global_storage</code>.</p>
 
 <p>Problem 4: Source file with public class implementation contains a lot of boilerplate code.</p>
 
@@ -2100,7 +2100,7 @@ but lengthSquared(v) for the length squared.</p>
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 01.06.2020 09:55:22</p>
+        <p class="text">Last update: 05.06.2020 09:23:50</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>
