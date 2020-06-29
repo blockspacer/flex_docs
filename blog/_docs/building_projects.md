@@ -204,9 +204,43 @@ add_custom_command(
         --cling_scripts=${flex_support_headers}
         --cling_scripts=${flex_typeclass_plugin_settings}
     DEPENDS ${LIB_NAME} ${ROOT_PROJECT_LIB} ${${LIB_NAME}_file}
+    # NOTE: uses COMMAND_EXPAND_LISTS
+    # to support generator expressions
+    # see https://cmake.org/cmake/help/v3.13/command/add_custom_target.html
+    COMMAND_EXPAND_LISTS
     COMMENT "running ${flextool}"
     VERBATIM # to support \t for example
 )
+```
+
+Usually you do not need to duplicate target compile definitions (via `--extra-arg=-D`) or include directories (via `--extra-arg=-I`). You can use code similar to:
+
+```cmake
+# NOTE: add into conanfile.py:
+# self.build_requires("cmake_helper_utils/master@conan/stable")
+
+find_package(cmake_helper_utils REQUIRED)
+
+# from cmake_helper_utils (conan package https://github.com/blockspacer/cmake_helper_utils_conan )
+get_all_compile_definitions(collected_defines
+  ${LIB_NAME}
+)
+
+# from cmake_helper_utils (conan package https://github.com/blockspacer/cmake_helper_utils_conan )
+get_all_include_directories(collected_includes
+  ${LIB_NAME}
+)
+```
+
+And add into flextool arguments:
+
+```cmake
+  # NOTE: generator expression, expands during build time
+  # if the ${ITEM} is non-empty, then append it
+  $<$<BOOL:${collected_defines}>:--extra-arg=-D$<JOIN:${collected_defines}, --extra-arg=-D>>
+  # NOTE: generator expression, expands during build time
+  # if the ${ITEM} is non-empty, then append it
+  $<$<BOOL:${collected_includes}>:--extra-arg=-I$<JOIN:${collected_includes}, --extra-arg=-I>>
 ```
 
 You can find full code of example project at [https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt](https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt)
