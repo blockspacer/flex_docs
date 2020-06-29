@@ -1408,9 +1408,41 @@ $( document ).ready(function() {
         --cling_scripts=<span class="si">${</span><span class="nv">flex_support_headers</span><span class="si">}</span>
         --cling_scripts=<span class="si">${</span><span class="nv">flex_typeclass_plugin_settings</span><span class="si">}</span>
     DEPENDS <span class="si">${</span><span class="nv">LIB_NAME</span><span class="si">}</span> <span class="si">${</span><span class="nv">ROOT_PROJECT_LIB</span><span class="si">}</span> <span class="si">${${</span><span class="nv">LIB_NAME</span><span class="si">}</span><span class="nv">_file</span><span class="si">}</span>
+    <span class="c1"># NOTE: uses COMMAND_EXPAND_LISTS</span>
+    <span class="c1"># to support generator expressions</span>
+    <span class="c1"># see https://cmake.org/cmake/help/v3.13/command/add_custom_target.html</span>
+    COMMAND_EXPAND_LISTS
     COMMENT <span class="s2">"running </span><span class="si">${</span><span class="nv">flextool</span><span class="si">}</span><span class="s2">"</span>
     VERBATIM <span class="c1"># to support \t for example</span>
 <span class="p">)</span>
+</code></pre></div></div>
+
+<p>Usually you do not need to duplicate target compile definitions (via <code class="highlighter-rouge">--extra-arg=-D</code>) or include directories (via <code class="highlighter-rouge">--extra-arg=-I</code>). You can use code similar to:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># NOTE: add into conanfile.py:</span>
+<span class="c1"># self.build_requires("cmake_helper_utils/master@conan/stable")</span>
+
+<span class="nb">find_package</span><span class="p">(</span>cmake_helper_utils REQUIRED<span class="p">)</span>
+
+<span class="c1"># from cmake_helper_utils (conan package https://github.com/blockspacer/cmake_helper_utils_conan )</span>
+<span class="nf">get_all_compile_definitions</span><span class="p">(</span>collected_defines
+  <span class="si">${</span><span class="nv">LIB_NAME</span><span class="si">}</span>
+<span class="p">)</span>
+
+<span class="c1"># from cmake_helper_utils (conan package https://github.com/blockspacer/cmake_helper_utils_conan )</span>
+<span class="nf">get_all_include_directories</span><span class="p">(</span>collected_includes
+  <span class="si">${</span><span class="nv">LIB_NAME</span><span class="si">}</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>And add into flextool arguments:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># NOTE: generator expression, expands during build time</span>
+  <span class="c1"># if the ${ITEM} is non-empty, then append it</span>
+  $&lt;$&lt;BOOL:<span class="si">${</span><span class="nv">collected_defines</span><span class="si">}</span>&gt;:--extra-arg=-D$&lt;JOIN:<span class="si">${</span><span class="nv">collected_defines</span><span class="si">}</span>, --extra-arg=-D&gt;&gt;
+  <span class="c1"># NOTE: generator expression, expands during build time</span>
+  <span class="c1"># if the ${ITEM} is non-empty, then append it</span>
+  $&lt;$&lt;BOOL:<span class="si">${</span><span class="nv">collected_includes</span><span class="si">}</span>&gt;:--extra-arg=-I$&lt;JOIN:<span class="si">${</span><span class="nv">collected_includes</span><span class="si">}</span>, --extra-arg=-I&gt;&gt;
 </code></pre></div></div>
 
 <p>You can find full code of example project at <a href="https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt">https://github.com/blockspacer/flex_meta_demo/blob/master/CMakeLists.txt</a></p>
@@ -1541,7 +1573,7 @@ $( document ).ready(function() {
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 05.06.2020 09:23:50</p>
+        <p class="text">Last update: 29.06.2020 09:10:45</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>
