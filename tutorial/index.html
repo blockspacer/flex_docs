@@ -1224,10 +1224,6 @@ $( document ).ready(function() {
 
 <p>See for detailed installation instructions <a href="/flex_docs/download/">/flex_docs/download/</a></p>
 
-<h2 id="running-flextool-using-conan-and-cmake">Running flextool using conan and CMake</h2>
-
-<p>See for detailed usage instructions <a href="/flex_docs/building_projects/">/flex_docs/building_projects/</a></p>
-
 <h2 id="introduction">Introduction</h2>
 
 <p>There are some boilerplate code in many projects:</p>
@@ -1252,6 +1248,250 @@ $( document ).ready(function() {
   <li>It parses this code with the Clang LibTooling</li>
   <li>It analyses the parsing result and produces another piece of code (or performs custom actions defined by plugins)</li>
 </ul>
+
+<h2 id="how-to-integrate-with-flextool">How to integrate with flextool</h2>
+
+<p>See for detailed usage instructions <a href="/flex_docs/building_projects/">/flex_docs/building_projects/</a></p>
+
+<h2 id="custom-c-metaclasses">Custom C++ metaclasses</h2>
+
+<p>You can learn more about metaclasses at</p>
+
+<ul>
+  <li>https://youtu.be/80BZxujhY38</li>
+</ul>
+
+<p>Example that uses <code class="highlighter-rouge">$apply(ordered)</code> to generate <code class="highlighter-rouge">bool operator&lt;</code>, <code class="highlighter-rouge">bool operator&lt;=</code> etc. below:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">$</span><span class="n">apply</span><span class="p">(</span><span class="n">ordered</span><span class="p">)</span> <span class="n">Point</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Point</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="nl">public:</span>
+  <span class="n">Point</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+  <span class="k">friend</span> <span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span>
+   <span class="p">{</span> <span class="k">return</span> <span class="n">a</span><span class="p">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">b</span><span class="p">.</span><span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">a</span><span class="p">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">b</span><span class="p">.</span><span class="n">y</span><span class="p">;</span> <span class="p">}</span>
+  <span class="k">friend</span> <span class="kt">bool</span> <span class="k">operator</span><span class="o">&lt;</span> <span class="p">(</span><span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span>
+   <span class="p">{</span> <span class="k">return</span> <span class="n">a</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">x</span> <span class="o">||</span> <span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">b</span><span class="p">.</span><span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">a</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">y</span><span class="p">);</span> <span class="p">}</span>
+  <span class="k">friend</span> <span class="kt">bool</span> <span class="k">operator</span><span class="o">!=</span><span class="p">(</span><span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">b</span><span class="p">);</span> <span class="p">}</span>
+  <span class="k">friend</span> <span class="kt">bool</span> <span class="k">operator</span><span class="o">&gt;</span> <span class="p">(</span><span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">a</span><span class="p">;</span> <span class="p">}</span>
+  <span class="k">friend</span> <span class="kt">bool</span> <span class="k">operator</span><span class="o">&gt;=</span><span class="p">(</span><span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="p">(</span><span class="n">a</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">);</span> <span class="p">}</span>
+  <span class="k">friend</span> <span class="kt">bool</span> <span class="k">operator</span><span class="o">&lt;=</span><span class="p">(</span><span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="p">(</span><span class="n">b</span> <span class="o">&lt;</span> <span class="n">a</span><span class="p">);</span> <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">operator ==</code> and <code class="highlighter-rouge">operator &lt;</code> must iterate all variables and <code class="highlighter-rouge">return false</code> if any variables does not match (i.e. a.x != b.x ).</p>
+
+<p>First of all, install plugins for flextool using conan, see <a href="https://github.com/blockspacer/flextool#easy-install-with-common-plugins">Easy install with common plugins</a></p>
+
+<p>First, as example, we will run flextool without <code class="highlighter-rouge">CMake</code>.</p>
+
+<p>Create C++ file <code class="highlighter-rouge">Point.cpp</code>:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">// exec is similar to executeCodeAndReplace,</span>
+<span class="c1">// but returns empty source code modification</span>
+<span class="cp">#define _executeCode(...) \
+  </span><span class="cm">/* generate definition required to use __attribute__ */</span><span class="cp"> \
+  __attribute__((annotate( \
+        "{gen};{executeCodeAndReplace};" \
+        #__VA_ARGS__ \
+    )))
+</span>
+<span class="k">class</span>
+  <span class="nf">_executeCode</span><span class="p">([]</span>
+    <span class="p">(</span>
+        <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">ast_matchers</span><span class="o">::</span><span class="n">MatchFinder</span><span class="o">::</span><span class="n">MatchResult</span><span class="o">&amp;</span> <span class="n">clangMatchResult</span>
+        <span class="p">,</span> <span class="n">clang</span><span class="o">::</span><span class="n">Rewriter</span><span class="o">&amp;</span> <span class="n">clangRewriter</span>
+        <span class="p">,</span> <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">Decl</span><span class="o">*</span> <span class="n">clangDecl</span>
+    <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">clang</span><span class="o">::</span><span class="n">SourceManager</span> <span class="o">&amp;</span><span class="n">SM</span>
+            <span class="o">=</span> <span class="n">clangRewriter</span><span class="p">.</span><span class="n">getSourceMgr</span><span class="p">();</span>
+        <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">CXXRecordDecl</span><span class="o">*</span> <span class="n">record</span> <span class="o">=</span>
+            <span class="n">clangMatchResult</span><span class="p">.</span><span class="n">Nodes</span>
+                <span class="p">.</span><span class="n">getNodeAs</span><span class="o">&lt;</span><span class="n">clang</span><span class="o">::</span><span class="n">CXXRecordDecl</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"bind_gen"</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">record</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">CHECK</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+            <span class="k">return</span> <span class="k">new</span> <span class="n">llvm</span><span class="o">::</span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{};</span>
+        <span class="p">}</span>
+        <span class="n">LOG</span><span class="p">(</span><span class="n">INFO</span><span class="p">)</span>
+            <span class="o">&lt;&lt;</span> <span class="s">"parsing record with name = "</span>
+            <span class="o">&lt;&lt;</span> <span class="n">record</span><span class="o">-&gt;</span><span class="n">getNameAsString</span><span class="p">().</span><span class="n">c_str</span><span class="p">();</span>
+        <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">LangOptions</span><span class="o">&amp;</span> <span class="n">langOptions</span>
+            <span class="o">=</span> <span class="n">clangRewriter</span><span class="p">.</span><span class="n">getLangOpts</span><span class="p">();</span>
+        <span class="n">clang</span><span class="o">::</span><span class="n">SourceLocation</span> <span class="n">nodeStartLoc</span>
+            <span class="o">=</span> <span class="n">clangDecl</span><span class="o">-&gt;</span><span class="n">getLocStart</span><span class="p">();</span>
+        <span class="c1">// Note Stmt::getLocEnd() returns the source location prior to the</span>
+        <span class="c1">// token at the end of the line.  For instance, for:</span>
+        <span class="c1">// var = 123;</span>
+        <span class="c1">//      ^---- getLocEnd() points here.</span>
+        <span class="n">clang</span><span class="o">::</span><span class="n">SourceLocation</span> <span class="n">nodeEndLoc</span>
+            <span class="o">=</span> <span class="n">clangDecl</span><span class="o">-&gt;</span><span class="n">getLocEnd</span><span class="p">();</span>
+        <span class="n">DCHECK</span><span class="p">(</span><span class="n">nodeStartLoc</span> <span class="o">!=</span> <span class="n">nodeEndLoc</span><span class="p">);</span>
+        <span class="n">clang_utils</span><span class="o">::</span><span class="n">expandLocations</span><span class="p">(</span>
+            <span class="n">nodeStartLoc</span><span class="p">,</span> <span class="n">nodeEndLoc</span><span class="p">,</span> <span class="n">clangRewriter</span><span class="p">);</span>
+        <span class="n">clang</span><span class="o">::</span><span class="n">CharSourceRange</span> <span class="n">charSourceRange</span><span class="p">(</span>
+            <span class="n">clang</span><span class="o">::</span><span class="n">SourceRange</span><span class="p">{</span><span class="n">nodeStartLoc</span><span class="p">,</span> <span class="n">nodeEndLoc</span><span class="p">},</span>
+            <span class="nb">true</span> <span class="c1">// IsTokenRange</span>
+        <span class="p">);</span>
+        <span class="c1">// MeasureTokenLength gets us past the last token,</span>
+        <span class="c1">// and adding 1 gets us past the ';'</span>
+        <span class="kt">int</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">clang</span><span class="o">::</span><span class="n">Lexer</span><span class="o">::</span><span class="n">MeasureTokenLength</span><span class="p">(</span>
+            <span class="n">nodeEndLoc</span><span class="p">,</span>
+            <span class="n">SM</span><span class="p">,</span>
+            <span class="n">langOptions</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">clang</span><span class="o">::</span><span class="n">SourceLocation</span> <span class="n">realEnd</span>
+            <span class="o">=</span> <span class="n">nodeEndLoc</span><span class="p">.</span><span class="n">getLocWithOffset</span><span class="p">(</span><span class="n">offset</span><span class="p">);</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">codeToInsert</span> <span class="o">=</span> <span class="s">"public:</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+        <span class="n">reflection</span><span class="o">::</span><span class="n">AstReflector</span> <span class="n">reflector</span><span class="p">(</span>
+            <span class="n">clangMatchResult</span><span class="p">.</span><span class="n">Context</span><span class="p">);</span>
+        <span class="n">reflection</span><span class="o">::</span><span class="n">NamespacesTree</span> <span class="n">namespaces</span><span class="p">;</span>
+        <span class="k">const</span> <span class="n">reflection</span><span class="o">::</span><span class="n">ClassInfoPtr</span> <span class="n">structInfo</span>
+          <span class="o">=</span> <span class="n">reflector</span><span class="p">.</span><span class="n">ReflectClass</span><span class="p">(</span>
+              <span class="n">record</span>
+              <span class="p">,</span> <span class="o">&amp;</span><span class="n">namespaces</span>
+              <span class="p">,</span> <span class="nb">false</span> <span class="c1">// recursive</span>
+            <span class="p">);</span>
+        <span class="k">for</span><span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="n">it</span> <span class="o">:</span> <span class="n">structInfo</span><span class="o">-&gt;</span><span class="n">members</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">DeclaratorDecl</span><span class="o">*</span> <span class="n">decl</span> <span class="o">=</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">decl</span><span class="p">;</span>
+            <span class="n">LOG</span><span class="p">(</span><span class="n">INFO</span><span class="p">)</span>
+                <span class="o">&lt;&lt;</span> <span class="s">"found member with name = "</span>
+                <span class="o">&lt;&lt;</span> <span class="n">decl</span><span class="o">-&gt;</span><span class="n">getNameAsString</span><span class="p">();</span>
+            <span class="c1">// Generates:</span>
+            <span class="c1">// friend bool operator==(const Point&amp; a, const Point&amp; b)</span>
+            <span class="c1">// { return a.x == b.x; }</span>
+            <span class="p">{</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="s">"friend bool operator==(const "</span><span class="p">;</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="n">record</span><span class="o">-&gt;</span><span class="n">getNameAsString</span><span class="p">();</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="s">"&amp; a, const "</span><span class="p">;</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="n">record</span><span class="o">-&gt;</span><span class="n">getNameAsString</span><span class="p">();</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="s">"&amp; b)</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="s">"{</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="s">"  return "</span><span class="p">;</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="s">"a."</span><span class="p">;</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="n">decl</span><span class="o">-&gt;</span><span class="n">getNameAsString</span><span class="p">();</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="s">" == b."</span><span class="p">;</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="n">decl</span><span class="o">-&gt;</span><span class="n">getNameAsString</span><span class="p">();</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="s">";</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+              <span class="n">codeToInsert</span> <span class="o">+=</span> <span class="s">"}</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">clangRewriter</span><span class="p">.</span><span class="n">InsertText</span><span class="p">(</span><span class="n">realEnd</span><span class="p">,</span> <span class="n">codeToInsert</span><span class="p">,</span>
+            <span class="cm">/*InsertAfter=*/</span><span class="nb">true</span><span class="p">,</span> <span class="cm">/*IndentNewLines*/</span> <span class="nb">false</span><span class="p">);</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">llvm</span><span class="o">::</span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{};</span>
+    <span class="p">}(</span><span class="n">clangMatchResult</span><span class="p">,</span> <span class="n">clangRewriter</span><span class="p">,</span> <span class="n">clangDecl</span><span class="p">);</span>
+  <span class="p">)</span>
+<span class="n">Point</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>We added <code class="highlighter-rouge">_executeCode</code> annotation after <code class="highlighter-rouge">class</code>. Access to <code class="highlighter-rouge">clang::CXXRecordDecl</code> and <code class="highlighter-rouge">clang::Rewriter</code> allowed us to parse and modify source code.</p>
+
+<p>Now run command below (tested under linux):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">flextool_cmd</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flextool/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*bin/flextool"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">echo </span><span class="nv">flextool_cmd</span><span class="o">=</span><span class="nv">$flextool_cmd</span>
+
+<span class="c"># Requires to install https://github.com/blockspacer/flex_reflect_plugin/</span>
+<span class="nb">export </span><span class="nv">flex_reflect_plugin_so</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flex_reflect_plugin/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*lib/flex_reflect_plugin.so"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">echo </span><span class="nv">flex_reflect_plugin_so</span><span class="o">=</span><span class="nv">$flex_reflect_plugin_so</span>
+
+<span class="c"># Requires to install https://github.com/blockspacer/flex_meta_plugin/</span>
+<span class="nb">export </span><span class="nv">flex_meta_plugin_so</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flex_meta_plugin/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*lib/flex_meta_plugin.so"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">echo </span><span class="nv">flex_meta_plugin_so</span><span class="o">=</span><span class="nv">$flex_meta_plugin_so</span>
+
+<span class="c"># Requires to install https://github.com/blockspacer/flex_squarets_plugin/</span>
+<span class="nb">export </span><span class="nv">flex_squarets_plugin_so</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flex_squarets_plugin/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*lib/flex_squarets_plugin.so"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">echo </span><span class="nv">flex_squarets_plugin_so</span><span class="o">=</span><span class="nv">$flex_squarets_plugin_so</span>
+
+<span class="c"># Requires to install https://github.com/blockspacer/cling_conan/</span>
+<span class="nb">export </span><span class="nv">cling_include_dir_clang</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/cling_conan/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include/clang"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">echo </span><span class="nv">cling_include_dir_clang</span><span class="o">=</span><span class="nv">$cling_include_dir_clang</span>
+
+<span class="nb">export </span><span class="nv">cling_include_dir</span><span class="o">=</span><span class="si">$(</span><span class="nb">dirname</span> <span class="s2">"</span><span class="nv">$cling_include_dir_clang</span><span class="s2">"</span><span class="si">)</span>
+<span class="nb">echo </span><span class="nv">cling_include_dir</span><span class="o">=</span><span class="nv">$cling_include_dir</span>
+
+<span class="nb">export </span><span class="nv">clang_include_dir</span><span class="o">=</span><span class="si">$(</span><span class="nb">dirname</span> <span class="s2">"</span><span class="nv">$cling_include_dir</span><span class="s2">"</span><span class="si">)</span>/lib/clang/5.0.0/include
+<span class="nb">echo </span><span class="nv">clang_include_dir</span><span class="o">=</span><span class="nv">$clang_include_dir</span>
+
+<span class="nb">export </span><span class="nv">chromium_base_include_dir</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/chromium_base/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">echo </span><span class="nv">chromium_base_include_dir</span><span class="o">=</span><span class="nv">$chromium_base_include_dir</span>
+
+<span class="nb">export </span><span class="nv">chromium_build_util_include_dir</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/chromium_build_util/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">echo </span><span class="nv">chromium_build_util_include_dir</span><span class="o">=</span><span class="nv">$chromium_build_util_include_dir</span>
+
+<span class="nb">export </span><span class="nv">basis_include_dir</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/basis/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">echo </span><span class="nv">basis_include_dir</span><span class="o">=</span><span class="nv">$basis_include_dir</span>
+
+<span class="nb">export </span><span class="nv">flexlib_include_dir</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flexlib/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">echo </span><span class="nv">flexlib_include_dir</span><span class="o">=</span><span class="nv">$flexlib_include_dir</span>
+
+<span class="nb">export </span><span class="nv">flex_support_header</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flex_support_headers/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*cling_preloader.inc"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">echo </span><span class="nv">flex_support_header</span><span class="o">=</span><span class="nv">$flex_support_header</span>
+
+<span class="nb">export </span><span class="nv">flextool_input_files</span><span class="o">=</span><span class="nv">$PWD</span>/Point.cpp
+
+<span class="nv">$flextool_cmd</span> <span class="se">\</span>
+  <span class="nt">--vmodule</span><span class="o">=</span><span class="k">*</span><span class="o">=</span>200 <span class="nt">--enable-logging</span><span class="o">=</span>stderr <span class="nt">--log-level</span><span class="o">=</span>100 <span class="se">\</span>
+  <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-DCLING_IS_ON</span><span class="o">=</span>1 <span class="se">\</span>
+  <span class="nt">--indir</span><span class="o">=</span><span class="nv">$PWD</span> <span class="se">\</span>
+  <span class="nt">--outdir</span><span class="o">=</span><span class="nv">$PWD</span> <span class="se">\</span>
+  <span class="nt">--load_plugin</span> <span class="nv">$flex_reflect_plugin_so</span> <span class="se">\</span>
+  <span class="nt">--load_plugin</span> <span class="nv">$flex_meta_plugin_so</span> <span class="se">\</span>
+  <span class="nt">--load_plugin</span> <span class="nv">$flex_squarets_plugin_so</span> <span class="se">\</span>
+  <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-I</span><span class="nv">$cling_include_dir</span> <span class="se">\</span>
+  <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-I</span><span class="nv">$clang_include_dir</span> <span class="se">\</span>
+  <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-I</span><span class="nv">$chromium_base_include_dir</span> <span class="se">\</span>
+  <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-I</span><span class="nv">$chromium_build_util_include_dir</span> <span class="se">\</span>
+  <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-I</span><span class="nv">$chromium_build_util_include_dir</span>/chromium <span class="se">\</span>
+  <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-I</span><span class="nv">$basis_include_dir</span> <span class="se">\</span>
+  <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-I</span><span class="nv">$flexlib_include_dir</span> <span class="se">\</span>
+  <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-I</span><span class="nv">$PWD</span> <span class="se">\</span>
+  <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-Wno-undefined-inline</span> <span class="se">\</span>
+  <span class="nv">$flextool_input_files</span> <span class="se">\</span>
+  <span class="nt">--cling_scripts</span><span class="o">=</span><span class="nv">$flex_support_header</span>
+</code></pre></div></div>
+
+<p>At the end of the generated file <code class="highlighter-rouge">Point.cpp.generated.cpp</code> must be:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Point</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
+<span class="nl">public:</span>
+<span class="k">friend</span> <span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="k">return</span> <span class="n">a</span><span class="p">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">b</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">friend</span> <span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="k">return</span> <span class="n">a</span><span class="p">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">b</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>We used flextool without <code class="highlighter-rouge">CMake</code>, but had to run <code class="highlighter-rouge">find</code> in <code class="highlighter-rouge">~/.conan/</code> directory.</p>
+
+<p>You can create custom plugin that will make easier development process and allow to create custom annotation <code class="highlighter-rouge">$apply(ordered)</code> without <code class="highlighter-rouge">_executeCode</code>.</p>
+
+<p>See <a href="/flex_docs/adding_plugins/">how to add new plugins</a></p>
+
+<h2 id="writing-custom-plugin-to-generate-c-files">Writing custom plugin to generate C++ files</h2>
+
+<p>TODO: that page in development</p>
+
+<p>See <a href="/flex_docs/adding_plugins/">how to add new plugins</a></p>
 
 <h2 id="using-flex_typeclass_plugin-to-add-custom-c-typeclasses-using-type-erasure">Using <code class="highlighter-rouge">flex_typeclass_plugin</code> to add custom C++ typeclasses (using Type Erasure)</h2>
 
@@ -1300,7 +1540,7 @@ but lengthSquared(v) for the length squared.</p>
 
 <p>Also typeclasses may be called as <code class="highlighter-rouge">virtual concepts</code>, see for details <a href="https://github.com/andyprowl/virtual-concepts/blob/master/draft/Dynamic%20Generic%20Programming%20with%20Virtual%20Concepts.pdf">https://github.com/andyprowl/virtual-concepts/blob/master/draft/Dynamic%20Generic%20Programming%20with%20Virtual%20Concepts.pdf</a> and <a href="https://cdn2-ecros.pl/event/codedive/files/presentations/2017/code%20dive%202017%20-%20Michal%20Dominiak%20-%20Customization%20points%20that%20suck%20less.pdf">https://cdn2-ecros.pl/event/codedive/files/presentations/2017/code%20dive%202017%20-%20Michal%20Dominiak%20-%20Customization%20points%20that%20suck%20less.pdf</a></p>
 
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span><span class="err">(</span><span class="nc">typeclass</span><span class="p">)</span> <span class="n">printable</span> <span class="p">{</span>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span><span class="p">(</span><span class="n">typeclass</span><span class="p">)</span> <span class="n">printable</span> <span class="p">{</span>
     <span class="kt">void</span> <span class="n">print</span><span class="p">();</span>
 <span class="p">};</span>
 
@@ -1601,16 +1841,6 @@ but lengthSquared(v) for the length squared.</p>
 
 <p>See <code class="highlighter-rouge">README</code> file for usage examples: <a href="https://github.com/blockspacer/flex_pimpl_plugin">https://github.com/blockspacer/flex_pimpl_plugin</a></p>
 
-<h2 id="using-existing-plugin-to-add-custom-c-metaclasses">Using existing plugin to add custom C++ metaclasses</h2>
-
-<p>that page in development</p>
-
-<p>You can learn more about metaclasses at</p>
-
-<ul>
-  <li>https://youtu.be/80BZxujhY38</li>
-</ul>
-
 <h2 id="integration-with-template-engines">Integration with template engines</h2>
 
 <p>You can use <a href="https://github.com/blockspacer/flex_squarets_plugin">https://github.com/blockspacer/flex_squarets_plugin</a></p>
@@ -1619,7 +1849,7 @@ but lengthSquared(v) for the length squared.</p>
 
 <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// javascript template literals</span>
 <span class="kd">const</span> <span class="nx">myVariable</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">test</span><span class="dl">'</span>
-<span class="kd">const</span> <span class="nx">mystring</span> <span class="o">=</span> <span class="s2">`something </span><span class="p">${</span><span class="nx">myVariable</span><span class="p">}</span><span class="s2">`</span> <span class="c1">//something test</span>
+<span class="kd">const</span> <span class="nx">mystring</span> <span class="o">=</span> <span class="s2">`</span><span class="err">something </span><span class="p">${</span><span class="nx">myVariable</span><span class="p">}</span><span class="s2">`</span> <span class="c1">//something test</span>
 </code></pre></div></div>
 
 <p>Default template engine syntax (CXTPL) allows to rewrite code above as:</p>
@@ -1634,10 +1864,6 @@ but lengthSquared(v) for the length squared.</p>
 <span class="p">)</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mystring</span><span class="p">;</span>
 </code></pre></div></div>
-
-<h2 id="writing-custom-plugin-to-generate-c-files">Writing custom plugin to generate C++ files</h2>
-
-<p>that page in development</p>
 
 <h2 id="use-case-enum-to-string-and-string-to-enum">Use case: enum to string and string to enum</h2>
 
@@ -1737,29 +1963,9 @@ but lengthSquared(v) for the length squared.</p>
 <span class="p">}</span>
 </code></pre></div></div>
 
-<h2 id="generating-not-c-files">Generating not-C++ files</h2>
-
-<p>that page in development</p>
-
-<h2 id="optimizing-speed">Optimizing speed</h2>
-
-<p>that page in development</p>
-
-<h2 id="optimizing-memory">Optimizing memory</h2>
-
-<p>that page in development</p>
-
-<h2 id="using-threads">Using threads</h2>
-
-<p>that page in development</p>
-
 <h2 id="using-cling-interpreter">Using cling interpreter</h2>
 
 <p><a href="https://github.com/blockspacer/flex_reflect_plugin">https://github.com/blockspacer/flex_reflect_plugin</a> allows to execute arbitrary C++ code stored in annotation attributes.</p>
-
-<h2 id="integrating-with-more-build-systems">Integrating with more build systems</h2>
-
-<p>that page in development</p>
 
 <h2 id="detecting-flextool-in-preprocessor">Detecting flextool in Preprocessor</h2>
 
@@ -1781,6 +1987,26 @@ but lengthSquared(v) for the length squared.</p>
 </span><span class="c1">// ... code here ...</span>
 <span class="cp">#endif
 </span></code></pre></div></div>
+
+<h2 id="generating-not-c-files">Generating not-C++ files</h2>
+
+<p>that page in development</p>
+
+<h2 id="optimizing-speed">Optimizing speed</h2>
+
+<p>that page in development</p>
+
+<h2 id="optimizing-memory">Optimizing memory</h2>
+
+<p>that page in development</p>
+
+<h2 id="using-threads">Using threads</h2>
+
+<p>that page in development</p>
+
+<h2 id="integrating-with-more-build-systems">Integrating with more build systems</h2>
+
+<p>that page in development</p>
 
 <h2 id="example-avoid-repetitive-code">Example: Avoid Repetitive Code</h2>
 
@@ -1904,7 +2130,7 @@ but lengthSquared(v) for the length squared.</p>
 <p>We can add custom annotation near class declaration to validate that within that class all <code class="highlighter-rouge">data members are named with a trailing underscore.</code></p>
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span>
-<span class="err">$</span><span class="nc">apply</span><span class="p">(</span>
+<span class="err">$</span><span class="n">apply</span><span class="p">(</span>
   <span class="n">styleguide</span><span class="p">(</span><span class="n">data_members</span> <span class="o">=</span> <span class="n">googleStyleGuide</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">TableInfo</span> <span class="p">{</span>
@@ -1962,71 +2188,6 @@ but lengthSquared(v) for the length squared.</p>
 <h2 id="troubleshooting">Troubleshooting</h2>
 
 <p>that page in development</p>
-
-<h2 id="about-sourcetransformcallback">About <code class="highlighter-rouge">SourceTransformCallback</code></h2>
-
-<p>Function signature for code transformation must be compatible with <code class="highlighter-rouge">SourceTransformCallback</code>:</p>
-
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="nc">SourceTransformResult</span> <span class="p">{</span>
-  <span class="c1">///\brief may be used to replace orginal code.</span>
-  <span class="c1">/// To keep orginal code set it as nullptr.</span>
-  <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">replacer</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
-<span class="p">};</span>
-
-<span class="cm">/**
-  * \brief callback that will be called then parser
-  *        found custom attribute.
-**/</span>
-<span class="k">struct</span> <span class="nc">SourceTransformOptions</span> <span class="p">{</span>
-  <span class="cm">/**
-    * currently executed function
-    * (function name parsed from annotation)
-  **/</span>
-  <span class="k">const</span> <span class="n">flexlib</span><span class="o">::</span><span class="n">parsed_func</span><span class="o">&amp;</span> <span class="n">func_with_args</span><span class="p">;</span>
-
-  <span class="cm">/**
-    * see https://xinhuang.github.io/posts/2015-02-08-clang-tutorial-the-ast-matcher.html
-  **/</span>
-  <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">ast_matchers</span><span class="o">::</span><span class="n">MatchFinder</span><span class="o">::</span><span class="n">MatchResult</span><span class="o">&amp;</span> <span class="n">matchResult</span><span class="p">;</span>
-
-  <span class="cm">/**
-    * see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-3-rewriting-code-with-clang-tidy/
-  **/</span>
-  <span class="n">clang</span><span class="o">::</span><span class="n">Rewriter</span><span class="o">&amp;</span> <span class="n">rewriter</span><span class="p">;</span>
-
-  <span class="cm">/**
-    * found by MatchFinder
-    * see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-2-examining-the-clang-ast-with-clang-query/
-  **/</span>
-  <span class="k">const</span> <span class="n">clang</span><span class="o">::</span><span class="n">Decl</span><span class="o">*</span> <span class="n">decl</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
-
-  <span class="cm">/**
-    * All arguments extracted from attribute.
-    * Example:
-    * $apply(interface, foo_with_args(1, "2"))
-    * becomes two `parsed_func` - `interface` and `foo_with_args`.
-  **/</span>
-  <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">flexlib</span><span class="o">::</span><span class="n">parsed_func</span><span class="o">&gt;&amp;</span> <span class="n">all_func_with_args</span><span class="p">;</span>
-<span class="p">};</span>
-
-<span class="k">typedef</span>
-  <span class="n">base</span><span class="o">::</span><span class="n">RepeatingCallback</span><span class="o">&lt;</span>
-    <span class="n">SourceTransformResult</span><span class="p">(</span><span class="k">const</span> <span class="n">SourceTransformOptions</span><span class="o">&amp;</span> <span class="n">callback_args</span><span class="p">)</span>
-  <span class="o">&gt;</span>
-  <span class="n">SourceTransformCallback</span><span class="p">;</span>
-</code></pre></div></div>
-
-<p>Think about <code class="highlighter-rouge">function name</code> as one of <code class="highlighter-rouge">__VA_ARGS__</code> from</p>
-
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#define $apply(...) \
-  __attribute__((annotate("{gen};{funccall};" #__VA_ARGS__)))
-</span></code></pre></div></div>
-
-<p>Example where <code class="highlighter-rouge">make_interface</code> and <code class="highlighter-rouge">make_removefuncbody</code> - two function names:</p>
-
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">$</span><span class="n">apply</span><span class="p">(</span><span class="n">make_interface</span><span class="p">;</span>
-  <span class="n">make_removefuncbody</span><span class="p">)</span>
-</code></pre></div></div>
 
 <h2 id="for-contibutors">For contibutors</h2>
 
@@ -2100,7 +2261,7 @@ but lengthSquared(v) for the length squared.</p>
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 29.06.2020 09:10:45</p>
+        <p class="text">Last update: 22.10.2020 09:31:20</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>

@@ -1324,7 +1324,7 @@ $( document ).ready(function() {
 
 <p>Make sure that added <code class="highlighter-rouge">message</code> prints valid path to <code class="highlighter-rouge">flex_reflect_plugin</code> installed using <code class="highlighter-rouge">conan</code> package manager.</p>
 
-<p>You can pass command-line argument <code class="highlighter-rouge">--load_plugin</code> to flextool that must conatain path to plugin file. We use <code class="highlighter-rouge">${CMAKE_SHARED_LIBRARY_SUFFIX}</code> that is suffix to use for the end of a shared library filename, <code class="highlighter-rouge">.dll</code> on Windows, <code class="highlighter-rouge">.so</code> on Linux.</p>
+<p>You can pass command-line argument <code class="highlighter-rouge">--load_plugin</code> to flextool that must contain path to plugin file. <code class="highlighter-rouge">${CMAKE_SHARED_LIBRARY_SUFFIX}</code> is suffix that will be used at the end of a shared library filename (<code class="highlighter-rouge">.dll</code> on Windows, <code class="highlighter-rouge">.so</code> on Linux).</p>
 
 <p>Usage example:</p>
 
@@ -1417,7 +1417,7 @@ $( document ).ready(function() {
 <span class="p">)</span>
 </code></pre></div></div>
 
-<p>Usually you do not need to duplicate target compile definitions (via <code class="highlighter-rouge">--extra-arg=-D</code>) or include directories (via <code class="highlighter-rouge">--extra-arg=-I</code>). You can use code similar to:</p>
+<p>Usually you do not want to duplicate target compile definitions (via <code class="highlighter-rouge">--extra-arg=-D</code>) or include directories (via <code class="highlighter-rouge">--extra-arg=-I</code>). You can use <code class="highlighter-rouge">get_all_compile_definitions</code> to collect compilation definitions from your project and pass same definitions to <code class="highlighter-rouge">flextool</code>:</p>
 
 <div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># NOTE: add into conanfile.py:</span>
 <span class="c1"># self.build_requires("cmake_helper_utils/master@conan/stable")</span>
@@ -1435,7 +1435,7 @@ $( document ).ready(function() {
 <span class="p">)</span>
 </code></pre></div></div>
 
-<p>And add into flextool arguments:</p>
+<p>Now you can pass collected compilation definitions into flextool arguments:</p>
 
 <div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># NOTE: generator expression, expands during build time</span>
   <span class="c1"># if the ${ITEM} is non-empty, then append it</span>
@@ -1573,7 +1573,7 @@ $( document ).ready(function() {
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 29.06.2020 09:10:45</p>
+        <p class="text">Last update: 22.10.2020 09:31:20</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>
