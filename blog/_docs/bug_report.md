@@ -63,7 +63,7 @@ Currently tool does not support compilation database, so ignore warning about mi
 
 ## Debugging with Sanitizers
 
-that page in development
+See details about sanitizers in [README.md](https://github.com/blockspacer/flextool/blob/master/README.md) file.
 
 ## Profiling performance
 

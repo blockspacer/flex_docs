@@ -26,6 +26,10 @@ git submodule update --init --recursive --depth 100 --progress
 git submodule update --force --recursive --init --remote
 ```
 
+## NOTE
+
+Up-to-date instruction can be found in [README.md](https://github.com/blockspacer/flextool/blob/master/README.md) file.
+
 ## Install C++ compiler: gcc
 
 Example of installation steps, tested on ubuntu 18.04:
@@ -258,10 +262,6 @@ Use `conan create` or `conan install` as usual, see for details [https://docs.co
 ## Uninstalling
 
 Use `conan remove` as usual, see for details [https://docs.conan.io/en/latest/reference/commands/misc/remove.html](https://docs.conan.io/en/latest/reference/commands/misc/remove.html)
-
-## System-wide installation using conan
-
-that page in development
 
 ## For contibutors
 

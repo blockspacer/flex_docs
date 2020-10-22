@@ -31,7 +31,9 @@ Uses conanfile and CMakeLists.txt to integrate with flextool. Plugin provides su
 
 ## How to create new plugins for flextool
 
-Default plugin https://github.com/blockspacer/flex_reflect_plugin allows to execute custom logic based on data stored in C++ annotations. flex_reflect_plugin can be disabled (as any plugin) or completely replaced with custom plugin(s). Tutorial below assumes that you use flex_reflect_plugin.
+Tutorial below shows how to build example plugin that can print information about class fields if code uses custom C++ annotation (like `[[make_reflect]]`).
+
+We will use default plugin https://github.com/blockspacer/flex_reflect_plugin that allows to execute custom logic based on data stored in C++ annotations. flex_reflect_plugin can be disabled (as any plugin) or completely replaced with custom plugin(s). Tutorial below assumes that you use flex_reflect_plugin.
 
 Suppose you want to create custom C++ annotation (like `[[make_reflect]]`) and perform some actions with annotated code.
 
@@ -178,6 +180,99 @@ We can save generated code (stored in variable `output`) at the end of `SomeStru
 flextool will save file with all source code transformations applied, including `rewriter.InsertText`. flextool will save file with `.generated` extention, but user can provide custom path for each generated file.
 
 You can find full code of demo project at [https://github.com/blockspacer/flex_meta_plugin/](https://github.com/blockspacer/flex_meta_plugin/)
+
+## About `SourceTransformCallback`
+
+Any plugin can add custom rules for source code transformation using `SourceTransformRules` and `SourceTransformCallback`:
+
+```cpp
+typedef
+  base::flat_map<
+    std::string
+    , SourceTransformCallback
+  > SourceTransformRules;
+```
+
+Example:
+
+```cpp
+    ::clang_utils::SourceTransformPipeline& sourceTransformPipeline
+      = *event.sourceTransformPipeline;
+
+    ::clang_utils::SourceTransformRules& sourceTransformRules
+      = sourceTransformPipeline.sourceTransformRules;
+
+    sourceTransformRules["make_reflect"] =
+      base::BindRepeating(
+        &AnnotationPipeline::make_reflect,
+        base::Unretained(this));
+```
+
+Function signature for code transformation must be compatible with `SourceTransformCallback`:
+
+```cpp
+struct SourceTransformResult {
+  ///\brief may be used to replace orginal code.
+  /// To keep orginal code set it as nullptr.
+  const char* replacer = nullptr;
+};
+
+/**
+  * \brief callback that will be called then parser
+  *        found custom attribute.
+**/
+struct SourceTransformOptions {
+  /**
+    * currently executed function
+    * (function name parsed from annotation)
+  **/
+  const flexlib::parsed_func& func_with_args;
+
+  /**
+    * see https://xinhuang.github.io/posts/2015-02-08-clang-tutorial-the-ast-matcher.html
+  **/
+  const clang::ast_matchers::MatchFinder::MatchResult& matchResult;
+
+  /**
+    * see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-3-rewriting-code-with-clang-tidy/
+  **/
+  clang::Rewriter& rewriter;
+
+  /**
+    * found by MatchFinder
+    * see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-2-examining-the-clang-ast-with-clang-query/
+  **/
+  const clang::Decl* decl = nullptr;
+
+  /**
+    * All arguments extracted from attribute.
+    * Example:
+    * $apply(interface, foo_with_args(1, "2"))
+    * becomes two `parsed_func` - `interface` and `foo_with_args`.
+  **/
+  const std::vector<flexlib::parsed_func>& all_func_with_args;
+};
+
+typedef
+  base::RepeatingCallback<
+    SourceTransformResult(const SourceTransformOptions& callback_args)
+  >
+  SourceTransformCallback;
+```
+
+Think about `function name` as one of `__VA_ARGS__` from
+
+```cpp
+#define $apply(...) \
+  __attribute__((annotate("{gen};{funccall};" #__VA_ARGS__)))
+```
+
+Example where `make_interface` and `make_removefuncbody` - two function names:
+
+```cpp
+$apply(make_interface;
+  make_removefuncbody)
+```
 
 ## For contibutors
 

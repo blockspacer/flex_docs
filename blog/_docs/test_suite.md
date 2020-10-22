@@ -9,7 +9,11 @@ permalink: /test_suite/
 
 ## About
 
-That page must contain information about test suite
+Perefer GTest for unit tests.
+
+## TODO
+
+that page in development
 
 ## For contibutors
 

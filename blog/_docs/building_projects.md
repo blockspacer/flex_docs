@@ -118,7 +118,7 @@ Run configure step for your cmake based project. See [https://cmake.org/cmake/he
 
 Make sure that added `message` prints valid path to `flex_reflect_plugin` installed using `conan` package manager.
 
-You can pass command-line argument `--load_plugin` to flextool that must conatain path to plugin file. We use `${CMAKE_SHARED_LIBRARY_SUFFIX}` that is suffix to use for the end of a shared library filename, `.dll` on Windows, `.so` on Linux.
+You can pass command-line argument `--load_plugin` to flextool that must contain path to plugin file. `${CMAKE_SHARED_LIBRARY_SUFFIX}` is suffix that will be used at the end of a shared library filename (`.dll` on Windows, `.so` on Linux).
 
 Usage example:
 
@@ -213,7 +213,7 @@ add_custom_command(
 )
 ```
 
-Usually you do not need to duplicate target compile definitions (via `--extra-arg=-D`) or include directories (via `--extra-arg=-I`). You can use code similar to:
+Usually you do not want to duplicate target compile definitions (via `--extra-arg=-D`) or include directories (via `--extra-arg=-I`). You can use `get_all_compile_definitions` to collect compilation definitions from your project and pass same definitions to `flextool`:
 
 ```cmake
 # NOTE: add into conanfile.py:
@@ -232,7 +232,7 @@ get_all_include_directories(collected_includes
 )
 ```
 
-And add into flextool arguments:
+Now you can pass collected compilation definitions into flextool arguments:
 
 ```cmake
   # NOTE: generator expression, expands during build time

@@ -13,10 +13,6 @@ Make sure you have downloaded and installed flextool (the exact approach for doi
 
 See for detailed installation instructions [{{ site.data.global.download.url | relative_url }}]({{ site.data.global.download.url | relative_url }})
 
-## Running flextool using conan and CMake
-
-See for detailed usage instructions [{{ site.data.global.building_projects.url | relative_url }}]({{ site.data.global.building_projects.url | relative_url }})
-
 ## Introduction
 
 There are some boilerplate code in many projects:
@@ -34,6 +30,253 @@ How flextool works:
 - It takes a piece of handwritten regular C++ code
 - It parses this code with the Clang LibTooling
 - It analyses the parsing result and produces another piece of code (or performs custom actions defined by plugins)
+
+## How to integrate with flextool
+
+See for detailed usage instructions [{{ site.data.global.building_projects.url | relative_url }}]({{ site.data.global.building_projects.url | relative_url }})
+
+## Custom C++ metaclasses
+
+You can learn more about metaclasses at
+
+- https://youtu.be/80BZxujhY38
+
+Example that uses `$apply(ordered)` to generate `bool operator<`, `bool operator<=` etc. below:
+
+```cpp
+$apply(ordered) Point
+{
+  int x;
+  int y;
+};
+```
+
+```cpp
+class Point
+{
+  int x = 0;
+  int y = 0;
+public:
+  Point() = default;
+  friend bool operator==(const Point& a, const Point& b)
+   { return a.x == b.x && a.y == b.y; }
+  friend bool operator< (const Point& a, const Point& b)
+   { return a.x < b.x || (a.x == b.x && a.y < b.y); }
+  friend bool operator!=(const Point& a, const Point& b) { return !(a == b); }
+  friend bool operator> (const Point& a, const Point& b) { return b < a; }
+  friend bool operator>=(const Point& a, const Point& b) { return !(a < b); }
+  friend bool operator<=(const Point& a, const Point& b) { return !(b < a); }
+};
+```
+
+`operator ==` and `operator <` must iterate all variables and `return false` if any variables does not match (i.e. a.x != b.x ).
+
+First of all, install plugins for flextool using conan, see [Easy install with common plugins](https://github.com/blockspacer/flextool#easy-install-with-common-plugins)
+
+First, as example, we will run flextool without `CMake`.
+
+Create C++ file `Point.cpp`:
+
+```cpp
+
+// exec is similar to executeCodeAndReplace,
+// but returns empty source code modification
+#define _executeCode(...) \
+  /* generate definition required to use __attribute__ */ \
+  __attribute__((annotate( \
+        "{gen};{executeCodeAndReplace};" \
+        #__VA_ARGS__ \
+    )))
+
+class
+  _executeCode([]
+    (
+        const clang::ast_matchers::MatchFinder::MatchResult& clangMatchResult
+        , clang::Rewriter& clangRewriter
+        , const clang::Decl* clangDecl
+    )
+    {
+        clang::SourceManager &SM
+            = clangRewriter.getSourceMgr();
+        const clang::CXXRecordDecl* record =
+            clangMatchResult.Nodes
+                .getNodeAs<clang::CXXRecordDecl>("bind_gen");
+        if (!record) {
+            CHECK(false);
+            return new llvm::Optional<std::string>{};
+        }
+        LOG(INFO)
+            << "parsing record with name = "
+            << record->getNameAsString().c_str();
+        const clang::LangOptions& langOptions
+            = clangRewriter.getLangOpts();
+        clang::SourceLocation nodeStartLoc
+            = clangDecl->getLocStart();
+        // Note Stmt::getLocEnd() returns the source location prior to the
+        // token at the end of the line.  For instance, for:
+        // var = 123;
+        //      ^---- getLocEnd() points here.
+        clang::SourceLocation nodeEndLoc
+            = clangDecl->getLocEnd();
+        DCHECK(nodeStartLoc != nodeEndLoc);
+        clang_utils::expandLocations(
+            nodeStartLoc, nodeEndLoc, clangRewriter);
+        clang::CharSourceRange charSourceRange(
+            clang::SourceRange{nodeStartLoc, nodeEndLoc},
+            true // IsTokenRange
+        );
+        // MeasureTokenLength gets us past the last token,
+        // and adding 1 gets us past the ';'
+        int offset = clang::Lexer::MeasureTokenLength(
+            nodeEndLoc,
+            SM,
+            langOptions) - 1;
+        clang::SourceLocation realEnd
+            = nodeEndLoc.getLocWithOffset(offset);
+        std::string codeToInsert = "public:\n";
+        reflection::AstReflector reflector(
+            clangMatchResult.Context);
+        reflection::NamespacesTree namespaces;
+        const reflection::ClassInfoPtr structInfo
+          = reflector.ReflectClass(
+              record
+              , &namespaces
+              , false // recursive
+            );
+        for(const auto& it : structInfo->members) {
+            const clang::DeclaratorDecl* decl = it->decl;
+            LOG(INFO)
+                << "found member with name = "
+                << decl->getNameAsString();
+            // Generates:
+            // friend bool operator==(const Point& a, const Point& b)
+            // { return a.x == b.x; }
+            {
+              codeToInsert += "friend bool operator==(const ";
+              codeToInsert += record->getNameAsString();
+              codeToInsert += "& a, const ";
+              codeToInsert += record->getNameAsString();
+              codeToInsert += "& b)\n";
+              codeToInsert += "{\n";
+              codeToInsert += "  return ";
+              codeToInsert += "a.";
+              codeToInsert += decl->getNameAsString();
+              codeToInsert += " == b.";
+              codeToInsert += decl->getNameAsString();
+              codeToInsert += ";\n";
+              codeToInsert += "}\n";
+            }
+        }
+        clangRewriter.InsertText(realEnd, codeToInsert,
+            /*InsertAfter=*/true, /*IndentNewLines*/ false);
+        return new llvm::Optional<std::string>{};
+    }(clangMatchResult, clangRewriter, clangDecl);
+  )
+Point
+{
+  int x;
+  int y;
+};
+```
+
+We added `_executeCode` annotation after `class`. Access to `clang::CXXRecordDecl` and `clang::Rewriter` allowed us to parse and modify source code.
+
+Now run command below (tested under linux):
+
+```bash
+export flextool_cmd=$(find ~/.conan/data/flextool/master/conan/stable/package/ -path "*bin/flextool" | head -n 1)
+echo flextool_cmd=$flextool_cmd
+
+# Requires to install https://github.com/blockspacer/flex_reflect_plugin/
+export flex_reflect_plugin_so=$(find ~/.conan/data/flex_reflect_plugin/master/conan/stable/package/ -path "*lib/flex_reflect_plugin.so" | head -n 1)
+echo flex_reflect_plugin_so=$flex_reflect_plugin_so
+
+# Requires to install https://github.com/blockspacer/flex_meta_plugin/
+export flex_meta_plugin_so=$(find ~/.conan/data/flex_meta_plugin/master/conan/stable/package/ -path "*lib/flex_meta_plugin.so" | head -n 1)
+echo flex_meta_plugin_so=$flex_meta_plugin_so
+
+# Requires to install https://github.com/blockspacer/flex_squarets_plugin/
+export flex_squarets_plugin_so=$(find ~/.conan/data/flex_squarets_plugin/master/conan/stable/package/ -path "*lib/flex_squarets_plugin.so" | head -n 1)
+echo flex_squarets_plugin_so=$flex_squarets_plugin_so
+
+# Requires to install https://github.com/blockspacer/cling_conan/
+export cling_include_dir_clang=$(find ~/.conan/data/cling_conan/master/conan/stable/package/ -path "*include/clang" | head -n 1)
+echo cling_include_dir_clang=$cling_include_dir_clang
+
+export cling_include_dir=$(dirname "$cling_include_dir_clang")
+echo cling_include_dir=$cling_include_dir
+
+export clang_include_dir=$(dirname "$cling_include_dir")/lib/clang/5.0.0/include
+echo clang_include_dir=$clang_include_dir
+
+export chromium_base_include_dir=$(find ~/.conan/data/chromium_base/master/conan/stable/package/ -path "*include" | head -n 1)
+echo chromium_base_include_dir=$chromium_base_include_dir
+
+export chromium_build_util_include_dir=$(find ~/.conan/data/chromium_build_util/master/conan/stable/package/ -path "*include" | head -n 1)
+echo chromium_build_util_include_dir=$chromium_build_util_include_dir
+
+export basis_include_dir=$(find ~/.conan/data/basis/master/conan/stable/package/ -path "*include" | head -n 1)
+echo basis_include_dir=$basis_include_dir
+
+export flexlib_include_dir=$(find ~/.conan/data/flexlib/master/conan/stable/package/ -path "*include" | head -n 1)
+echo flexlib_include_dir=$flexlib_include_dir
+
+export flex_support_header=$(find ~/.conan/data/flex_support_headers/master/conan/stable/package/ -path "*cling_preloader.inc" | head -n 1)
+echo flex_support_header=$flex_support_header
+
+export flextool_input_files=$PWD/Point.cpp
+
+$flextool_cmd \
+  --vmodule=*=200 --enable-logging=stderr --log-level=100 \
+  --extra-arg=-DCLING_IS_ON=1 \
+  --indir=$PWD \
+  --outdir=$PWD \
+  --load_plugin $flex_reflect_plugin_so \
+  --load_plugin $flex_meta_plugin_so \
+  --load_plugin $flex_squarets_plugin_so \
+  --extra-arg=-I$cling_include_dir \
+  --extra-arg=-I$clang_include_dir \
+  --extra-arg=-I$chromium_base_include_dir \
+  --extra-arg=-I$chromium_build_util_include_dir \
+  --extra-arg=-I$chromium_build_util_include_dir/chromium \
+  --extra-arg=-I$basis_include_dir \
+  --extra-arg=-I$flexlib_include_dir \
+  --extra-arg=-I$PWD \
+  --extra-arg=-Wno-undefined-inline \
+  $flextool_input_files \
+  --cling_scripts=$flex_support_header
+```
+
+At the end of the generated file `Point.cpp.generated.cpp` must be:
+
+```cpp
+Point
+{
+  int x;
+  int y;
+public:
+friend bool operator==(const Point& a, const Point& b)
+{
+return a.x == b.x;
+}
+friend bool operator==(const Point& a, const Point& b)
+{
+return a.y == b.y;
+}
+};
+```
+
+We used flextool without `CMake`, but had to run `find` in `~/.conan/` directory.
+
+You can create custom plugin that will make easier development process and allow to create custom annotation `$apply(ordered)` without `_executeCode`.
+
+See [how to add new plugins]({{ site.data.global.adding_plugins.url | relative_url }})
+
+## Writing custom plugin to generate C++ files
+
+TODO: that page in development
+
+See [how to add new plugins]({{ site.data.global.adding_plugins.url | relative_url }})
 
 ## Using `flex_typeclass_plugin` to add custom C++ typeclasses (using Type Erasure)
 
@@ -371,14 +614,6 @@ You can use [https://github.com/blockspacer/flex_pimpl_plugin](https://github.co
 
 See `README` file for usage examples: [https://github.com/blockspacer/flex_pimpl_plugin](https://github.com/blockspacer/flex_pimpl_plugin)
 
-## Using existing plugin to add custom C++ metaclasses
-
-that page in development
-
-You can learn more about metaclasses at
-
-- https://youtu.be/80BZxujhY38
-
 ## Integration with template engines
 
 You can use [https://github.com/blockspacer/flex_squarets_plugin](https://github.com/blockspacer/flex_squarets_plugin)
@@ -404,10 +639,6 @@ _squaretsString(
 )
 std::string mystring;
 ```
-
-## Writing custom plugin to generate C++ files
-
-that page in development
 
 ## Use case: enum to string and string to enum
 
@@ -508,29 +739,9 @@ void WriteEnumFromStringConversion(std::ostream& os, const EnumDescriptor& enumD
 }
 ```
 
-## Generating not-C++ files
-
-that page in development
-
-## Optimizing speed
-
-that page in development
-
-## Optimizing memory
-
-that page in development
-
-## Using threads
-
-that page in development
-
 ## Using cling interpreter
 
 [https://github.com/blockspacer/flex_reflect_plugin](https://github.com/blockspacer/flex_reflect_plugin) allows to execute arbitrary C++ code stored in annotation attributes.
-
-## Integrating with more build systems
-
-that page in development
 
 ## Detecting flextool in Preprocessor
 
@@ -555,6 +766,26 @@ You can pass `extra-args=-DCODEGEN_RUNNING=1` as argument to flextool and use it
 // ... code here ...
 #endif
 ```
+
+## Generating not-C++ files
+
+that page in development
+
+## Optimizing speed
+
+that page in development
+
+## Optimizing memory
+
+that page in development
+
+## Using threads
+
+that page in development
+
+## Integrating with more build systems
+
+that page in development
 
 ## Example: Avoid Repetitive Code
 
@@ -741,74 +972,6 @@ that page in development
 ## Troubleshooting
 
 that page in development
-
-## About `SourceTransformCallback`
-
-Function signature for code transformation must be compatible with `SourceTransformCallback`:
-
-```cpp
-struct SourceTransformResult {
-  ///\brief may be used to replace orginal code.
-  /// To keep orginal code set it as nullptr.
-  const char* replacer = nullptr;
-};
-
-/**
-  * \brief callback that will be called then parser
-  *        found custom attribute.
-**/
-struct SourceTransformOptions {
-  /**
-    * currently executed function
-    * (function name parsed from annotation)
-  **/
-  const flexlib::parsed_func& func_with_args;
-
-  /**
-    * see https://xinhuang.github.io/posts/2015-02-08-clang-tutorial-the-ast-matcher.html
-  **/
-  const clang::ast_matchers::MatchFinder::MatchResult& matchResult;
-
-  /**
-    * see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-3-rewriting-code-with-clang-tidy/
-  **/
-  clang::Rewriter& rewriter;
-
-  /**
-    * found by MatchFinder
-    * see https://devblogs.microsoft.com/cppblog/exploring-clang-tooling-part-2-examining-the-clang-ast-with-clang-query/
-  **/
-  const clang::Decl* decl = nullptr;
-
-  /**
-    * All arguments extracted from attribute.
-    * Example:
-    * $apply(interface, foo_with_args(1, "2"))
-    * becomes two `parsed_func` - `interface` and `foo_with_args`.
-  **/
-  const std::vector<flexlib::parsed_func>& all_func_with_args;
-};
-
-typedef
-  base::RepeatingCallback<
-    SourceTransformResult(const SourceTransformOptions& callback_args)
-  >
-  SourceTransformCallback;
-```
-
-Think about `function name` as one of `__VA_ARGS__` from
-
-```cpp
-#define $apply(...) \
-  __attribute__((annotate("{gen};{funccall};" #__VA_ARGS__)))
-```
-
-Example where `make_interface` and `make_removefuncbody` - two function names:
-
-```cpp
-$apply(make_interface;
-  make_removefuncbody)
-```
 
 ## For contibutors
 
