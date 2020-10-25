@@ -33,11 +33,17 @@ Uses conanfile and CMakeLists.txt to integrate with flextool. Plugin provides su
 
 Tutorial below shows how to build example plugin that can print information about class fields if code uses custom C++ annotation (like `[[make_reflect]]`).
 
+Clone [https://github.com/blockspacer/flextool_plugin_generator](https://github.com/blockspacer/flextool_plugin_generator) and generate new plugin for flextool based on [README.md](https://github.com/blockspacer/flextool_plugin_generator/blob/master/README.md).
+
+Open `cmake/ProjectFiles.cmake` and configure list of plugin source files.
+
+Open `.cc` files in `src/` folder.
+
 We will use default plugin https://github.com/blockspacer/flex_reflect_plugin that allows to execute custom logic based on data stored in C++ annotations. flex_reflect_plugin can be disabled (as any plugin) or completely replaced with custom plugin(s). Tutorial below assumes that you use flex_reflect_plugin.
 
-Suppose you want to create custom C++ annotation (like `[[make_reflect]]`) and perform some actions with annotated code.
+Lets create custom C++ annotation (like `[[make_reflect]]`) and perform some actions with annotated code.
 
-Any plugin can add custom rules for source code transformation or generation during `Events::RegisterAnnotationMethods`
+Any plugin can add custom rules for source code transformation or generation during `Events::RegisterAnnotationMethods`. Search in source files for method with name `RegisterAnnotationMethods` and modify it. 
 
 Example:
 
@@ -45,6 +51,8 @@ Example:
     ::clang_utils::SourceTransformPipeline& sourceTransformPipeline
       = *event.sourceTransformPipeline;
 
+    // `SourceTransformRules` allow to combine multiple annotations, example:
+    // __attribute__((annotate("{gen};{funccall};make_reflect;make_interface;make_removefuncbody")))
     ::clang_utils::SourceTransformRules& sourceTransformRules
       = sourceTransformPipeline.sourceTransformRules;
 
@@ -52,6 +60,17 @@ Example:
       base::BindRepeating(
         &AnnotationPipeline::make_reflect,
         base::Unretained(this));
+
+    // `AnnotationMethods` unable to combine multiple annotations, example:
+    // __attribute__((annotate("{gen};{make_reflect};" __VA_ARGS__)))
+    ::flexlib::AnnotationMethods& annotationMethods
+      = *event.annotationMethods;
+
+    // Or you can use `annotationMethods` like so:
+    // annotationMethods["{make_reflect};"] =
+    //   base::BindRepeating(
+    //     &AnnotationPipeline::make_reflect,
+    //     base::Unretained(this));
 ```
 
 `make_reflect` (from `sourceTransformRules["make_reflect"]`) can be used as part of annotation attribute:
@@ -61,7 +80,7 @@ Example:
 __attribute__((annotate("{gen};{funccall};make_reflect;make_interface;make_removefuncbody")))
 ```
 
-Code below allows to bind C++ function `&AnnotationPipeline::make_reflect` with string `make_reflect`:
+Code below allows to bind C++ function `&AnnotationPipeline::make_reflect` to string `make_reflect`:
 
 ```cpp
     sourceTransformRules["make_reflect"] =

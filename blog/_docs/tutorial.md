@@ -41,6 +41,12 @@ You can learn more about metaclasses at
 
 - https://youtu.be/80BZxujhY38
 
+flextool can be used to create custom C++ annotations to perform some actions with annotated code (similar to metaclasses).
+
+When to prefer flextool over C++ metaclasses:
+- Use flextool when you want to perform arbitrary logic (like retrieving some data from network or filesystem) during compilation step. C++ metaclasses are able to modify source code only, while flextool plugin can perform arbitrary logic (not only code generation and modification).
+- Use flextool when you know how to use Clang LibTooling and do not want to learn custom language to use C++ metaclasses.
+
 Example that uses `$apply(ordered)` to generate `bool operator<`, `bool operator<=` etc. below:
 
 ```cpp
@@ -274,7 +280,7 @@ See [how to add new plugins]({{ site.data.global.adding_plugins.url | relative_u
 
 ## Writing custom plugin to generate C++ files
 
-TODO: that page in development
+Clone [https://github.com/blockspacer/flextool_plugin_generator](https://github.com/blockspacer/flextool_plugin_generator) and generate new plugin for flextool based on [README.md](https://github.com/blockspacer/flextool_plugin_generator/blob/master/README.md).
 
 See [how to add new plugins]({{ site.data.global.adding_plugins.url | relative_url }})
 
