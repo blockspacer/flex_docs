@@ -1261,6 +1261,14 @@ $( document ).ready(function() {
   <li>https://youtu.be/80BZxujhY38</li>
 </ul>
 
+<p>flextool can be used to create custom C++ annotations to perform some actions with annotated code (similar to metaclasses).</p>
+
+<p>When to prefer flextool over C++ metaclasses:</p>
+<ul>
+  <li>Use flextool when you want to perform arbitrary logic (like retrieving some data from network or filesystem) during compilation step. C++ metaclasses are able to modify source code only, while flextool plugin can perform arbitrary logic (not only code generation and modification).</li>
+  <li>Use flextool when you know how to use Clang LibTooling and do not want to learn custom language to use C++ metaclasses.</li>
+</ul>
+
 <p>Example that uses <code class="highlighter-rouge">$apply(ordered)</code> to generate <code class="highlighter-rouge">bool operator&lt;</code>, <code class="highlighter-rouge">bool operator&lt;=</code> etc. below:</p>
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">$</span><span class="n">apply</span><span class="p">(</span><span class="n">ordered</span><span class="p">)</span> <span class="n">Point</span>
@@ -1489,7 +1497,7 @@ $( document ).ready(function() {
 
 <h2 id="writing-custom-plugin-to-generate-c-files">Writing custom plugin to generate C++ files</h2>
 
-<p>TODO: that page in development</p>
+<p>Clone <a href="https://github.com/blockspacer/flextool_plugin_generator">https://github.com/blockspacer/flextool_plugin_generator</a> and generate new plugin for flextool based on <a href="https://github.com/blockspacer/flextool_plugin_generator/blob/master/README.md">README.md</a>.</p>
 
 <p>See <a href="/flex_docs/adding_plugins/">how to add new plugins</a></p>
 
@@ -2261,7 +2269,7 @@ but lengthSquared(v) for the length squared.</p>
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 22.10.2020 09:31:20</p>
+        <p class="text">Last update: 25.10.2020 14:26:20</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>
