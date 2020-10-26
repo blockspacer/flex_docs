@@ -44,6 +44,7 @@ You can learn more about metaclasses at
 flextool can be used to create custom C++ annotations to perform some actions with annotated code (similar to metaclasses).
 
 When to prefer flextool over C++ metaclasses:
+
 - Use flextool when you want to perform arbitrary logic (like retrieving some data from network or filesystem) during compilation step. C++ metaclasses are able to modify source code only, while flextool plugin can perform arbitrary logic (not only code generation and modification).
 - Use flextool when you know how to use Clang LibTooling and do not want to learn custom language to use C++ metaclasses.
 
@@ -56,6 +57,8 @@ $apply(ordered) Point
   int y;
 };
 ```
+
+Generated code:
 
 ```cpp
 class Point
@@ -79,12 +82,13 @@ public:
 
 First of all, install plugins for flextool using conan, see [Easy install with common plugins](https://github.com/blockspacer/flextool#easy-install-with-common-plugins)
 
-First, as example, we will run flextool without `CMake`.
+As example, we will run flextool without `CMake`.
+
+NOTE: We will run commands `by hand` under linux, so you will see how many tasks are automated by `CMake` and `conan`. Also will know that `flextool` can be integrated with any build system, not only `CMake`.
 
 Create C++ file `Point.cpp`:
 
 ```cpp
-
 // exec is similar to executeCodeAndReplace,
 // but returns empty source code modification
 #define _executeCode(...) \
@@ -187,26 +191,37 @@ Point
 
 We added `_executeCode` annotation after `class`. Access to `clang::CXXRecordDecl` and `clang::Rewriter` allowed us to parse and modify source code.
 
-Now run command below (tested under linux):
+NOTE: If you find `_executeCode` section above ugly - do not worry. It was used only to show low-level usage of `clang::CXXRecordDecl` and `clang::Rewriter`. You can create custom plugin that will make code more readable (see [how to add new plugins]({{ site.data.global.adding_plugins.url | relative_url }})).
+
+Now run commands below (used to export paths to flextool plugins under linux):
 
 ```bash
-export flextool_cmd=$(find ~/.conan/data/flextool/master/conan/stable/package/ -path "*bin/flextool" | head -n 1)
+# we assume that `Point.cpp` exists in current dir
+file $PWD/Point.cpp
+
+# Conan version must be above 1.21
+conan -v
+
+# Usually points to `$conan_home`
+export conan_home=$(conan config home)
+
+export flextool_cmd=$(find $conan_home/data/flextool/master/conan/stable/package/ -path "*bin/flextool" | head -n 1)
 echo flextool_cmd=$flextool_cmd
 
 # Requires to install https://github.com/blockspacer/flex_reflect_plugin/
-export flex_reflect_plugin_so=$(find ~/.conan/data/flex_reflect_plugin/master/conan/stable/package/ -path "*lib/flex_reflect_plugin.so" | head -n 1)
+export flex_reflect_plugin_so=$(find $conan_home/data/flex_reflect_plugin/master/conan/stable/package/ -path "*lib/flex_reflect_plugin.so" | head -n 1)
 echo flex_reflect_plugin_so=$flex_reflect_plugin_so
 
 # Requires to install https://github.com/blockspacer/flex_meta_plugin/
-export flex_meta_plugin_so=$(find ~/.conan/data/flex_meta_plugin/master/conan/stable/package/ -path "*lib/flex_meta_plugin.so" | head -n 1)
+export flex_meta_plugin_so=$(find $conan_home/data/flex_meta_plugin/master/conan/stable/package/ -path "*lib/flex_meta_plugin.so" | head -n 1)
 echo flex_meta_plugin_so=$flex_meta_plugin_so
 
 # Requires to install https://github.com/blockspacer/flex_squarets_plugin/
-export flex_squarets_plugin_so=$(find ~/.conan/data/flex_squarets_plugin/master/conan/stable/package/ -path "*lib/flex_squarets_plugin.so" | head -n 1)
+export flex_squarets_plugin_so=$(find $conan_home/data/flex_squarets_plugin/master/conan/stable/package/ -path "*lib/flex_squarets_plugin.so" | head -n 1)
 echo flex_squarets_plugin_so=$flex_squarets_plugin_so
 
 # Requires to install https://github.com/blockspacer/cling_conan/
-export cling_include_dir_clang=$(find ~/.conan/data/cling_conan/master/conan/stable/package/ -path "*include/clang" | head -n 1)
+export cling_include_dir_clang=$(find $conan_home/data/cling_conan/master/conan/stable/package/ -path "*include/clang" | head -n 1)
 echo cling_include_dir_clang=$cling_include_dir_clang
 
 export cling_include_dir=$(dirname "$cling_include_dir_clang")
@@ -215,23 +230,26 @@ echo cling_include_dir=$cling_include_dir
 export clang_include_dir=$(dirname "$cling_include_dir")/lib/clang/5.0.0/include
 echo clang_include_dir=$clang_include_dir
 
-export chromium_base_include_dir=$(find ~/.conan/data/chromium_base/master/conan/stable/package/ -path "*include" | head -n 1)
+export chromium_base_include_dir=$(find $conan_home/data/chromium_base/master/conan/stable/package/ -path "*include" | head -n 1)
 echo chromium_base_include_dir=$chromium_base_include_dir
 
-export chromium_build_util_include_dir=$(find ~/.conan/data/chromium_build_util/master/conan/stable/package/ -path "*include" | head -n 1)
+export chromium_build_util_include_dir=$(find $conan_home/data/chromium_build_util/master/conan/stable/package/ -path "*include" | head -n 1)
 echo chromium_build_util_include_dir=$chromium_build_util_include_dir
 
-export basis_include_dir=$(find ~/.conan/data/basis/master/conan/stable/package/ -path "*include" | head -n 1)
+export basis_include_dir=$(find $conan_home/data/basis/master/conan/stable/package/ -path "*include" | head -n 1)
 echo basis_include_dir=$basis_include_dir
 
-export flexlib_include_dir=$(find ~/.conan/data/flexlib/master/conan/stable/package/ -path "*include" | head -n 1)
+export flexlib_include_dir=$(find $conan_home/data/flexlib/master/conan/stable/package/ -path "*include" | head -n 1)
 echo flexlib_include_dir=$flexlib_include_dir
 
-export flex_support_header=$(find ~/.conan/data/flex_support_headers/master/conan/stable/package/ -path "*cling_preloader.inc" | head -n 1)
+export flex_support_header=$(find $conan_home/data/flex_support_headers/master/conan/stable/package/ -path "*cling_preloader.inc" | head -n 1)
 echo flex_support_header=$flex_support_header
 
 export flextool_input_files=$PWD/Point.cpp
 
+# Shows how to run flextool `by hand` under linux.
+# No worries if you find it complex because
+# you can easily integrate flextool with CMake or other build systems.
 $flextool_cmd \
   --vmodule=*=200 --enable-logging=stderr --log-level=100 \
   --extra-arg=-DCLING_IS_ON=1 \
@@ -251,6 +269,9 @@ $flextool_cmd \
   --extra-arg=-Wno-undefined-inline \
   $flextool_input_files \
   --cling_scripts=$flex_support_header
+
+# open generated file
+cat Point.cpp.generated.cpp
 ```
 
 At the end of the generated file `Point.cpp.generated.cpp` must be:
@@ -272,7 +293,7 @@ return a.y == b.y;
 };
 ```
 
-We used flextool without `CMake`, but had to run `find` in `~/.conan/` directory.
+We used flextool without `CMake`, but had to run `find` in `$conan_home/` directory.
 
 You can create custom plugin that will make easier development process and allow to create custom annotation `$apply(ordered)` without `_executeCode`.
 
