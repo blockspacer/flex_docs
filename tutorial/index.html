@@ -1264,6 +1264,7 @@ $( document ).ready(function() {
 <p>flextool can be used to create custom C++ annotations to perform some actions with annotated code (similar to metaclasses).</p>
 
 <p>When to prefer flextool over C++ metaclasses:</p>
+
 <ul>
   <li>Use flextool when you want to perform arbitrary logic (like retrieving some data from network or filesystem) during compilation step. C++ metaclasses are able to modify source code only, while flextool plugin can perform arbitrary logic (not only code generation and modification).</li>
   <li>Use flextool when you know how to use Clang LibTooling and do not want to learn custom language to use C++ metaclasses.</li>
@@ -1277,6 +1278,8 @@ $( document ).ready(function() {
   <span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div></div>
+
+<p>Generated code:</p>
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Point</span>
 <span class="p">{</span>
@@ -1299,12 +1302,13 @@ $( document ).ready(function() {
 
 <p>First of all, install plugins for flextool using conan, see <a href="https://github.com/blockspacer/flextool#easy-install-with-common-plugins">Easy install with common plugins</a></p>
 
-<p>First, as example, we will run flextool without <code class="highlighter-rouge">CMake</code>.</p>
+<p>As example, we will run flextool without <code class="highlighter-rouge">CMake</code>.</p>
+
+<p>NOTE: We will run commands <code class="highlighter-rouge">by hand</code> under linux, so you will see how many tasks are automated by <code class="highlighter-rouge">CMake</code> and <code class="highlighter-rouge">conan</code>. Also will know that <code class="highlighter-rouge">flextool</code> can be integrated with any build system, not only <code class="highlighter-rouge">CMake</code>.</p>
 
 <p>Create C++ file <code class="highlighter-rouge">Point.cpp</code>:</p>
 
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-<span class="c1">// exec is similar to executeCodeAndReplace,</span>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// exec is similar to executeCodeAndReplace,</span>
 <span class="c1">// but returns empty source code modification</span>
 <span class="cp">#define _executeCode(...) \
   </span><span class="cm">/* generate definition required to use __attribute__ */</span><span class="cp"> \
@@ -1406,25 +1410,36 @@ $( document ).ready(function() {
 
 <p>We added <code class="highlighter-rouge">_executeCode</code> annotation after <code class="highlighter-rouge">class</code>. Access to <code class="highlighter-rouge">clang::CXXRecordDecl</code> and <code class="highlighter-rouge">clang::Rewriter</code> allowed us to parse and modify source code.</p>
 
-<p>Now run command below (tested under linux):</p>
+<p>NOTE: If you find <code class="highlighter-rouge">_executeCode</code> section above ugly - do not worry. It was used only to show low-level usage of <code class="highlighter-rouge">clang::CXXRecordDecl</code> and <code class="highlighter-rouge">clang::Rewriter</code>. You can create custom plugin that will make code more readable (see <a href="/flex_docs/adding_plugins/">how to add new plugins</a>).</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">flextool_cmd</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flextool/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*bin/flextool"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<p>Now run commands below (used to export paths to flextool plugins under linux):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># we assume that `Point.cpp` exists in current dir</span>
+file <span class="nv">$PWD</span>/Point.cpp
+
+<span class="c"># Conan version must be above 1.21</span>
+conan <span class="nt">-v</span>
+
+<span class="c"># Usually points to `$conan_home`</span>
+<span class="nb">export </span><span class="nv">conan_home</span><span class="o">=</span><span class="si">$(</span>conan config home<span class="si">)</span>
+
+<span class="nb">export </span><span class="nv">flextool_cmd</span><span class="o">=</span><span class="si">$(</span>find <span class="nv">$conan_home</span>/data/flextool/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*bin/flextool"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
 <span class="nb">echo </span><span class="nv">flextool_cmd</span><span class="o">=</span><span class="nv">$flextool_cmd</span>
 
 <span class="c"># Requires to install https://github.com/blockspacer/flex_reflect_plugin/</span>
-<span class="nb">export </span><span class="nv">flex_reflect_plugin_so</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flex_reflect_plugin/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*lib/flex_reflect_plugin.so"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">export </span><span class="nv">flex_reflect_plugin_so</span><span class="o">=</span><span class="si">$(</span>find <span class="nv">$conan_home</span>/data/flex_reflect_plugin/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*lib/flex_reflect_plugin.so"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
 <span class="nb">echo </span><span class="nv">flex_reflect_plugin_so</span><span class="o">=</span><span class="nv">$flex_reflect_plugin_so</span>
 
 <span class="c"># Requires to install https://github.com/blockspacer/flex_meta_plugin/</span>
-<span class="nb">export </span><span class="nv">flex_meta_plugin_so</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flex_meta_plugin/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*lib/flex_meta_plugin.so"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">export </span><span class="nv">flex_meta_plugin_so</span><span class="o">=</span><span class="si">$(</span>find <span class="nv">$conan_home</span>/data/flex_meta_plugin/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*lib/flex_meta_plugin.so"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
 <span class="nb">echo </span><span class="nv">flex_meta_plugin_so</span><span class="o">=</span><span class="nv">$flex_meta_plugin_so</span>
 
 <span class="c"># Requires to install https://github.com/blockspacer/flex_squarets_plugin/</span>
-<span class="nb">export </span><span class="nv">flex_squarets_plugin_so</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flex_squarets_plugin/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*lib/flex_squarets_plugin.so"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">export </span><span class="nv">flex_squarets_plugin_so</span><span class="o">=</span><span class="si">$(</span>find <span class="nv">$conan_home</span>/data/flex_squarets_plugin/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*lib/flex_squarets_plugin.so"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
 <span class="nb">echo </span><span class="nv">flex_squarets_plugin_so</span><span class="o">=</span><span class="nv">$flex_squarets_plugin_so</span>
 
 <span class="c"># Requires to install https://github.com/blockspacer/cling_conan/</span>
-<span class="nb">export </span><span class="nv">cling_include_dir_clang</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/cling_conan/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include/clang"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">export </span><span class="nv">cling_include_dir_clang</span><span class="o">=</span><span class="si">$(</span>find <span class="nv">$conan_home</span>/data/cling_conan/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include/clang"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
 <span class="nb">echo </span><span class="nv">cling_include_dir_clang</span><span class="o">=</span><span class="nv">$cling_include_dir_clang</span>
 
 <span class="nb">export </span><span class="nv">cling_include_dir</span><span class="o">=</span><span class="si">$(</span><span class="nb">dirname</span> <span class="s2">"</span><span class="nv">$cling_include_dir_clang</span><span class="s2">"</span><span class="si">)</span>
@@ -1433,23 +1448,26 @@ $( document ).ready(function() {
 <span class="nb">export </span><span class="nv">clang_include_dir</span><span class="o">=</span><span class="si">$(</span><span class="nb">dirname</span> <span class="s2">"</span><span class="nv">$cling_include_dir</span><span class="s2">"</span><span class="si">)</span>/lib/clang/5.0.0/include
 <span class="nb">echo </span><span class="nv">clang_include_dir</span><span class="o">=</span><span class="nv">$clang_include_dir</span>
 
-<span class="nb">export </span><span class="nv">chromium_base_include_dir</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/chromium_base/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">export </span><span class="nv">chromium_base_include_dir</span><span class="o">=</span><span class="si">$(</span>find <span class="nv">$conan_home</span>/data/chromium_base/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
 <span class="nb">echo </span><span class="nv">chromium_base_include_dir</span><span class="o">=</span><span class="nv">$chromium_base_include_dir</span>
 
-<span class="nb">export </span><span class="nv">chromium_build_util_include_dir</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/chromium_build_util/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">export </span><span class="nv">chromium_build_util_include_dir</span><span class="o">=</span><span class="si">$(</span>find <span class="nv">$conan_home</span>/data/chromium_build_util/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
 <span class="nb">echo </span><span class="nv">chromium_build_util_include_dir</span><span class="o">=</span><span class="nv">$chromium_build_util_include_dir</span>
 
-<span class="nb">export </span><span class="nv">basis_include_dir</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/basis/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">export </span><span class="nv">basis_include_dir</span><span class="o">=</span><span class="si">$(</span>find <span class="nv">$conan_home</span>/data/basis/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
 <span class="nb">echo </span><span class="nv">basis_include_dir</span><span class="o">=</span><span class="nv">$basis_include_dir</span>
 
-<span class="nb">export </span><span class="nv">flexlib_include_dir</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flexlib/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">export </span><span class="nv">flexlib_include_dir</span><span class="o">=</span><span class="si">$(</span>find <span class="nv">$conan_home</span>/data/flexlib/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*include"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
 <span class="nb">echo </span><span class="nv">flexlib_include_dir</span><span class="o">=</span><span class="nv">$flexlib_include_dir</span>
 
-<span class="nb">export </span><span class="nv">flex_support_header</span><span class="o">=</span><span class="si">$(</span>find ~/.conan/data/flex_support_headers/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*cling_preloader.inc"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
+<span class="nb">export </span><span class="nv">flex_support_header</span><span class="o">=</span><span class="si">$(</span>find <span class="nv">$conan_home</span>/data/flex_support_headers/master/conan/stable/package/ <span class="nt">-path</span> <span class="s2">"*cling_preloader.inc"</span> | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="si">)</span>
 <span class="nb">echo </span><span class="nv">flex_support_header</span><span class="o">=</span><span class="nv">$flex_support_header</span>
 
 <span class="nb">export </span><span class="nv">flextool_input_files</span><span class="o">=</span><span class="nv">$PWD</span>/Point.cpp
 
+<span class="c"># Shows how to run flextool `by hand` under linux.</span>
+<span class="c"># No worries if you find it complex because</span>
+<span class="c"># you can easily integrate flextool with CMake or other build systems.</span>
 <span class="nv">$flextool_cmd</span> <span class="se">\</span>
   <span class="nt">--vmodule</span><span class="o">=</span><span class="k">*</span><span class="o">=</span>200 <span class="nt">--enable-logging</span><span class="o">=</span>stderr <span class="nt">--log-level</span><span class="o">=</span>100 <span class="se">\</span>
   <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-DCLING_IS_ON</span><span class="o">=</span>1 <span class="se">\</span>
@@ -1469,6 +1487,9 @@ $( document ).ready(function() {
   <span class="nt">--extra-arg</span><span class="o">=</span><span class="nt">-Wno-undefined-inline</span> <span class="se">\</span>
   <span class="nv">$flextool_input_files</span> <span class="se">\</span>
   <span class="nt">--cling_scripts</span><span class="o">=</span><span class="nv">$flex_support_header</span>
+
+<span class="c"># open generated file</span>
+<span class="nb">cat </span>Point.cpp.generated.cpp
 </code></pre></div></div>
 
 <p>At the end of the generated file <code class="highlighter-rouge">Point.cpp.generated.cpp</code> must be:</p>
@@ -1489,7 +1510,7 @@ $( document ).ready(function() {
 <span class="p">};</span>
 </code></pre></div></div>
 
-<p>We used flextool without <code class="highlighter-rouge">CMake</code>, but had to run <code class="highlighter-rouge">find</code> in <code class="highlighter-rouge">~/.conan/</code> directory.</p>
+<p>We used flextool without <code class="highlighter-rouge">CMake</code>, but had to run <code class="highlighter-rouge">find</code> in <code class="highlighter-rouge">$conan_home/</code> directory.</p>
 
 <p>You can create custom plugin that will make easier development process and allow to create custom annotation <code class="highlighter-rouge">$apply(ordered)</code> without <code class="highlighter-rouge">_executeCode</code>.</p>
 
@@ -2269,7 +2290,7 @@ but lengthSquared(v) for the length squared.</p>
 
       <div class="footer-col  footer-col-3">
         <p class="text">© 2019</p>
-        <p class="text">Last update: 25.10.2020 14:26:20</p>
+        <p class="text">Last update: 26.10.2020 08:08:59</p>
 
         <p class="text"><a href="/flex_docs/jekyll_how_to/">About this site</a></p>
       </div>
