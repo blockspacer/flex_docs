@@ -221,13 +221,13 @@ export flex_squarets_plugin_so=$(find $conan_home/data/flex_squarets_plugin/mast
 echo flex_squarets_plugin_so=$flex_squarets_plugin_so
 
 # Requires to install https://github.com/blockspacer/cling_conan/
-export cling_include_dir_clang=$(find $conan_home/data/cling_conan/master/conan/stable/package/ -path "*include/clang" | head -n 1)
+export cling_include_dir_clang=$(find $conan_home/data/cling_conan/v0.9/conan/stable/package/ -path "*include/clang" | head -n 1)
 echo cling_include_dir_clang=$cling_include_dir_clang
 
 export cling_include_dir=$(dirname "$cling_include_dir_clang")
 echo cling_include_dir=$cling_include_dir
 
-export clang_include_dir=$(dirname "$cling_include_dir")/lib/clang/5.0.0/include
+export clang_include_dir=$(dirname "$cling_include_dir")/lib/clang/9.0.1/include
 echo clang_include_dir=$clang_include_dir
 
 export chromium_base_include_dir=$(find $conan_home/data/chromium_base/master/conan/stable/package/ -path "*include" | head -n 1)

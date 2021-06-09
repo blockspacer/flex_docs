@@ -206,26 +206,31 @@ git clone http://github.com/foonathan/type_safe.git -b v0.2.1
 
 cd type_safe
 
+export VERBOSE=1
+export CONAN_REVISIONS_ENABLED=1
+export CONAN_VERBOSE_TRACEBACK=1
+export CONAN_PRINT_RUN_COMMANDS=1
+export CONAN_LOGGING_LEVEL=10
+export GIT_SSL_NO_VERIFY=true
+
 # NOTE: change `build_type=Debug` to `build_type=Release` in production
-CONAN_REVISIONS_ENABLED=1 \
-    CONAN_VERBOSE_TRACEBACK=1 \
-    CONAN_PRINT_RUN_COMMANDS=1 \
-    CONAN_LOGGING_LEVEL=10 \
-    GIT_SSL_NO_VERIFY=true \
-    conan create . conan/stable -s build_type=Debug --profile clang --build missing
+conan create . conan/stable -s build_type=Debug --profile clang --build missing
 ```
 
 - corrade
 
 ```bash
+export VERBOSE=1
+export CONAN_REVISIONS_ENABLED=1
+export CONAN_VERBOSE_TRACEBACK=1
+export CONAN_PRINT_RUN_COMMANDS=1
+export CONAN_LOGGING_LEVEL=10
+export GIT_SSL_NO_VERIFY=true
+
 # NOTE: change `build_type=Debug` to `build_type=Release` in production
 git clone http://github.com/mosra/corrade.git && cd corrade
-CONAN_REVISIONS_ENABLED=1 \
-    CONAN_VERBOSE_TRACEBACK=1 \
-    CONAN_PRINT_RUN_COMMANDS=1 \
-    CONAN_LOGGING_LEVEL=10 \
-    GIT_SSL_NO_VERIFY=true \
-    conan create . magnum/stable -s build_type=Debug --profile clang --build missing -tf package/conan/test_package
+
+conan create . magnum/stable -s build_type=Debug --profile clang --build missing -tf package/conan/test_package
 ```
 
 ## Build flextool
@@ -233,22 +238,24 @@ CONAN_REVISIONS_ENABLED=1 \
 Run `conan create` as stated in (latest instructions on github.com) https://github.com/blockspacer/flextool#installation
 
 ```bash
+export VERBOSE=1
+export CONAN_REVISIONS_ENABLED=1
+export CONAN_VERBOSE_TRACEBACK=1
+export CONAN_PRINT_RUN_COMMANDS=1
+export CONAN_LOGGING_LEVEL=10
+export GIT_SSL_NO_VERIFY=true
+
 export CXX=clang++-6.0
 export CC=clang-6.0
 
 # NOTE: change `build_type=Debug` to `build_type=Release` in production
 # NOTE: use --build=missing if you got error `ERROR: Missing prebuilt package`
-CONAN_REVISIONS_ENABLED=1 \
-CONAN_VERBOSE_TRACEBACK=1 \
-CONAN_PRINT_RUN_COMMANDS=1 \
-CONAN_LOGGING_LEVEL=10 \
-GIT_SSL_NO_VERIFY=true \
-    cmake -E time \
-      conan create . conan/stable \
-      -s build_type=Debug -s cling_conan:build_type=Release \
-      --profile clang \
-          -o flextool:enable_clang_from_conan=False \
-          -e flextool:enable_tests=True
+cmake -E time \
+  conan create . conan/stable \
+  -s build_type=Debug -s cling_conan:build_type=Release \
+  --profile clang \
+      -o flextool:enable_clang_from_conan=False \
+      -e flextool:enable_tests=True
 ```
 
 ## Verifying the installation
